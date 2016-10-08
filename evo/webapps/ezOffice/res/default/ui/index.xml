@@ -2,9 +2,9 @@
 <imag mode="develop">
     <script>
     <![CDATA[
-        var versionNumber="V4.1";
+        var versionNumber="V4.3";
        	var dbName = "mobile_evo.db";
-       	var evoUrl = "http://192.168.7.137:9090";
+       	var evoUrl = "http://";
 		
 		$page.onload = function() {
 		    
@@ -135,7 +135,7 @@
 				  storage.setItem('sys_phone',obj.sys_phone);
 				  storage.setItem('sys_empDuty',obj.sys_empDuty);
 				  storage.setItem('sys_location',obj.sys_location);
-				  
+				  storage.setItem('sys_evoword',obj.sys_evoword);
 				  	
 				  storage.setItem('ezMobile_dbName',dbName);
 				  var isCreateDB = storage.getItem('isCreateDB');

@@ -305,8 +305,8 @@
        					}else{
 	       					$scopeId.value = jsonList[i].scopeId;
 	       					$scopeType.value = jsonList[i].scopeType;
-	       					$userId.value = jsonList[i].scopeId;
-	       					$userName.value = jsonList[i].scopeName;
+	       					$userId.value = '';
+	       					$userName.value = '';
 	       					
 	       					if(jsonList[i].scopeId == '*0*'){
 			        			$userId.value = '';
@@ -424,12 +424,12 @@
        			var items = '';
 		       	if(nextActivity.scopeType == 'default_users'){
 	    			items += '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一活动：</label></row></col>'+
-		                     '<col style="padding:10;margin:10;"><row><checkbox ' + isDisabled + ' style="align:right" checked="true" id="activity'+nextActivity.id+'" name="" value="'+nextActivity.id+'">'+nextActivity.name+'</checkbox>'+
+		                     '<col style="padding:10;margin:10;"><row><checkbox ' + isDisabled + ' style="align:right" checked="true" id="activity'+nextActivity.id+'" name="activity" value="'+nextActivity.id+'">'+nextActivity.name+'</checkbox>'+
 		                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.id+'\',\'userName'+nextActivity.id+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
 		       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.id+'" name="userName'+nextActivity.id+'" readonly="true" value="' + userName + '" onclick="selectUser(\'userId'+nextActivity.id+'\',\'userName'+nextActivity.id+'\',\''+scopeId+'\',\'1\')"/>'+
 		       				 '<input type="hidden" name="scopeId" value="' + scopeId + '"/>'+
 		       				 '<input type="hidden" name="userId'+nextActivity.id+'" id="userId'+nextActivity.id+'" value="' + userId + '"/>';
-		       				  pushMustFillArray('userId'+nextActivity.id);
+		       		pushMustFillArray('userId'+nextActivity.id);
 		       	}else if(nextActivity.scopeType == 'scopes_user'){
 		       		if(!nextActivity.scopeName){
 		       			return false;

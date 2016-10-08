@@ -682,7 +682,7 @@
             			</col>
             			<col>
             				<row>
-            					<label reusekey="logAction" style="align:left;font-size:8;color:#38adff"></label>
+            					<label reusekey="logAction" style="align:left;font-size:10;color:#38adff"></label>
             				</row>
             			</col>
             			<col>

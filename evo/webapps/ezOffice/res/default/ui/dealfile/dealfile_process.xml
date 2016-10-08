@@ -316,10 +316,25 @@
 	        
 	        // 打开转办 加签
 	        function openPopMenu(modiButton){
+	            $('main_popupmenu').position='bottomright';
+	            $('main_popupmenu').style='offset-x:5;offset-y:-55';
+	            
+	            $('popupmenu_list').style='';
+	            $('popupmenu_list').clear();
+	            var itemvar = '';
 	        	if(modiButton.indexOf('Tran') < 0){
-		        	$('popupmenu_list').remove($('tranInfoItem'));
+		        	//$('popupmenu_list').remove($('tranInfoItem'));
+		        	itemvar = $C('<list-item><item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col></item></list-item>');
+	                 $('popupmenu_list').add(itemvar);
 	        	}else if(modiButton.indexOf('AddSign') < 0){
-		        	$('popupmenu_list').remove($('addSignItem'));
+		        	//$('popupmenu_list').remove($('addSignItem'));
+		        	itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col></item></list-item>');
+	                 $('popupmenu_list').add(itemvar);
+	        	}else{
+	        	     itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col></item></list-item>');
+	                 $('popupmenu_list').add(itemvar); 
+	                 itemvar = $C('<list-item><item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col></item></list-item>');
+	                 $('popupmenu_list').add(itemvar);
 	        	}
 	       		$('main_popupmenu').open();
 	        }
@@ -394,6 +409,23 @@
 				$('addSign_worksubmittime').value = workInfo.worksubmittime;*/
 			}
 			
+			
+			var subTabelItemContent = '';
+			//当前子表Data
+			var global_subFieldList = '';
+			//当前子表名
+			var global_subTableName = '';
+			//当前子表字段总数
+			var global_subTableFieldlen = 0;
+			//当前子表数据总数（包括已添加的数据）
+			var global_subDatalen=0;
+			//当前子表删除的下标 |分割
+			var global_subDelIndex='';
+			//当前子表可编辑  1:不可编辑 0:可编辑
+			var global_subTableUpdate='0';
+			//当前子表数据总数（不包括已添加的数据）
+			var global_subDatalen_cur=1;
+			
 			// 创建子表数据
 			function createSubTableCon(contentFormList,workInfo,detailData){
 				var itemContent = '';
@@ -417,11 +449,13 @@
 						}else{
 							fieldCount = 0;
 						}
-						itemContent = '<item id="item_' + tableName + '" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList[i].name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+						itemContent = '<item id="item_' + tableName + '" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList[i].name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" placeholder="" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
 						$('item_' + tableName).onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "','"+tableName+"','"+canUpdate+"')";
 						tableNames += tableName+',';
+						
+						global_subDatalen_cur = fieldCount;
 					}
 					//设置子表
 					$('save_subformname').value = tableNames;
@@ -441,32 +475,21 @@
 							}
 						}
 
-						itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+						itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 									  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 
 						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
 						$('item_'+tableName).onclick = "openSubTableCon('"+JSON.stringify(subFieldList)+"','"+tableName+"','"+canUpdate+"')";
 						//设置子表
 						$('save_subformname').value = tableName+',';
+						
+						global_subDatalen_cur = fieldCount;
 				}
 			}
-
 			
-			var subTabelItemContent = '';
-			//当前子表Data
-			var global_subFieldList = '';
-			//当前子表名
-			var global_subTableName = '';
-			//当前子表字段总数
-			var global_subTableFieldlen = 0;
-			//当前子表数据总数
-			var global_subDatalen=0;
-			//当前子表删除的下标 |分割
-			var global_subDelIndex='';
-			//当前子表可编辑  1:不可编辑 0:可编辑
-			var global_subTableUpdate='0';
 			//打开子表
 			function openSubTableCon(subFieldList,tableName,canUpdate){
+			  //  $('leftButton').css('display','none');
 			    global_subTableUpdate = canUpdate;
 			    //有临时存储的数据就取临时数据
 			    if($('json_'+tableName).value!=''&&$('json_'+tableName).value!='[]'){
@@ -483,7 +506,7 @@
 						for(var i=0,length=subFieldList.length;i<length;i++){
 						    var subdataId = subFieldList[i].dataId;
 						    if(global_subTableUpdate=='0'){
-						       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" onclick="deleteIteminList(\''+i+'\');"><col><row><icon src="mail_del.png"/><input type="hidden" id="sub_dataId'+i+'" name="sub_dataId'+i+'" style="display:none;" value="'+subdataId+'"/></row></col></item>';
+						       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" onclick="deleteIteminList(\''+i+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+i+'" name="sub_dataId'+i+'" style="display:none;" value="'+subdataId+'"/></row></col></item>';
 					        }else{
 					           subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'"><col><row></row></col></item>';
 					        }
@@ -493,7 +516,7 @@
 					}else if(subFieldList instanceof Object){
 					    var subdataId = subFieldList.dataId;
 					    if(global_subTableUpdate=='0'){
-					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><icon src="mail_del.png"/><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value="'+subdataId+'"/></row></col></item>';
+					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><label style="align:left;font-size:14;">表1</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value="'+subdataId+'"/></row></col></item>';
 					    }else{
 					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0"><col><row></row></col></item>';
 					    }
@@ -502,43 +525,81 @@
 					}
 				}
 				
-                if(global_subTableUpdate=='0'){
-				   subTabelItemContent += '<item id="item_subaddbutton"><col><row><icon src="mail_addfu.png"  style="width:28;height:28;"/></row></col></item>';
-				}
 				$('subTabel_form_list').update('<imag><list>' + subTabelItemContent + '</list></imag>');
-				if(global_subTableUpdate=='0'){
-				   $('item_subaddbutton').onclick = "addIteminList('"+global_subFieldList+"')";
-				}
+
 				$('subTabel_form_list').css('display','');
 				$('content_form_list').css('display','none');
 				$('subTable_footer_list').css('display','');
 				$('footer_list').css('display','none');
 				createSubTableFoot();
+				//有合计项
+				if(totalFieldcon!=''){
+				  $('topright').css('display','');
+				  $('topright').text="合计项";
+				  $('topright').onclick="sub_total();";
+				}
+			}
+			//合计字段
+	        var totalFieldcon = '';
+	        
+	        //添加合计字段
+	        function pushTotalFieldcon(conId,fieldname){
+
+	        	if(totalFieldcon.indexOf(conId+',')==-1){
+	        	   totalFieldcon += conId+','+fieldname+';';
+	        	}
+	        }
+			function sub_total(){
+
+			   var totalFieldcons = totalFieldcon.split(";");
+			   $('main_popupmenu').position='center';
+			   $('main_popupmenu').style='width:260;height:260;border:1 white;background:white;';
+			   
+			   $('popupmenu_list').style="border:0 white;";
+			   $('popupmenu_list').clear();
+			   
+               var itemtot = $C('<list-item><item><col><row><label style="color:#38adff;align:center;font-size:16;">合计项</label></row></col></item></list-item>');
+	           $('popupmenu_list').add(itemtot); 
+			   for(var i=0,length=totalFieldcons.length;i<length;i++){
+			       
+			       if(totalFieldcons[i]!=''){
+			         var ff = totalFieldcons[i].split(",");
+			         var sumd = 0;
+			         for(var j=0;j<global_subDatalen;j++){
+			            //没有被删除的数据
+				        if(global_subDelIndex.indexOf('|'+j+'|')==-1){
+			               var thisvalue=$(ff[0]+j).value;
+			               if(thisvalue==''){thisvalue=0;}
+			               sumd = eval(sumd) + eval(thisvalue);
+			               sumd = sumd.toFixed(2);
+			            }
+			         }
+			         var itemtot = $C('<list-item><item><col><row><label style="color:#38adff;font-size:14;">'+ff[1]+'合计：</label><label style="color:#38adff;font-size:14;" >'+sumd+'</label></row></col></item></list-item>');
+	                 $('popupmenu_list').add(itemtot); 
+			       }
+	        		
+	        	}
+	        	$('main_popupmenu').open();
 			}
 			//新增子表数据
 			function addIteminList(subFieldList){
-
-                //alert(subFieldList);
-                //删除新增按钮
-                $('subTabel_form_list').remove($('item_subaddbutton'));
                 
                 var subFieldList = JSON.parse(subFieldList);
                 var subTabelItemContentAdd = '';
 				if(subFieldList instanceof Array){
-				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><icon src="mail_del.png"/><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
+				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
 				    subTabelItemContentAdd += createSubTableField_add(subFieldList[0].field,global_subDatalen);
 				    
 				}else if(subFieldList instanceof Object){
 				
-				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><icon src="mail_del.png"/><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
+				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
 					subTabelItemContentAdd += createSubTableField_add(subFieldList.field,global_subDatalen);
 				}
 				global_subDatalen = global_subDatalen+1;
-				//增加新增按钮
-				subTabelItemContentAdd += '<item id="item_subaddbutton"><col><row><icon src="mail_addfu.png"  style="width:28;height:28;"/></row></col></item>';
-				//alert(subTabelItemContentAdd);
 				$('subTabel_form_list').addMore('<imag><list>' + subTabelItemContentAdd + '</list></imag>');
-				$('item_subaddbutton').onclick = "addIteminList('"+global_subFieldList+"')";
+				
+				global_subDatalen_cur=global_subDatalen_cur+1;
+				$('sub_overbutton').text="完成("+global_subDatalen_cur+")";
 
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
@@ -556,12 +617,17 @@
 			}
 			//删除子表数据 x：数据下标
 			function deleteIteminList(x){
-
+              if(global_subDatalen_cur==1){
+                return;
+              }
               for(var i=0;i<global_subTableFieldlen;i++){
 			    $('subTabel_form_list').remove($('item_subfield_'+global_subTableName+x+i));
 			  }
 			  $('subTabel_form_list').remove($('item_subbutton_'+global_subTableName+x));
 			  global_subDelIndex += '|'+x+'|';
+			  
+			  global_subDatalen_cur=global_subDatalen_cur-1;
+			  $('sub_overbutton').text="完成("+global_subDatalen_cur+")";
 
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
@@ -589,6 +655,11 @@
 	        	var mustfilled_view = '';
         	    if(mustfilled && mustfilled=='1'){
         	       mustfilled_view = '<label style="align:left;font-size:12;color:#FF4617">*</label>';
+        	    }
+        	    //设置合计字段
+        	    var totfield = field.totfield;
+		        if(totfield=='0'){
+        	       pushTotalFieldcon('_sub_' + field.sysname,field.name);
         	    }
 
 			   if(showType == '101' && readWrite == '1'){
@@ -763,7 +834,10 @@
 	        		subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//流程发起人
 	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.value + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + field.value + '"/></row>';
-	        	
+	        	}else if(showType == '113' || showType == '115' || showType == '116' || showType == '117' || showType == '118'){
+	        		subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
+	        		subTabelItemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
+	        	    pushMustFillArray(mustfilled,field.name,'_sub_' + field.sysname+i);
 	        	}else{            // 只读数据
 	        		subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.value + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + field.value + '"/></row>';
@@ -942,17 +1016,23 @@
 	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.value + '</label><input type="hidden" name="_sub_' + field.sysname +i+ '" value="' + field.value + '"/></row>';
 	        	}else if(showType == '808' && readWrite == '1'){
 	        		itemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label></row>';
+	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
 	        	}else if(showType == '404' && readWrite == '1'){
 	        		itemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label></row>';
+	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
 	        	}else if(showType == '405' && readWrite == '1'){
 	        		itemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label></row>';
-	        	
+	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
+	        	}else if(showType == '113' && showType == '115' && showType == '116' && showType == '117' && showType == '118'){
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
+	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
+	        	}else if(showType == '113' || showType == '115' || showType == '116' || showType == '117' || showType == '118'){
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
+	        		itemContent += '<row><label style="align:left;font-size:12;color:#FF4617">该字段暂不支持手机办理，请于电脑端操作...</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
+	        	    pushMustFillArray(mustfilled,field.name,'_sub_' + field.sysname+i);
 	        	}else{            // 只读数据
 	        		itemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;"></label></row>';
+	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;"></label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value=""/></row>';
 	        	}
 	        	itemContent += '</col></item>';
 	        	
@@ -964,29 +1044,41 @@
 				$('subTable_footer_list').clear();
 				var footContent = '';
 				if(global_subTableUpdate=='0'){
-				    footContent = 			
+				    var footContent = 			
 			        	'<item>'+
 							'<col><row style="height:50;"><button onclick="goBack();" '+
-									'style="padding-right:10;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:150;height:38;font-size:14">返回</button></row></col>'+
-							'<col><row style="height:50;"><button onclick="goBackSaveSubForm();" '+
-									'style="padding-left:10;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:150;height:38;font-size:14">确定</button></row></col>'+
+									'style="padding:2;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">返回主表</button></row></col>'+
+							'<col><row style="height:50;"><button id="sub_addbutton" '+
+									'style="padding:2;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">新增</button></row></col>'+
+							'<col><row style="height:50;"><button id="sub_overbutton" onclick="goBackSaveSubForm();" '+
+									'style="padding:2;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">完成('+global_subDatalen_cur+')</button></row></col>'+
 						'</item>';
+					$('subTable_footer_list').addMore('<imag><list>' + footContent + '</list></imag>');
+					$('sub_addbutton').onclick = "addIteminList('"+global_subFieldList+"')";
 				 }else{
 				    footContent = 			
 			        	'<item>'+
 							'<col><row style="height:50;"><button onclick="goBack();" '+
-									'style="padding-right:10;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">返回</button></row></col>'+
+									'style="padding-right:10;align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">返回主表</button></row></col>'+
 						'</item>';
+					$('subTable_footer_list').addMore('<imag><list>' + footContent + '</list></imag>');
 				 }
-				$('subTable_footer_list').addMore('<imag><list>' + footContent + '</list></imag>');
+				
 			}
 			
 			// 子表返回主表界面
 			function goBack(){
+			 //   $('leftButton').css('display','block');
 				$('subTabel_form_list').css('display','none');
 				$('content_form_list').css('display','');
 				$('subTable_footer_list').css('display','none');
 				$('footer_list').css('display','');
+				//有合计项
+				if(totalFieldcon!=''){
+				  $('topright').css('display','none');
+				  $('topright').text="";
+				  $('topright').onclick=";";
+				}
 			}
 			//保存数据的json
 			var _subfieldjson='';
@@ -1042,11 +1134,17 @@
                 //设置临时数据
                 $('json_'+global_subTableName).value = _subfieldjson;
 				$(global_subTableName).value=subFormxml;
-				
+			//	$('leftButton').css('display','block');
 				$('subTabel_form_list').css('display','none');
 				$('content_form_list').css('display','');
 				$('subTable_footer_list').css('display','none');
 				$('footer_list').css('display','');
+				//有合计项
+				if(totalFieldcon!=''){
+				  $('topright').css('display','none');
+				  $('topright').text="";
+				  $('topright').onclick=";";
+				}
 			}
 			function getSubTableFieldValue(fields,k){
                 var _subfieldxml='';
@@ -1072,7 +1170,8 @@
 						   _subfieldxml += '</field>';
 						   
 						   _subfieldjson += '{"id":"'+fields[i].id+'","sysname":"'+fields[i].sysname+'","name":"'+fields[i].name+'","showtype":"'+fields[i].showtype+'","value":"'+chkstr+'","hiddenval":"'+chkstr+'","expressionval":"'+fields[i].expressionval+'","readwrite":"'+fields[i].readwrite+'","fieldtype":"'+fields[i].fieldtype+'","mustfilled":"'+fields[i].mustfilled+'"'+dataListJson+'},';
-					   }else if(fields[i].showtype=='210'||fields[i].showtype=='211'||fields[i].showtype=='212'||fields[i].showtype=='214'||fields[i].showtype=='704'||fields[i].showtype=='705'){  //都是选人框
+					   }else if(fields[i].showtype=='210'||fields[i].showtype=='211'||fields[i].showtype=='212'||
+					       fields[i].showtype=='214'||fields[i].showtype=='704'||fields[i].showtype=='705'){  //都是选人框
 
 					      var dataListJson = '';
 					      if(fields[i].dataList){
@@ -1089,6 +1188,7 @@
 						   _subfieldjson += '{"id":"'+fields[i].id+'","sysname":"'+fields[i].sysname+'","name":"'+fields[i].name+'","showtype":"'+fields[i].showtype+'","value":"'+showvalue+'","hiddenval":"'+hidevalue+'","expressionval":"'+fields[i].expressionval+'","readwrite":"'+fields[i].readwrite+'","fieldtype":"'+fields[i].fieldtype+'","mustfilled":"'+fields[i].mustfilled+'"'+dataListJson+'},';
 						  
 					   }else{
+
 					       var dataListJson = '';
 					       if(fields[i].dataList){
 					         dataListJson = ',"dataList":'+JSON.stringify(fields[i].dataList);
@@ -2006,6 +2106,9 @@
             	<button role="back"></button>
             </left>
             <center><label id="centerTitle">流程表单</label></center>
+            <right>
+            	<button id="topright"></button>
+            </right>
         </title>
         <header id="headers" style="display:none">
         	<tabbar id="tabbar" style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;">
@@ -2014,14 +2117,9 @@
                 <item label="流程记录" onclick="loadFlowRecord();"></item>
             </tabbar>
         </header>
-        <popupmenu id="main_popupmenu" position="bottomright" style="offset-x:5;offset-y:-55">
+        
+        <popupmenu id="main_popupmenu">
 			<list id="popupmenu_list">
-				<item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;">
-	         		<col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col>
-	         	</item>            
-	         	<item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;">
-	         		<col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col>
-	         	</item>
 		    </list>
 		</popupmenu>
 		<contents id="contents">
@@ -2125,7 +2223,7 @@
             			</col>
             			<col>
             				<row>
-            					<label reusekey="logAction" style="align:left;font-size:8;color:#38adff"></label>
+            					<label reusekey="logAction" style="align:left;font-size:10;color:#38adff"></label>
             				</row>
             			</col>
             			<col>

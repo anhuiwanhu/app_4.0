@@ -16,9 +16,26 @@
         var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
           
 		$page.onload = function() {
-
+			addUsOr();
             loadpersonList('');
 		}
+		
+		function addUsOr(){
+			var newStr1 = selectUserIds.replace(/(\$\$)/g,'$,$');
+			var newStr2 = newStr1.replace(/(\*\$)/g,'*,$');
+			var newStr3 = newStr2.replace(/(\*\*)/g,'*,*');
+			var newStr4 = newStr3.replace(/(\$\*)/g,'$,*');
+			var str11 = newStr4.split(",");
+			var str22 = selectUserNames.split(",");
+			for(var i=0;i<str11.length;i++){
+				if(str11[i].indexOf("$")>-1){
+					addMult("user",str11[i],str22[i]);
+				}else if(str11[i].indexOf("*")>-1){
+					addMult("org",str11[i],str22[i]);
+				}
+			}
+		}
+		
 		function setSelected(type,obj,id,name){
 
 		    if(obj.checked){
@@ -158,8 +175,7 @@
 						   var sel = "";
 						   if(selectUserIds.indexOf("*"+orgId+"*")>-1){
 							sel = ' checked=\'true\' ';
-
-							addMult("org",orgId,orgName);
+							//addMult("org",orgId,orgName);
 						  }
 						   $('list_org').add($C('<list-item>'+
 								'<item id="org'+orgId+'" collapsed="true" indent="20" onclick="createItem(this,\''+orgId+'\');'+hasacc+'" >'+
@@ -189,7 +205,7 @@
 						   if(selectUserIds.indexOf("*"+orgId+"*")>-1){
 							sel = ' checked=\'true\' ';
 	
-							addMult("org",orgId,orgName);
+							//addMult("org",orgId,orgName);
 						  }
 	
 						   $('list_org').add($C('<list-item>'+
@@ -248,7 +264,7 @@
                        var sel = "";
 			           if(selectUserIds.indexOf("*"+orgId+"*")>-1){
 			            sel = ' checked=\'true\' ';
-			            addMult("org",orgId,orgName);
+			            //addMult("org",orgId,orgName);
 			          }
 			           parentObj.add($C('<list-item>'+
 							'<item id="org'+orgId+'" collapsed="true" indent="20" onclick="createItem(this,\''+orgId+'\');'+hasacc+';"  >'+
@@ -284,7 +300,7 @@
 				           var sel = "";
 				           if(selectUserIds.indexOf("*"+orgId+"*")>-1){
 				            sel = ' checked=\'true\' ';
-				            addMult("org",orgId,orgName);
+				            //addMult("org",orgId,orgName);
 				          }
                        
 				           parentObj.add($C('<list-item>'+
@@ -315,7 +331,7 @@
 				           var sel = "";
 				           if(selectUserIds.indexOf("$"+userId+"$")>-1){
 				            sel = ' checked=\'true\' ';
-				            addMult("user",userId,userName);
+				            //addMult("user",userId,userName);
 				          }
 				           
 				           parentObj.add($C('<list-item>'+
@@ -383,7 +399,7 @@
 				          var sel = false;
 				          if(selectUserIds.indexOf("$"+userId+"$")>-1){
 				            sel = true;
-				            addMult("user",userId,userName);
+				            //addMult("user",userId,userName);
 				          }
 				          var itemJson = {
 		                    template:0,
@@ -406,7 +422,7 @@
 				          var sel = false;
 				          if(selectUserIds.indexOf("$"+userId+"$")>-1){
 				            sel = true;
-				            addMult("user",userId,userName);
+				            //addMult("user",userId,userName);
 				          }
 				          var itemJson = {
 		                    template:0,
@@ -474,7 +490,7 @@
 				          var sel = false;
 				          if(selectUserIds.indexOf("$"+userId+"$")>-1){
 				            sel = true;
-				            addMult("user",userId,userName);
+				            //addMult("user",userId,userName);
 				          }
 				          var itemJson = {
 		                    template:0,
@@ -497,7 +513,7 @@
 				          var sel = false;
 				          if(selectUserIds.indexOf("$"+userId+"$")>-1){
 				            sel = true;
-				            addMult("user",userId,userName);
+				            //addMult("user",userId,userName);
 				          }
 				          var itemJson = {
 		                    template:0,

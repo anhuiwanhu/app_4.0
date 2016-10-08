@@ -204,165 +204,168 @@
 	        function createFormData(govDocDetail,detailData,workInfo,workInfoData){
 	            var commentList = workInfoData.commentList;   //已办审批意见列表
 	            var workcurstep = workInfoData.workInfo.workcurstep;    //当前审批意见名称
-	        	if(govDocDetail.sendFileCheckTitle){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendFileCheckTitle.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileCheckTitle.text == undefined ? '' : govDocDetail.sendFileCheckTitle.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.sendFileCheckComeUnit){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendFileCheckComeUnit.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileCheckComeUnit.text == undefined ? '' : govDocDetail.sendFileCheckComeUnit.text)+'</label></row></col></item>';
-	        	}
-	        	// 正文
-	        	/*
-	        	if(detailData.docRealFile && detailData.docSaveFile){
-	        	}
-	        	*/
-	        	// 附件
-	        	if(detailData.realFile && detailData.saveFile){
-	        		realFiles = detailData.realFile;
-	        		saveFiles = detailData.saveFile;
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
-	        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
-	        	}
-	        	if(govDocDetail.field1){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field1.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field1.text && govDocDetail.field1.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field1.text + ';field1');
-	        			}
-	        			itemContent += '<col id="field1" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field1.text == undefined ? '' : govDocDetail.field1.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field2){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field2.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field2.text && govDocDetail.field2.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field2.text + ';field2');
-	        			}
-	        			itemContent += '<col id="field2" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field2.text == undefined ? '' : govDocDetail.field2.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field3){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field3.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field3.text && govDocDetail.field3.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field3.text + ';field3');
-	        			}
-	        			itemContent += '<col id="field3" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field3.text == undefined ? '' : govDocDetail.field3.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field4){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field4.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field4.text && govDocDetail.field4.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field4.text + ';field4');
-	        			}
-	        			itemContent += '<col id="field4" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field4.text == undefined ? '' : govDocDetail.field4.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field5){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field5.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field5.text && govDocDetail.field5.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field5.text + ';field5');
-	        			}
-	        			itemContent += '<col id="field5" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field5.text == undefined ? '' : govDocDetail.field5.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field6){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field6.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field6.text && govDocDetail.field6.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field6.text + ';field6');
-	        			}
-	        			itemContent += '<col id="field6" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field6.text == undefined ? '' : govDocDetail.field6.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field7){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field7.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field7.text && govDocDetail.field7.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field7.text + ';field7');
-	        			}
-	        			itemContent += '<col id="field7" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field7.text == undefined ? '' : govDocDetail.field7.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field8){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field8.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field8.text && govDocDetail.field8.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field8.text + ';field8');
-	        			}
-	        			itemContent += '<col id="field8" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field8.text == undefined ? '' : govDocDetail.field8.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field9){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field9.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field9.text && govDocDetail.field9.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field9.text + ';field9');
-	        			}
-	        			itemContent += '<col id="field9" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field9.text == undefined ? '' : govDocDetail.field9.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field10){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field10.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field10.text && govDocDetail.field10.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field10.text + ';field10');
-	        			}
-	        			itemContent += '<col id="field10" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field10.text == undefined ? '' : govDocDetail.field10.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}	
+	            
+	            for(var key in govDocDetail) {
+		        	if(key=='sendFileCheckTitle'&&govDocDetail.sendFileCheckTitle){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendFileCheckTitle.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileCheckTitle.text == undefined ? '' : govDocDetail.sendFileCheckTitle.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='sendFileCheckComeUnit'&&govDocDetail.sendFileCheckComeUnit){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendFileCheckComeUnit.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileCheckComeUnit.text == undefined ? '' : govDocDetail.sendFileCheckComeUnit.text)+'</label></row></col></item>';
+		        	}
+		        	// 正文
+		        	/*
+		        	if(detailData.docRealFile && detailData.docSaveFile){
+		        	}
+		        	*/
+		        	// 附件
+		        	if(key=='saveFile'&&detailData.realFile && detailData.saveFile){
+		        		realFiles = detailData.realFile;
+		        		saveFiles = detailData.saveFile;
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
+		        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
+		        	}
+		        	if(key=='field1'&&govDocDetail.field1){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field1.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field1.text && govDocDetail.field1.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field1.text + ';field1');
+		        			}
+		        			itemContent += '<col id="field1" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field1.text == undefined ? '' : govDocDetail.field1.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field2'&&govDocDetail.field2){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field2.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field2.text && govDocDetail.field2.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field2.text + ';field2');
+		        			}
+		        			itemContent += '<col id="field2" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field2.text == undefined ? '' : govDocDetail.field2.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field3'&&govDocDetail.field3){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field3.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field3.text && govDocDetail.field3.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field3.text + ';field3');
+		        			}
+		        			itemContent += '<col id="field3" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field3.text == undefined ? '' : govDocDetail.field3.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field4'&&govDocDetail.field4){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field4.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field4.text && govDocDetail.field4.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field4.text + ';field4');
+		        			}
+		        			itemContent += '<col id="field4" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field4.text == undefined ? '' : govDocDetail.field4.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field5'&&govDocDetail.field5){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field5.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field5.text && govDocDetail.field5.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field5.text + ';field5');
+		        			}
+		        			itemContent += '<col id="field5" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field5.text == undefined ? '' : govDocDetail.field5.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field6'&&govDocDetail.field6){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field6.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field6.text && govDocDetail.field6.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field6.text + ';field6');
+		        			}
+		        			itemContent += '<col id="field6" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field6.text == undefined ? '' : govDocDetail.field6.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field7'&&govDocDetail.field7){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field7.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field7.text && govDocDetail.field7.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field7.text + ';field7');
+		        			}
+		        			itemContent += '<col id="field7" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field7.text == undefined ? '' : govDocDetail.field7.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field8'&&govDocDetail.field8){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field8.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field8.text && govDocDetail.field8.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field8.text + ';field8');
+		        			}
+		        			itemContent += '<col id="field8" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field8.text == undefined ? '' : govDocDetail.field8.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field9'&&govDocDetail.field9){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field9.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field9.text && govDocDetail.field9.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field9.text + ';field9');
+		        			}
+		        			itemContent += '<col id="field9" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field9.text == undefined ? '' : govDocDetail.field9.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field10'&&govDocDetail.field10){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field10.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field10.text && govDocDetail.field10.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field10.text + ';field10');
+		        			}
+		        			itemContent += '<col id="field10" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field10.text == undefined ? '' : govDocDetail.field10.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}	
+		        	}
 	        	}
  
 	        	// 自定义字段集合批示意见
@@ -413,7 +416,17 @@
 	        	
 	        	// 批示意见对应字段workInfo.commentField
 	        	if(workInfo.commentField != '' && workInfo.commentField != 'nullCommentField' && workInfo.commentField != '-1'){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">新增意见:</label></row></col>'+
+	        		var workcurstep = workInfoData.workInfo.workcurstep;
+	        		var commentField = workInfoData.workInfo.commentField;  
+	        	/*    var workcurstep = '';       //批示意见完全按照返回数据进行判断的
+		        	if(','+'SENDFILECHECK_WRITERCOMMENT'+',' == commentField){
+		        		workcurstep = '批示意见';
+		        	}else if('sendFileCheckLeaderComment' == commentField){
+		        		workcurstep = '意见';
+		        	}else{
+		        		workcurstep = '新增意见';
+		        	} */
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+workcurstep+':</label></row></col>'+
 		        				   '<col  style="margin:10;padding:10;"><row><textarea name="comment_input" rows="5" id="comment_input"></textarea></row></col></item>';
 	        	}
 	        	// 退回意见
@@ -517,7 +530,7 @@
 						        	'<item style="">'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',' + workInfo.worktitle + ',' + workInfo.worksubmittime + ',' + empLivingPhoto + ');" '+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" '+
 												'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
@@ -534,7 +547,7 @@
 										'</col>'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">发送</button>'+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
 										'<col>'+
@@ -553,7 +566,7 @@
 										'</col>'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:125;height:38;font-size:14">发送</button>'+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:125;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
 									'</item>';
@@ -952,7 +965,7 @@
             			</col>
             			<col>
             				<row>
-            					<label reusekey="logAction" style="align:left;font-size:8;color:#38adff"></label>
+            					<label reusekey="logAction" style="align:left;font-size:10;color:#38adff"></label>
             				</row>
             			</col>
             			<col>

@@ -328,7 +328,7 @@
 			     var obj = JSON.parse(data);
 			     var result = obj.message.result;
 			     if(result =="1"){
-			     	var objArr = obj.data.infomationChannel; //返回列表数组
+			     	var objArr = obj.data.informationChannel; //返回列表数组
 			     	if(objArr instanceof Array){
 			     		for(var i=0;i<objArr.length;i++){
 			     			var channelId = objArr[i].channelId;

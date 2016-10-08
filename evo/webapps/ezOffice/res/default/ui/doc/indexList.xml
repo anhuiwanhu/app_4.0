@@ -5,7 +5,6 @@
         var loadFlag = '0';  //函数执行置为1，提交之前进行判断，若为1，则禁止 提交，防重复提交
       //  var currPage;
         var pagerOffset=0;
-        var hasMore;
         
          //页面家在完成后执行
         $page.onload = function() {
@@ -47,10 +46,14 @@
         
         //更新缓存数据并刷新页面
        function updateCache(){
+            pagerOffset = 0 ;
+            $('bottom_hasmore').css('display','hidden');
+	        $('bottom_load').css('display','');
+	        $('indexContent').showBottom();
             $('docList').clear();
        		var storage = $phone.localStorage();
 		    var evoUrl = storage.getItem('evoUrl');	
-            $http.post(evoUrl+'/ezOffice/doc/index.do',{pagerOffset:pagerOffset},  function(data) {
+            $http.post(evoUrl+'/ezOffice/doc/index.do',{pagerOffset:'0'},  function(data) {
 		            var jsonData = eval('('+data+')');
 		            if(jsonData){
 		        	  DbToCacheData(jsonData);
@@ -72,6 +75,9 @@
         
         //将获取到的数据存入缓存
         function DbToCacheData(obj) {
+              $('bottom_hasmore').css('display','hidden');
+	          $('bottom_load').css('display','');
+	          $('indexContent').showBottom();
               var storage = $phone.localStorage();
            	  var dbName = storage.getItem('ezMobile_dbName');
               var db = $phone.openDatabase(dbName);
@@ -80,7 +86,6 @@
                    if(obj){
 				        tx.executeSql('delete from doc_list ');
 	                    var result = obj.message.result;
-	                    pagerOffset = obj.data.pagerOffset;
 	                    var recordCount = obj.data.recordCount;
 		        		if(result == '1'){
 		        		    var objArr = obj.data.result; //返回列表数组
@@ -107,9 +112,9 @@
 				                        localWriteOrg = localWriteOrg.substring(localWriteOrg.lastIndexOf('.')+1,localWriteOrg.length);
 				                    }
 			        				var doc_sql = 'insert into doc_list(picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,'+
-			        				'accessoryName,writeOrg,byteNumber,userIsReaded,pagerOffset,recordCount,userId) '+
+			        				'accessoryName,writeOrg,byteNumber,userIsReaded,recordCount,userId) '+
 			        				' values("'+picAddress+'","'+handOutTime+'","'+localTitle+'","'+localWriteOrg+'","'+objArr[i].goldGridId+'","'+objArr[i].title+'","'+objArr[i].wordType+'","'+objArr[i].id+'","'+
-			        				objArr[i].accessoryName+'","'+objArr[i].writeOrg+'","'+objArr[i].byteNumber+'","'+objArr[i].userIsReaded+'","'+pagerOffset+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
+			        				objArr[i].accessoryName+'","'+objArr[i].writeOrg+'","'+objArr[i].byteNumber+'","'+objArr[i].userIsReaded+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
 			        				tx.executeSql(doc_sql);
 			        			}
 		        			}else if(objArr instanceof Object){
@@ -133,12 +138,11 @@
 				                        localWriteOrg = localWriteOrg.substring(localWriteOrg.lastIndexOf('.')+1,localWriteOrg.length);
 				                    }
 			        				var doc_sql = 'insert into doc_list(picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,'+
-			        				'accessoryName,writeOrg,byteNumber,userIsReaded,pagerOffset,recordCount,userId) '+
+			        				'accessoryName,writeOrg,byteNumber,userIsReaded,recordCount,userId) '+
 			        				' values("'+picAddress+'","'+handOutTime+'","'+localTitle+'","'+localWriteOrg+'","'+objArr.goldGridId+'","'+objArr.title+'","'+objArr.wordType+'","'+objArr.id+'","'+
-			        				objArr.accessoryName+'","'+objArr.writeOrg+'","'+objArr.byteNumber+'","'+objArr.userIsReaded+'","'+pagerOffset+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
+			        				objArr.accessoryName+'","'+objArr.writeOrg+'","'+objArr.byteNumber+'","'+objArr.userIsReaded+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
 			        				tx.executeSql(doc_sql);
 		        			}
-		        			
 		        		}else{
 		        			//查询数据异常
 		        			noDataContent(listJson,itemJson);
@@ -161,7 +165,7 @@
 		    var db = $phone.openDatabase(dbName);
 	        db.transaction(queryDocListDB, function(err){alert(err);}, function(){});
 	        function queryDocListDB(tx) {
-					tx.executeSql('select picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,accessoryName,writeOrg,byteNumber,userIsReaded,pagerOffset,recordCount from doc_list',[],
+					tx.executeSql('select picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,accessoryName,writeOrg,byteNumber,userIsReaded,recordCount from doc_list',[],
 					function(results){
 						 if(results.rows!=null && results.rows.length>0){
 							    for(var i=0; i<results.rows.length; i++){
@@ -177,7 +181,6 @@
 							    	 var writeOrg = results.rows.item(i).writeOrg;
 							    	 var byteNumber = results.rows.item(i).byteNumber;
 							    	 var userIsReaded = results.rows.item(i).userIsReaded;
-							    	 pagerOffset = results.rows.item(i).pagerOffset;
 							    	 recordCount = results.rows.item(i).recordCount;
 							    	 itemJson = {
 					                        template : 1,
@@ -201,9 +204,8 @@
 						 }
 					} , function(err){alert(err);}); 
 			  }
-			  pagerOffset = parseInt(pagerOffset)+15;
-               // alert(pagerOffset);
-              if(parseInt(recordCount) > parseInt(pagerOffset)){
+			  pagerOffset=15;  //点击加载更多，需要置为15
+              if(parseInt(recordCount) > 15){
        				$('bottom_hasmore').css('display','');
        		  }else{
        				$('bottom_hasmore').css('display','none');
@@ -219,7 +221,7 @@
         
          //检索列表查询方法
         function searchDoc(){
-        	pagerOffset = '0';
+        	pagerOffset = 0;
         	if($('search').value == ''){
            		updateCache();
            }else{
@@ -381,6 +383,7 @@
         
         
         function refreshPage(){
+           pagerOffset = 0;
            $('indexContent').hideTop();
            if($('search').value == ''){
            		updateCache();

@@ -280,7 +280,7 @@
 					                    	style = 'color:red;font-size:16;' ;
 					                    }
 				        				var infor_sql = 'insert into information_list(informationKits,informationCommonNum,informationIssueTime,style,informationTitle,informationId,informationType,channelId,userId,pagerOffset,recordCount,id) '+
-							        	' values("'+informationKits+'","'+informationCommonNum+'","'+informationIssueTime+'","'+style+'","'+objArr.informationTitle+'","'+objArr.informationId+'","'+objArr.informationType+'","'+objArr.channelId+'","'+storage.getItem('sys_sys_userId')+'","'+pagerOffset+'","'+recordCount+'","'+recordCount+'","'+contentIdIndex+userDefine+userDefine+'")';
+							        	' values("'+informationKits+'","'+informationCommonNum+'","'+informationIssueTime+'","'+style+'","'+objArr.informationTitle+'","'+objArr.informationId+'","'+objArr.informationType+'","'+objArr.channelId+'","'+storage.getItem('sys_sys_userId')+'","'+pagerOffset+'","'+recordCount+'","'+contentIdIndex+userDefine+userDefine+'")';
 							        	tx.executeSql(infor_sql);
 			        			}
 			        		}else{

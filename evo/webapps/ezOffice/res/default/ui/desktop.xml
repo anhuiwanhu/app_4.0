@@ -1182,26 +1182,40 @@
 		     loadFlag = '0';
 		}
 		
+		var bmap = $("bmap");
 		function register(){
-		    $phone.locate({
-			   provider: 'network',
-			   success: function(location) {
-			       //alert('定位成功，经纬度：' + location.latitude + ', ' + location.longitude + ',\n地址：' + location.address);
-			       var address = location.address;
-			       currentAddress = address;
-			       if(isSign == "yes"){   //签退中...
-			      	   $('register').style="margin-left:10;align:center;background:desk_percenter_bg_btn5.png,desk_percenter_bg_btn5_g.png";
- 			 	   }else{
-			           $('register').style="margin-left:10;align:center;background:desk_percenter_bg_btn2.png,desk_percenter_bg_btn2_g.png";
-			       }
-			       sign(address);
-			   },
-			   error: function() {
-			       alert('定位失败！');
-			       return;
-			   }
-			});
+            bmap.startLocation({   //掉出百度地图获取位置
+                 onReceiveLocation: function(location) {
+                   var latitude = location.latitude+'';
+                   var longitude = location.longitude+'';
+                   bmap.stopLocation();  //停止定位
+                 // alert(latitude);alert(longitude);
+                   if((latitude.indexOf('-')==-1)&&(longitude.indexOf('-')==-1)){
+  						 searchReverseGeoCode(latitude,longitude);
+				   }else{
+  						 alert("定位失败，请重新定位！");
+  						 return;
+				   }
+                 }
+            }); 
 		}
+		
+		function searchReverseGeoCode(latitude,longitude) {  //根据经纬度获取具体位置
+                bmap.reverseGeoCode({
+                    location: latitude + ',' + longitude,
+                    onGetReverseGeoCodeResult: function(result) {
+                        if(isSign == "yes"){   //签退中...
+			      	   		$('register').style="margin-left:10;align:center;background:desk_percenter_bg_btn5.png,desk_percenter_bg_btn5_g.png";
+ 			 	   		}else{
+			           		$('register').style="margin-left:10;align:center;background:desk_percenter_bg_btn2.png,desk_percenter_bg_btn2_g.png";
+			            }
+			            var address = result.poiInfos[0].address;
+			           	currentAddress = address;
+                        sign(address);
+                    }
+                });
+                
+       }
 		
          function sign(address){
              if(loadFlag == '1'){
@@ -1366,6 +1380,8 @@
 		            <list id="personcenter_list" style="background:#ffffff">
 					   
 		            </list>
+		            <bmap id="bmap" center="39.915,116.404" zoom="14" style="display:hidden;">
+           			</bmap>
 		        </content>
              </tab>
              <tab id="linkbook" label="通讯录" icon="desk_linkman_g.png,desk_linkman.png">

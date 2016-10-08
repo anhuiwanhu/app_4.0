@@ -9,11 +9,13 @@
         	var	workStatus = storage.getItem('workflow_workStatus');
 	        var workId = storage.getItem('workflow_workId');
 	        var webServiceUrl = storage.getItem('webServiceUrl');
+	        var evoword = storage.getItem('sys_evoword');
 	        var realFiles;
 	        var saveFiles;
 	        var passRoundCommField = '';
 	        var itemContent = '';
 	        var officeList = '';
+	        var oaUrl = '';
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -32,6 +34,7 @@
         				var workInfo = jsonData.data_0.data.workInfo;
         				passRoundCommField = workInfo.passRoundCommField;
 						var detailData = jsonData.data_1.data;
+						oaUrl = jsonData.data_1.oaUrl;
 						var $contentFormList = $('content_form_list');
 						//创建流程图
        					createFlowImg(workInfo.flowgraphurl);
@@ -173,23 +176,33 @@
         	var wordType;
         	var docTitle = '';
         	function createDocView(){
-				$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
-	                 var obj =eval('('+data+')');
-	                 var docUrl="$http.download('"+obj.sys_server+"doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"');";
-	                 $('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="'+docUrl+'">点击查看正文</label>'));
-	            },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				  });
+				if(evoword =='1' && (workStatus=='0' || workStatus=='2')){
+					$('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="doWps();">编辑正文</label>'));
+				}else{
+					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
+		                 var obj =eval('('+data+')');
+		                 var docUrl="$http.download('"+obj.sys_server+"doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"');";
+		                 $('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="'+docUrl+'">查看正文</label>'));
+		            },function(error) {
+					    if (error == 'timeout') {
+							hint('连接服务器超时！');
+					    } else if (error == '404') {
+							hint('链接超时重新登录！');
+					    } else if (error == '500') {
+							hint('内部服务器错误！');
+					    } else {
+							hint('访问网络错误！错误代码:' + error);
+					    }
+					  });
+				}
         	}
         
+        	function doWps(){
+        	   var un = storage.getItem('sys_userName');
+	           $wps.open(oaUrl+'public/iWebOfficeSign/OfficeServer.jsp',
+	            {fileId:filename,userName:un,fileType:wordType,moduleType:'govdocument',enterReviseMode:true},{success:function(s){},error:function(s){alert(s)}});
+        	}
+        	
 	        //全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
@@ -240,287 +253,291 @@
 	        function createFormData(govDocDetail,detailData,workInfoData){
 	            var commentList = workInfoData.commentList;   //已办审批意见列表
 	            var workcurstep = workInfoData.workInfo.workcurstep;    //当前审批意见名称
-	       	 	if(govDocDetail.title){
-	       	 		docTitle = govDocDetail.title;
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
-	        				   '</row></col><col  style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.title.text == undefined ? '' : govDocDetail.title.text)+'</label></row></col></item>';
-	        	}
-	        	filename = govDocDetail.goldGridId.text;
-	        	wordType = govDocDetail.wordType.text;
-        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">查看正文:</label>'+
-        				   '</row></col><col style="margin:10;padding:10;"><row id="docContent"></row></col></item>';
-	        	if(detailData.realFile){
-	        		realFiles = detailData.realFile;
-	        		saveFiles = detailData.saveFile;
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
-	        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
-	        	}
-	        	if(govDocDetail.departWord){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.departWord.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.departWord.text == undefined ? '' : govDocDetail.departWord.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.zjkySeq){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkySeq.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkySeq.text == undefined ? '' : govDocDetail.zjkySeq.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.securityGrade){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.securityGrade.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.securityGrade.text == undefined ? '' : govDocDetail.securityGrade.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.secrecyterm){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.secrecyterm.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.secrecyterm.text == undefined ? '' : govDocDetail.secrecyterm.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.grade){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.grade.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.grade.text == undefined ? '' : govDocDetail.grade.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.zjkyContentLevel){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkyContentLevel.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkyContentLevel.text == undefined ? '' : govDocDetail.zjkyContentLevel.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.topicWord){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.topicWord.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.topicWord.text == undefined ? '' : govDocDetail.topicWord.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.mainToName){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.mainToName.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.mainToName.text == undefined ? '' : govDocDetail.mainToName.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.copyToName){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.copyToName.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.copyToName.text == undefined ? '' : govDocDetail.copyToName.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.writeOrg){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.writeOrg.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.writeOrg.text == undefined ? '' : govDocDetail.writeOrg.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.counterSign){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.counterSign.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.counterSign.text == undefined ? '' : govDocDetail.counterSign.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.draft){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.draft.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.draft.text == undefined ? '' : govDocDetail.draft.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.checkDate){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.checkDate.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.checkDate.text == undefined ? '' : govDocDetail.checkDate.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.assumePeople){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.assumePeople.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.assumePeople.text == undefined ? '' : govDocDetail.assumePeople.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.printer){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.printer.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.printer.text == undefined ? '' : govDocDetail.printer.text)+'</label></row></col></item>';
-	        	}
-        		if(govDocDetail.documentSendFileTime){
-        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.documentSendFileTime.name+':</label>'+
-        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentSendFileTime.text == undefined ? '' : govDocDetail.documentSendFileTime.text)+'</label></row></col></item>';
-        	    }
-        	    if(govDocDetail.documentSendFileSendTime){
-        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.documentSendFileSendTime.name+':</label>'+
-        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentSendFileSendTime.text == undefined ? '' : govDocDetail.documentSendFileSendTime.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.proof){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.proof.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.proof.text == undefined ? '' : govDocDetail.proof.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.date){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.date.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.date.text == undefined ? '' : govDocDetail.date.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.sendDate){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendDate.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendDate.text == undefined ? '' : govDocDetail.sendDate.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.printNumber){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.printNumber.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.printNumber.text == undefined ? '' : govDocDetail.printNumber.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.byteNumber){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.byteNumber.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.byteNumber.text == undefined ? '' : govDocDetail.byteNumber.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.sendTime){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendTime.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendTime.text == undefined ? '' : govDocDetail.sendTime.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.toPersonBao){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.toPersonBao.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.toPersonBao.text == undefined ? '' : govDocDetail.toPersonBao.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.openProperty){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.openProperty.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.openProperty.text == undefined ? '' : govDocDetail.openProperty.text)+'</label></row></col></item>';
-	        	}
-	        	//if(govDocDetail.toPersonInner){
-	        		//itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.toPersonInner.name+':</label>'+
-	        			//	   '</row></col><col><row><label>'+(govDocDetail.toPersonInner.text == undefined ? '' : govDocDetail.toPersonInner.text)+'</label></row></col></item>';
-	        	//}
-	        	
-	        	if(govDocDetail.accessoryDesc){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.accessoryDesc.name+':</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.accessoryDesc.text == undefined ? '' : govDocDetail.accessoryDesc.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.referenceAccessory){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">参考文件:</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">TODO</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.referenceAccessoryDesc){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">参考文件描述:</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.referenceAccessoryDesc.text == undefined ? '' : govDocDetail.referenceAccessoryDesc.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.sendFileFileType){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">文件类别:</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileFileType.text == undefined ? '' : govDocDetail.sendFileFileType.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.documentFileType){
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">文件种类:</label>'+
-	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentFileType.text == undefined ? '' : govDocDetail.documentFileType.text)+'</label></row></col></item>';
-	        	}
-	        	if(govDocDetail.field1){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field1.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field1.text && govDocDetail.field1.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field1.text + ';field1');
-	        			}
-	        			itemContent += '<col id="field1"  style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field1.text == undefined ? '' : govDocDetail.field1.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field2){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field2.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field2.text && govDocDetail.field2.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field2.text + ';field2');
-	        			}
-	        			itemContent += '<col id="field2" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field2.text == undefined ? '' : govDocDetail.field2.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field3){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field3.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field3.text && govDocDetail.field3.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field3.text + ';field3');
-	        			}
-	        			itemContent += '<col id="field3" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field3.text == undefined ? '' : govDocDetail.field3.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field4){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field4.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field4.text && govDocDetail.field4.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field4.text + ';field4');
-	        			}
-	        			itemContent += '<col id="field4" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field4.text == undefined ? '' : govDocDetail.field4.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field5){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field5.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field5.text && govDocDetail.field5.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field5.text + ';field5');
-	        			}
-	        			itemContent += '<col id="field5" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field5.text == undefined ? '' : govDocDetail.field5.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field6){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field6.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field6.text && govDocDetail.field6.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field6.text + ';field6');
-	        			}
-	        			itemContent += '<col id="field6" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field6.text == undefined ? '' : govDocDetail.field6.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field7){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field7.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field7.text && govDocDetail.field7.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field7.text + ';field7');
-	        			}
-	        			itemContent += '<col id="field7" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field7.text == undefined ? '' : govDocDetail.field7.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field8){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field8.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field8.text && govDocDetail.field8.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field8.text + ';field8');
-	        			}
-	        			itemContent += '<col id="field8" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field8.text == undefined ? '' : govDocDetail.field8.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field9){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field9.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field9.text && govDocDetail.field9.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field9.text + ';field9');
-	        			}
-	        			itemContent += '<col id="field9" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field9.text == undefined ? '' : govDocDetail.field9.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}
-	        	}
-	        	if(govDocDetail.field10){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
-	        				   '</row></col>';
-	        		var fieldDisplayType = govDocDetail.field10.fieldDisplayType;
-	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
-	        			if(govDocDetail.field10.text && govDocDetail.field10.text.length > 0){
-		        			attachmentArray.push(govDocDetail.field10.text + ';field10');
-	        			}
-	        			itemContent += '<col id="field10" style="margin:10;padding:10;"></col></item>';
-	        		}else{
-	        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field10.text == undefined ? '' : govDocDetail.field10.text)+'</label>'+
-	        				   		   '</row></col></item>';
-	        		}	
-	        	}
- 
+	            
+	            for(var key in govDocDetail) {
+		       	 	if(key=='title'&&govDocDetail.title){
+		       	 		docTitle = govDocDetail.title;
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
+		        				   '</row></col><col  style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.title.text == undefined ? '' : govDocDetail.title.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='goldGridId'&&govDocDetail.goldGridId){
+			        	filename = govDocDetail.goldGridId.text;
+			        	wordType = govDocDetail.wordType.text;
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">正文:</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row id="docContent"></row></col></item>';
+		        	}
+		        	if(key=='realFile'&&govDocDetail.realFile){
+		        		realFiles = detailData.realFile;
+		        		saveFiles = detailData.saveFile;
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
+		        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
+		        	}
+		        	if(key=='departWord'&&govDocDetail.departWord){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.departWord.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.departWord.text == undefined ? '' : govDocDetail.departWord.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='zjkySeq'&&govDocDetail.zjkySeq){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkySeq.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkySeq.text == undefined ? '' : govDocDetail.zjkySeq.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='securityGrade'&&govDocDetail.securityGrade){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.securityGrade.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.securityGrade.text == undefined ? '' : govDocDetail.securityGrade.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='secrecyterm'&&govDocDetail.secrecyterm){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.secrecyterm.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.secrecyterm.text == undefined ? '' : govDocDetail.secrecyterm.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='grade'&&govDocDetail.grade){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.grade.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.grade.text == undefined ? '' : govDocDetail.grade.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='zjkyContentLevel'&&govDocDetail.zjkyContentLevel){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkyContentLevel.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkyContentLevel.text == undefined ? '' : govDocDetail.zjkyContentLevel.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='topicWord'&&govDocDetail.topicWord){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.topicWord.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.topicWord.text == undefined ? '' : govDocDetail.topicWord.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='mainToName'&&govDocDetail.mainToName){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.mainToName.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.mainToName.text == undefined ? '' : govDocDetail.mainToName.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='copyToName'&&govDocDetail.copyToName){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.copyToName.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.copyToName.text == undefined ? '' : govDocDetail.copyToName.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='writeOrg'&&govDocDetail.writeOrg){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.writeOrg.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.writeOrg.text == undefined ? '' : govDocDetail.writeOrg.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='counterSign'&&govDocDetail.counterSign){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.counterSign.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.counterSign.text == undefined ? '' : govDocDetail.counterSign.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='draft'&&govDocDetail.draft){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.draft.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.draft.text == undefined ? '' : govDocDetail.draft.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='checkDate'&&govDocDetail.checkDate){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.checkDate.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.checkDate.text == undefined ? '' : govDocDetail.checkDate.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='assumePeople)'&&govDocDetail.assumePeople){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.assumePeople.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.assumePeople.text == undefined ? '' : govDocDetail.assumePeople.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='printer'&&govDocDetail.printer){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.printer.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.printer.text == undefined ? '' : govDocDetail.printer.text)+'</label></row></col></item>';
+		        	}
+	        		if(key=='documentSendFileTime'&&govDocDetail.documentSendFileTime){
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.documentSendFileTime.name+':</label>'+
+	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentSendFileTime.text == undefined ? '' : govDocDetail.documentSendFileTime.text)+'</label></row></col></item>';
+	        	    }
+	        	    if(key=='documentSendFileSendTime'&&govDocDetail.documentSendFileSendTime){
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.documentSendFileSendTime.name+':</label>'+
+	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentSendFileSendTime.text == undefined ? '' : govDocDetail.documentSendFileSendTime.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='proof'&&govDocDetail.proof){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.proof.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.proof.text == undefined ? '' : govDocDetail.proof.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='date'&&govDocDetail.date){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.date.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.date.text == undefined ? '' : govDocDetail.date.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='sendDate'&&govDocDetail.sendDate){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendDate.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendDate.text == undefined ? '' : govDocDetail.sendDate.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='printNumber'&&govDocDetail.printNumber){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.printNumber.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.printNumber.text == undefined ? '' : govDocDetail.printNumber.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='byteNumber'&&govDocDetail.byteNumber){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.byteNumber.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.byteNumber.text == undefined ? '' : govDocDetail.byteNumber.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='sendTime'&&govDocDetail.sendTime){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.sendTime.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendTime.text == undefined ? '' : govDocDetail.sendTime.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='toPersonBao'&&govDocDetail.toPersonBao){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.toPersonBao.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.toPersonBao.text == undefined ? '' : govDocDetail.toPersonBao.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='openProperty'&&govDocDetail.openProperty){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.openProperty.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.openProperty.text == undefined ? '' : govDocDetail.openProperty.text)+'</label></row></col></item>';
+		        	}
+		        	//if(govDocDetail.toPersonInner){
+		        		//itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.toPersonInner.name+':</label>'+
+		        			//	   '</row></col><col><row><label>'+(govDocDetail.toPersonInner.text == undefined ? '' : govDocDetail.toPersonInner.text)+'</label></row></col></item>';
+		        	//}
+		        	
+		        	if(key=='accessoryDesc'&&govDocDetail.accessoryDesc){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.accessoryDesc.name+':</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.accessoryDesc.text == undefined ? '' : govDocDetail.accessoryDesc.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='referenceAccessory'&&govDocDetail.referenceAccessory){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">参考文件:</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">TODO</label></row></col></item>';
+		        	}
+		        	if(key=='referenceAccessoryDesc'&&govDocDetail.referenceAccessoryDesc){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">参考文件描述:</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.referenceAccessoryDesc.text == undefined ? '' : govDocDetail.referenceAccessoryDesc.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='sendFileFileType'&&govDocDetail.sendFileFileType){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">文件类别:</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.sendFileFileType.text == undefined ? '' : govDocDetail.sendFileFileType.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='documentFileType'&&govDocDetail.documentFileType){
+		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">文件种类:</label>'+
+		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.documentFileType.text == undefined ? '' : govDocDetail.documentFileType.text)+'</label></row></col></item>';
+		        	}
+		        	if(key=='field1'&&govDocDetail.field1){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field1.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field1.text && govDocDetail.field1.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field1.text + ';field1');
+		        			}
+		        			itemContent += '<col id="field1"  style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field1.text == undefined ? '' : govDocDetail.field1.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field2'&&govDocDetail.field2){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field2.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field2.text && govDocDetail.field2.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field2.text + ';field2');
+		        			}
+		        			itemContent += '<col id="field2" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field2.text == undefined ? '' : govDocDetail.field2.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field3'&&govDocDetail.field3){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field3.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field3.text && govDocDetail.field3.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field3.text + ';field3');
+		        			}
+		        			itemContent += '<col id="field3" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field3.text == undefined ? '' : govDocDetail.field3.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field4'&&govDocDetail.field4){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field4.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field4.text && govDocDetail.field4.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field4.text + ';field4');
+		        			}
+		        			itemContent += '<col id="field4" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field4.text == undefined ? '' : govDocDetail.field4.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field5'&&govDocDetail.field5){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field5.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field5.text && govDocDetail.field5.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field5.text + ';field5');
+		        			}
+		        			itemContent += '<col id="field5" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field5.text == undefined ? '' : govDocDetail.field5.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field6'&&govDocDetail.field6){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field6.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field6.text && govDocDetail.field6.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field6.text + ';field6');
+		        			}
+		        			itemContent += '<col id="field6" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field6.text == undefined ? '' : govDocDetail.field6.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field7'&&govDocDetail.field7){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field7.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field7.text && govDocDetail.field7.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field7.text + ';field7');
+		        			}
+		        			itemContent += '<col id="field7" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field7.text == undefined ? '' : govDocDetail.field7.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field8'&&govDocDetail.field8){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field8.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field8.text && govDocDetail.field8.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field8.text + ';field8');
+		        			}
+		        			itemContent += '<col id="field8" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field8.text == undefined ? '' : govDocDetail.field8.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field9'&&govDocDetail.field9){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field9.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field9.text && govDocDetail.field9.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field9.text + ';field9');
+		        			}
+		        			itemContent += '<col id="field9" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field9.text == undefined ? '' : govDocDetail.field9.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}
+		        	}
+		        	if(key=='field10'&&govDocDetail.field10){
+						itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
+		        				   '</row></col>';
+		        		var fieldDisplayType = govDocDetail.field10.fieldDisplayType;
+		        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
+		        			if(govDocDetail.field10.text && govDocDetail.field10.text.length > 0){
+			        			attachmentArray.push(govDocDetail.field10.text + ';field10');
+		        			}
+		        			itemContent += '<col id="field10" style="margin:10;padding:10;"></col></item>';
+		        		}else{
+		        			itemContent += '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field10.text == undefined ? '' : govDocDetail.field10.text)+'</label>'+
+		        				   		   '</row></col></item>';
+		        		}	
+		        	}
+       			}
 	        	// 自定义字段集合批示意见
 	        	if(govDocDetail.custemFieldList){
 	        		var custemFieldList = govDocDetail.custemFieldList;
@@ -550,10 +567,25 @@
 	        	}
 	        	
 	        	//构建可编辑的意见
-	        	if(workInfoData.workInfo.commentField){
-	        		var workcurstep = workInfoData.workInfo.workcurstep;
-	        	//	alert(workcurstep);
-		        	var commentField = workInfoData.workInfo.commentField;
+	        	if(workInfoData.workInfo.commentField != '' && workInfoData.workInfo.commentField != 'nullCommentField' && workInfoData.workInfo.commentField != '-1'){
+					var workcurstep = workInfoData.workInfo.workcurstep;
+					var  commentField= workInfoData.workInfo.commentField;
+		       /* 	var workcurstep = '';
+		        	if(','+'DocumentSendFile_CheckCommit'+',' == commentField){
+		        		workcurstep = '审核意见';
+		        	}else if(','+'documentSendFileSendFile'+',' == commentField){
+		        		workcurstep = '签发';
+		        	}else if(','+'sendFileReadComment'+',' == commentField){
+		        		workcurstep = '审阅意见';
+		        	}else if(','+'SendFile_ProveDraft'+',' == commentField){
+		        	    workcurstep = '核稿';
+		        	}else if(','+'sendFileMassDraft'+',' == commentField){
+		        		workcurstep = '会签';
+		        	}else if(','+'documentSendFileAssumeUnit'+',' == commentField){
+		        		workcurstep = '承办单位意见';
+		        	}else{
+		        		workcurstep = '批示意见';
+		        	}  */
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
 		        	itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+workcurstep+':</label></row></col><col style="margin:10;padding:10;">';
 		      		if(commentField && '-1' != commentField && 'nullCommentField' != commentField && workStatus != '102' && workStatus != '101'){
@@ -758,7 +790,7 @@
 						        	'<item style="">'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',' + workInfo.worktitle + ',' + workInfo.worksubmittime + ',' + empLivingPhoto + ');" '+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" '+
 												'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
@@ -775,7 +807,7 @@
 										'</col>'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">发送</button>'+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
 										'<col>'+
@@ -794,7 +826,7 @@
 										'</col>'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:125;height:38;font-size:14">发送</button>'+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:125;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
 									'</item>';
@@ -1228,7 +1260,7 @@
             			</col>
             			<col>
             				<row>
-            					<label reusekey="logAction" style="align:left;font-size:8;color:#38adff"></label>
+            					<label reusekey="logAction" style="align:left;font-size:10;color:#38adff"></label>
             				</row>
             			</col>
             			<col>
