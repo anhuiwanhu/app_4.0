@@ -22,7 +22,22 @@
 				$page.open('forum_view.xml',{animation:'down-to-up'});
 			}
 			
+			function containSpecial(s){
+				if(s!=''){
+					if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+						alert("搜索值不能为特殊字符，请重新输入！");
+						return true;
+					}
+				}
+				return false;
+			}
+			
 			function refresh(){
+				if(containSpecial($('queryText').value)){
+					$('queryText').value='';
+					return;
+				}
+				
 				if(addMore=='1'){
 					return;
 				}

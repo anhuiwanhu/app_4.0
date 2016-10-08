@@ -25,8 +25,22 @@
            $('indexContent').hideTop();
            initList('update');
         }
+        
+        function containSpecial(s){
+			if(s!=''){
+				if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+					alert("搜索值不能为特殊字符，请重新输入！");
+					return true;
+				}
+			}
+			return false;
+		}
        
         function initList(loadType){
+            if(containSpecial($('search').value)){
+				$('search').value='';
+				return;
+			}
             if(loadFlag == '1'){
 	        	return false;
 	        }

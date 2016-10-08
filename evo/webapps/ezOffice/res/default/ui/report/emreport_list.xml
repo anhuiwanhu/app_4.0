@@ -32,8 +32,23 @@
 					$page.open('emother_view.xml');
 				}
 			}
+			
+			function containSpecial(s){
+				if(s!=''){
+					if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+						alert("搜索值不能为特殊字符，请重新输入！");
+						return true;
+					}
+				}
+				return false;
+			}
+			
 			//下属周报
 			function refresh(pageNum){
+			    if(containSpecial($('queryWeek').value)){
+					$('queryWeek').value='';
+					return;
+				}
 			    if(weekAddMore==1){
 					return;
 				}
@@ -186,6 +201,10 @@
 			
 			//下属月报
 			function refreshMonth(pageNum){
+			    if(containSpecial($('queryMonth').value)){
+					$('queryMonth').value='';
+					return;
+				}
 			    if(monthAddMore == 1){
 					return;
 				}
@@ -339,6 +358,10 @@
 		  
 			//下属其它
 			function refreshOther(pageNum){
+				if(containSpecial($('queryOther').value)){
+					$('queryOther').value='';
+					return;
+				}
 				if(otherAddMore==1){
 					return;
 				}

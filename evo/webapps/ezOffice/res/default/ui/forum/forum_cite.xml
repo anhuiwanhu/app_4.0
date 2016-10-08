@@ -35,6 +35,7 @@
 					var result = obj.result;
 					if(result =="1"){
 						$("newCont").text=cont + obj.oldCont;
+						$("oldCont").html=cont + obj.oldCont;
 						var nick = obj.mailto;
 						if(nick !="" && nick.length!=0){
 							$('nick').css('display', 'block')
@@ -52,11 +53,10 @@
 		function submit(){
    			$('forumForm').action=evoUrl+"/ezOffice/forum/replyForum.do";
    			var cont = $('forumContent').value.trim();
-   			if(cont.length == 0){
-       			hint('发帖正文不能为空！');
-       			return false;
+   			var newCont="";
+   			if(cont.length != 0){
+       			newCont = chanCont(cont);
    			}
-   			var newCont = chanCont(cont);
    			$('newCont').value=newCont;
 			$('forumForm').submit(function(data) {
 				var obj = JSON.parse(data);
@@ -336,7 +336,7 @@
 	                </item>
 	                <item>
                         <label style="margin-bottom:5;font-size:16;color:#555555;">正文：</label>
-                     	<row><label id="newCont" style="margin-bottom:5"></label></row>
+                     	<row><web id="oldCont" style="margin-bottom:5"></web></row>
                         <row><textarea id="forumContent" name="forumContent" placeholder="请输入" rows="15" maxrows="15" style="border:0 white;color:#555555;font-size:16"></textarea></row>
                         <input id="newCont" name="newCont" type="hidden"/>
                     </item>

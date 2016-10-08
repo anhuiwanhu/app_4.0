@@ -92,7 +92,21 @@
                 $('arrow').src = 'mail_up.png'; 
             }
 			
+			function containSpecial(s){
+				if(s!=''){
+					if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+						alert("搜索值不能为特殊字符，请重新输入！");
+						return true;
+					}
+				}
+				return false;
+			}
+			
 			function refresh(){
+				if(containSpecial($('subject').value)){
+					$('subject').value='';
+					return;
+				}
 				if(addMore=='1'){
 					return;
 				}

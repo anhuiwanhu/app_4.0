@@ -569,9 +569,23 @@
 		    
 		    // 流程标题查询
 		    function searchList(){
-		   	 	$('content').clear();
+		   	 	if(containSpecial($('queryText').value)){
+					$('queryText').value='';
+					return;
+				}
+				$('content').clear();
 		    	loadFlowList($('queryText').value);
 		    }
+		    
+		    function containSpecial(s){
+				if(s!=''){
+					if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+						alert("搜索值不能为特殊字符，请重新输入！");
+						return true;
+					}
+				}
+				return false;
+			}
         ]]>
     </script>
    <page>

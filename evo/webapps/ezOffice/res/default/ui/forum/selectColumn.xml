@@ -32,6 +32,10 @@
 		
 		function getCannelInfo() {
 		   var title = $('title').value;
+		   if(containSpecial(title)){
+				$('title').value='';
+				return;
+			}
 		   $('content').clear();
 		   $http.post(evoUrl+'/ezOffice/forum/getChannel.do',{title:title}, function(data) {
 			     var obj = JSON.parse(data);
@@ -164,7 +168,11 @@
 	    }
 	    function upfrsh(){
 	    	  var title = $('title').value;
-			  $('content').clear();
+	    	  if(containSpecial(title)){
+				 $('title').value='';
+				 return;
+			  }
+			 $('content').clear();
 			 if(title ==''){
 			 	getCannelInfo();
 			 }else{
@@ -185,9 +193,23 @@
 			$page.open('../index.xml',{animation:'down-to-up'});
 		}
 		
+		function containSpecial(s){
+			if(s!=''){
+				if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+					alert("搜索值不能为特殊字符，请重新输入！");
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		function searchColumn(){
 			 var title = $('title').value;
-			  $('content').clear();
+			 if(containSpecial(title)){
+				$('title').value='';
+				return;
+			}
+			 $('content').clear();
 			 if(title ==''){
 			 	getCannelInfo();
 			 }else{

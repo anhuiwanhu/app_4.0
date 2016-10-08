@@ -49,3 +49,10 @@ go
 
 insert into oa_patchinfo (patch_editinfo,patch_name,patch_version,patch_time,PATCH_EVO) values('evo','evo4.0_SP_08_20160813','4.0.08',getdate(),1);
 go
+
+
+
+
+
+insert into oa_patchinfo (patch_editinfo,patch_name,patch_version,patch_time,PATCH_EVO) values('evo','evo4.0_SP_09_20160827','4.0.09',getdate(),1);
+go

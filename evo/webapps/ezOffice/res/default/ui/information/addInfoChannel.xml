@@ -29,6 +29,10 @@
 	        function searchInfo(){
 	        	pagerOffset = '0';
 	        	var title = $('search').value;
+	        	if(containSpecial(title)){
+					$('search').value='';
+					return;
+				}
 	        	$('list'+cunrrentContentIdIndex).clear();   //清理当前content内容
 	        	if(title == null ||title== ''){   //只刷新
 	        		initList('update',cunrrentContentIdIndex,commChannelKind,commChannelType);
@@ -133,6 +137,11 @@
          }
         	
         function initList(loadType,contentIdIndex,channelKind,channelType){
+            if(containSpecial($('search').value)){
+				$('search').value='';
+				return;
+			}
+            
             if(loadFlag == '1'){
 	        	return false;
 	        }
@@ -465,11 +474,25 @@
 	       }
 	    }
         
+        function containSpecial(s){
+			if(s!=''){
+				if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+					alert("搜索值不能为特殊字符，请重新输入！");
+					return true;
+				}
+			}
+			return false;
+		}
+        
         function refreshPage(contentIdIndex){
             $('indexContent'+contentIdIndex).hideTop();
             $('list'+cunrrentContentIdIndex).clear();   //清理上一个content内容
 	        pagerOffset = 0;
 	        var title = $('search').value;
+	        if(containSpecial(title)){
+				$('search').value='';
+				return;
+			}
         	if(title == null ||title== ''){   //只刷新
         		initList('update',cunrrentContentIdIndex,commChannelKind,commChannelType);
         	}else{

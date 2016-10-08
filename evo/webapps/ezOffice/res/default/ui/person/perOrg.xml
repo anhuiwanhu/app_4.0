@@ -447,8 +447,22 @@
 		$page.open('showInner.xml',{animation:'down-to-up'});
 	}
 
+	function containSpecial(s){
+		if(s!=''){
+			if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+				alert("搜索值不能为特殊字符，请重新输入！");
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	function search(){
 		var su = $('searchUser').value;
+		if(containSpecial(su)){
+			$('searchUser').value='';
+			return;
+		}
         storage.setItem('inner_searchUser',su);
 		$page.open('searchUser.xml');
 	}

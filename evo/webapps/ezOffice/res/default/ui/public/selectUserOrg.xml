@@ -356,9 +356,22 @@
 	         $(ic).src="forum_openup.png";
 	       }
 	    }
-
+		
+		function containSpecial(s){
+			if(s!=''){
+				if(/[`~!@#\$%\^\&\*\(\)_\+<>《》？，。；、‘ “【】{}|（）=\?:"\{\},\.\-\\\/\\\/;'\[\]]/im.test(s)){
+					alert("搜索值不能为特殊字符，请重新输入！");
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		function loadpersonList(val){
-
+			if(containSpecial(val)){
+				$('searchuser').value='';
+				return;
+			}
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  'range='+selectuser_range+'&offset=0&searchuser='+val, 
 		  function(data) {
@@ -450,7 +463,10 @@
 		}
 		
 		function addpersonList(){
-          
+          if(containSpecial($('searchuser').value)){
+			  $('searchuser').value='';
+			  return;
+		  }
           $('bottom_hasmore').css('display','hidden');
 		  $('bottom_load').css('display','');
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
