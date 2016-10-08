@@ -16,6 +16,11 @@
                  if(data){
                     // alert(data);
                  	 var obj =eval('('+data+')');
+                 	 if(obj.logonerror &&obj.logonerror=='1'){
+		     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+		     		     $page.open('../index.xml',{target:'_self'});
+		                 return;
+		             }
                  	 var contactXml = obj.contactXml;
                  	 var serveUrl = obj.serveUrl;   //请求服务器路径
 					// var  rootPath_res = obj.rootPath_res;   

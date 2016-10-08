@@ -77,6 +77,11 @@
 	                if(data){
 	                   // alert(data);
 		                var obj = JSON.parse(data);
+		                if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 		                var result = obj.message.result;
 			        	var channelInfoItem =$C('<tabbar-item><item label="信息管理"   onchange="channelList(\'info\',\'0\',\'0\')" ></item></tabbar-item>');
 			        	var channelPortalItem =$C('<tabbar-item><item label="单位主页"  onchange="channelList(\'portal\',\'1\',\'0\')" ></item></tabbar-item>');
@@ -160,6 +165,11 @@
             $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/information/getInfoChannel.do',{pagerOffset:pagerOffset,channelKind:channelKind,channelType:channelType},function(data){
                 if(data){
 	                var obj = JSON.parse(data);
+	                if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 	                var result = obj.message.result;
 		            var recordCount = '';
 				    if(result =="1"){
@@ -320,6 +330,11 @@
 	                if(data){
 	                  // alert(data);
 	                    var obj = JSON.parse(data);
+	                    if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 	                    var result = obj.message.result;
 	                    var itemStr = '';
 				        if(result == '1'){
@@ -483,6 +498,11 @@
 			 var evoUrl = storage.getItem('evoUrl');
 			 $http.post(evoUrl+'/ezOffice/information/searchChannel.do',{pagerOffset:pagerOffset,title:title,channelKind:commChannelKind,channelType:commChannelType}, function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+         		    $page.open('../index.xml',{target:'_self'});
+                    return;
+                 }
 			     var result = obj.message.result;
 			     if(result =="1"){
 			     	var objArr = obj.data.informationChannel; //返回列表数组

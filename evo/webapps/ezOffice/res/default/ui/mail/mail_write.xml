@@ -25,6 +25,11 @@
    			$("cmd").value="sendMail";
             $('mailFrom').submit(function(data) {
                 var obj = JSON.parse(data);
+				if(obj.logonerror &&obj.logonerror=='1'){
+         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+         		    $page.open('../index.xml',{target:'_self'});
+                    return;
+                }
                 hint(obj.message.description);
                 $page.close();
             }, function(error) {
@@ -44,6 +49,11 @@
 		  		 confirm('当前邮件已填写内容，是否将此邮件保存至草稿箱?', function(){
            			   $('mailFrom').submit(function(data) {
 							var obj = JSON.parse(data);
+							if(obj.logonerror &&obj.logonerror=='1'){
+			         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			         		    $page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							hint(obj.message.description);
 							$page.close();
 						}, function(error) {

@@ -16,7 +16,6 @@
 	            var storage = $phone.localStorage();
 	            var informationId = storage.getItem('information_informationId');
 	            var informationType = storage.getItem('information_informationType');
-
 	            initList(informationId,informationType);
 	        }
 	        
@@ -31,8 +30,12 @@
 			var evoUrl = storage.getItem('evoUrl');
             $http.post(evoUrl+'/ezOffice/information/info.do',{informationId:informationId,informationType:informationType },  function(data) {
                 if(data){
-                   // alert(data);
 	                var obj = JSON.parse(data);
+	                if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 	                var result = obj.message.result;
 				    if(result =="1"){
 				       var data = obj.data;
@@ -54,7 +57,6 @@
 				           informationIssuer = "";
 				       }
 				       $('informationIssuer').text = informationIssuer;
-				       
 				       //时间显示，年月日时分秒
                        var informationIssueTime = data.informationIssueTime;  //发布时间
                        var informationIssueTimeInfo="";
@@ -309,6 +311,11 @@
               // alert(data);
                if(data){
                    var obj = JSON.parse(data);
+                   if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	               }
 	               var attList = obj.attList;
 	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 	                  for(var k=0;k<attList.length;k++){

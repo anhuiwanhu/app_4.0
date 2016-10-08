@@ -39,6 +39,11 @@
         					return false;
         				}
         				var jsonData = eval('('+data+')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				if(!jsonData){
         					alert('催办数据格式有误！');
         					return false;
@@ -116,7 +121,6 @@
         	
         	// 发送催办
         	function sendFlow(){
-        	
         	    var hasper = 'false';
 				for(var i=0;i<bman;i++){
 				  if($('cbUserId'+i)&&$('cbUserId'+i).checked==true){
@@ -127,15 +131,18 @@
 				    alert('请选择催办人！');
 					return false;
 				}
-
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/workflowPress.do';
         		$('sendForm').submit(function(data){
 					if(!data){
 						alert('发送催办失败！');
 						return false;
 					}
-					
 					var jsonData = eval('('+data+')');
+					if(jsonData.logonerror &&jsonData.logonerror=='1'){
+	         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = jsonData.result;
 					if('success' != result){
 						alert('发送催办失败！');

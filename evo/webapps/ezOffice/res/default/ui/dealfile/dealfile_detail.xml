@@ -16,6 +16,13 @@
         	var webServiceUrl;
         	var evoUrl;
         	var commentmustnonull = '';
+        	var draftPerson = '';  //发起人
+        	var worktitle = '';  //流程标题 
+        	var worksubmittime = '';   //发起时间
+        	var passRoundCommFieldName = '';  //批示意见对于字段数据库名称
+        	var commFieldExistIsTrue = false;  ////批示意见是否在表单与节点中同时存在
+        	var bodyIndex = 1 ;      //正文index
+        	
         	
         	(function(){
         		storage = $phone.localStorage();
@@ -34,6 +41,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror && jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                } 
         				var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_1.message.result;
         				//var personResult = jsonData.data_2.message.result;  || personResult != '1'
@@ -49,6 +61,7 @@
         				var fieldType;
         				var $contentFormList = $('content_form_list');
         				var selectContent = '';
+        				passRoundCommFieldName = workInfo.passRoundCommField.replace(/,/g,'');; //批示意见字段名赋值
         				//创建流程图
        					createFlowImg(workInfo.flowgraphurl);
        					$('headers').css('display','');
@@ -70,6 +83,8 @@
 						createCommentCon($contentFormList,workInfo,detailData,officeList);
 						// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(workInfo,detailData);
+						//创建编辑正文附件名称
+						createBodyFileName(workInfo);
 						// 创建附件内容
 						createAttachCon();
        					// 创建底部内容
@@ -87,6 +102,18 @@
 				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
+	        }
+	        function createBodyFileName(workInfo){
+	        	draftPerson = workInfo.worksubmitperson == null ? '': workInfo.worksubmitperson;
+	        	worktitle =  workInfo.worktitle== null ? '': workInfo.worktitle;
+	        	worktitle = worktitle.replace('等待您的审阅！','');
+	        	worktitle = worktitle.replace('等待您的审阅','');
+	        	worktitle = worktitle.replace('等待您的办理！','');
+	        	worktitle = worktitle.replace('等待您的办理','');
+	        	worksubmittime = workInfo.worksubmittime == null ? '': workInfo.worksubmittime;
+	        	if(worksubmittime != null && worksubmittime != '' && worksubmittime.length>10){
+	        		worksubmittime = worksubmittime.substring(0,10).replace(/-/g,'');
+	        	}
 	        }
 	        
 	        // 退回流程
@@ -308,17 +335,17 @@
 					// word
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles"></col></item>';
-	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
+	        		viewFiles('docFiles',"正文",field.value+".doc","information",".doc");   //显示名不能为空
 				}else if(field.showtype == '117'){
 					// excel
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles"></col></item>';
-	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
+	        		viewFiles('xlsFiles',"正文",field.value+".xls","information",".xls");   //显示名不能为空
 				}else if(field.showtype == '118'){
 				    // wps
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles"></col></item>';
-	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
+	        		viewFiles('wpsFiles',"正文",field.value+".wps","information",".wps");   //显示名不能为空
 				}else{
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 					subTabelItemContent += '<row><label style="align:right">' + (field.hiddenval == "undefined" ? "" : field.hiddenval) + '</label></row></col></item>';
@@ -358,6 +385,9 @@
 				var commentList = detailData.commentList;
 				if(passRoundCommFieldType != '-1' && passRoundCommField != '-1' && passRoundCommField != 'nullCommentField' &&
 				   passRoundCommField != 'autoCommentField' && passRoundCommField != 'null'){   
+				    if(commFieldExistIsTrue == true){
+				    	return;
+				    }
 				    var passRoundCommFieldName = workInfo.passRoundCommFieldName;
 				    var commentViewName = '';
 				    var  workcurstep =  workInfo.workcurstep;
@@ -438,7 +468,6 @@
 	               
 	        // 需要创建附件下载内容的数组
 	        var attachmentArray = new Array();
-	        
 	        // 创建附件下载内容
 	        function createAttachCon(){
 	        	var attachments;
@@ -451,11 +480,16 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
+							if(obj.logonerror && obj.logonerror=='1'){
+			         			alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                } 
 							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>');
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName=' + attList[k].realname + '\')">' + attList[k].realname + '</label></row>');
 									$(attachments[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
@@ -497,18 +531,21 @@
 	        		// Word编辑
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles"></col></item>';
-	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
+	        		viewFiles('docFiles',"正文",field.value+".doc","information",".doc");   //显示名不能为空
 	        	}else if(showType == '117'){
 	        		// Excel编辑
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles"></col></item>';
-	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
+	        		viewFiles('xlsFiles',"正文",field.value+".xls","information",".xls");   //显示名不能为空
 	        	}else if(showType == '118'){
 	        		// WPS编辑
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles"></col></item>';
-	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
+	        		viewFiles('wpsFiles',"正文",field.value+".wps","information",".wps");   //显示名不能为空
 	        	}else if(showType == '401'){
+	        	    if(passRoundCommFieldName == field.sysname){
+	        	    	commFieldExistIsTrue = true;
+	        	    }
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 		        				   '</row></col><col style="padding:10;margin:10;">';
         			//批示意见
@@ -608,6 +645,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror && jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -686,12 +728,16 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror && dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('发送成功！');
-					    //$page.close(0, 'selectList("'+2+'")');
 					    $page.close(-1);
-					    $page.open('dealfile_index.xml?refresh=1&workStatus=2',{target:'_self'});				    
+					    $page.open('dealfile_index.xml?workStatus=2',{target:'_self'});				    
 					}else{
 						alert('发送失败！');					
 					}
@@ -740,12 +786,10 @@
 				var $commentAdd = $('commentAdd');
 				if($commentAdd.src == 'deskperson_add.png'){
 					$('commentAdd').src = 'workflow_del.png';
-<!--					$('qianzhang').css('display','');-->
 					$('shouxie').css('display','');
 					$('yuyin').css('display','');
 				}else if($commentAdd.src == 'workflow_del.png'){
 					$('commentAdd').src = 'deskperson_add.png';
-<!--					$('qianzhang').css('display','none');-->
 					$('shouxie').css('display','none');
 					$('yuyin').css('display','none');
 				}
@@ -763,7 +807,7 @@
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
-						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;"/></row>');
+						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;align:right;"/></row>');
 						$('comment_input_sxyy').add(row);
 						drfNum = "1";
 						$('comment_input_sxyy').onclick = 'delrow_sx()';
@@ -824,44 +868,47 @@
 			
 			//播放语音
 			function playSound(path){
-			    //filename 随便写的
 				path = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(path)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
 				$phone.playSound(path); 
-				//$phone.playSound('http://192.168.0.197:7004/defaultroot/upload/workflow_acc/201603/2016030911411127139891375.3gpp'); 
 			}
 			
-			function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path){
-            var storage = $phone.localStorage();
-		    var evoUrl = storage.getItem('evoUrl');
-            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
-               if(data){
-                   var obj = JSON.parse(data);
-	               var attList = obj.attList;
-	               
-	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
-	                  for(var k=0;k<attList.length;k++){
-	                 // alert(attList[k].savename);
-	                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">查看正文</label></row>')
-	                      $(filetype).add(files); 
-	                  }
-	               }else{     //无附件，或者后台处理异常
-	               
+			function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path,fileType){
+	            var storage = $phone.localStorage();
+			    var evoUrl = storage.getItem('evoUrl');
+	            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
+	               if(data){
+	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror && obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
+		               var attList = obj.attList;
+		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
+		                  for(var k=0;k<attList.length;k++){
+		                      var viewName = draftPerson +worksubmittime +worktitle+"的正文"+bodyIndex+fileType;
+		                      bodyIndex++;
+		                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'&amp;viewName='+viewName+'\')">查看正文</label></row>')
+		                      $(filetype).add(files); 
+		                  }
+		               }else{     //无附件，或者后台处理异常
+		               
+		               }
 	               }
-               }
-            },function(error) {
-				    if (error == 'timeout') {
-				        hint('连接服务器超时！');
-				    } else if (error == '404') {
-				        hint('页面不存在！');
-				    } else if (error == '500') {
-				        hint('内部服务器错误！');
-				    } else {
-				        hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-			   }
-            );
-        }
+	            },function(error) {
+					    if (error == 'timeout') {
+					        hint('连接服务器超时！');
+					    } else if (error == '404') {
+					        hint('页面不存在！');
+					    } else if (error == '500') {
+					        hint('内部服务器错误！');
+					    } else {
+					        hint('访问网络错误！错误代码:' + error);
+					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
+				   }
+	            );
+	        }
 			
         ]]>
     </script>

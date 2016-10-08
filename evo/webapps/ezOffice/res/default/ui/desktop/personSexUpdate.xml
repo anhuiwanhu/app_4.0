@@ -6,13 +6,10 @@
         $page.onload = function() {
             initSex();
         }
-        
-        
         function initSex(){
             //获取手机缓存中的数据 ,并为页面赋值
             var storage = $phone.localStorage();
             var desktopEmpsex = storage.getItem('desktopEmpsex');            //性别
-            
             if(desktopEmpsex=="0"){
                $('man').css("display","");
             }else if(desktopEmpsex=="1"){
@@ -40,7 +37,6 @@
                $('nobody').css("display","");
                empsex = "";
            }
-		   
 		   $page.close(0, 'fillInputSex("'+empsex+'")');
         }
         

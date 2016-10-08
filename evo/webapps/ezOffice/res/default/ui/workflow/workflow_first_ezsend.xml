@@ -38,6 +38,11 @@
 	        				return false;
 	        			}
 	        			var jsonData = eval('('+data+')');
+	        			if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 	        			if(!jsonData || jsonData.result == 'fail'){
 	        				alert('获取下一流程节点失败！');
 	        				return false;
@@ -353,16 +358,13 @@
 	        var userIdConIdVal;
 	        var userNameConIdVal;
 	        function selectUser(userIdConId,userNameConId,range,type){
-
 	            if(g_gateType != 'XX' && 
 	               g_gateType != 'XAND'){
-	               
 	               if($('scopeType').value=='scopes_user' && $('scopeId').value==''){
 	                  alert('没有设置办理人！');
 	                  return false;
 	               }
 	            }
-	            
 	        	userIdConIdVal = userIdConId;
 	        	userNameConIdVal = userNameConId;
 		        storage.setItem('sys_selectuser_range',range);
@@ -397,6 +399,11 @@
 							return false;
 						}
 						var jsonData = eval('(' + data + ')');
+						if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						if(jsonData.result == 'fail'){
 							alert('发送失败！');
 							return false;
@@ -439,11 +446,8 @@
 	        }
 	        //校验方法是对每一种可能的下一办理人追加  如果为空说明没填写
         	function checkForm(){
-        	
-        	
         	     if(g_gateType == 'XX'){
         	        var _actok = "0";
-        	        
         			for(var i=0,length=activityList.length;i<length;i++){
         			   if($('activity'+activityList[i]).checked){
         			      if($('userId'+activityList[i]).value==''){

@@ -27,6 +27,11 @@
 		        loadFlag = '1';
 				$http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/forum/columnList.do',function(data){
 					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 					var result = obj.message.result;
 					var listJson = {items:[]};
 					if(result =="1"){

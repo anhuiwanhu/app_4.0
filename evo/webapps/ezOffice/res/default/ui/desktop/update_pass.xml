@@ -35,6 +35,11 @@
 				}
 				$('passFrom').submit(function(data) {
 	                var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 					var result = obj.message.result;
 					if(result=='0'){
 						hint(obj.message.description);

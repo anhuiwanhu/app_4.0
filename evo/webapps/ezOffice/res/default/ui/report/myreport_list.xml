@@ -44,6 +44,11 @@
 				$http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/report/myWeekdate.do', 
 					{curpage:pageNum,queryText:$('queryWeek').value}, function(data){
 						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
 						var result = obj.message.result;
 						var listJson = {items:[]};
 						if(result =="1"){
@@ -211,6 +216,11 @@
 				$http.post(evoUrl+'/ezOffice/report/myMonthdate.do', 
 					{curpage:pageNum,queryText:$('queryMonth').value}, function(data){
 						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
 						var result = obj.message.result;
 						var listJson = {items:[]};
 						if(result =="1"){
@@ -323,6 +333,11 @@
 				$http.post(evoUrl+'/ezOffice/report/myOtherdate.do', 
 					{curpage:pageNum,queryText:$('queryOther').value}, function(data){
 						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
 						var result = obj.message.result;
 						var listJson = {items:[]};
 						if(result =="1"){

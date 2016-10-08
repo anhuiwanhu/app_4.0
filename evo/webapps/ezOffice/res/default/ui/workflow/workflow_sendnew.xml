@@ -4,6 +4,7 @@
         <![CDATA[
             //进入发送页面来源
             var fromXml = $param['fromXml'];
+            var isDossier = $param['isDossier'];
         	var storage = $phone.localStorage();
         	//必填项数组
 	        var mustFillCon = new Array();
@@ -43,6 +44,11 @@
 	        				return false;
 	        			}
 	        			var jsonData = eval('('+data+')');
+	        			if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 	        			if(!jsonData || jsonData.result == 'fail'){
 	        				alert('获取下一流程节点失败！');
 	        				return false;
@@ -216,7 +222,6 @@
 		            pushMustFillArray('userId');
         		}
         		contentList.addMore('<imag><list>' + items + '</list></imag>');
-        		
         		if($('activity')){
 	       			$('activity').onchange = "selectActivity('" + JSON.stringify(nextActivityList) + "','" + gateType + "')";
         		}
@@ -244,8 +249,13 @@
         	function selectActivity(nextActivityList,gateType){
         		var $activity = $('activity');
         		if(!$activity){
+        		    if(isDossier == 'true'){
+        		     	$('footer').css('display','hidden');
+       					alert('当前流程需要办结归档，请与电脑端操作办理！');
+        		    }
         			return false;
         		}
+        		$('footer').css('display','');
         		var jsonList = JSON.parse(nextActivityList);
         		var activity = $activity.value;
         		var $scopeId = $('scopeId');
@@ -356,6 +366,11 @@
 		     			
 	     			}
        				g_scopeId = scopeId;
+       			}
+       			if('-2' == activity && isDossier == 'true'){
+       			    $('footer').css('display','hidden');
+       				alert('当前流程需要办结归档，请与电脑端操作办理！');
+       				return;
        			}
         	}
         	
@@ -517,9 +532,6 @@
 	        
         	// 发送流程
         	function sendFlow(){
-        		//if(!confirm('确定发送？')){
-        		//	return false;
-        		//}
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/updateprocess2.do';
         		if(checkForm()){
@@ -529,6 +541,11 @@
 							return false;
 						}
 						var jsonData = eval('(' + data + ')');
+						if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						if(jsonData.result == 'fail'){
 							alert('发送失败！');
 							return false;

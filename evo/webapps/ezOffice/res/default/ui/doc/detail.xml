@@ -26,6 +26,11 @@
 	                if(data){
 	                  // alert(data);
 	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror &&obj.logonerror=='1'){
+				            alert("该账号已在设备"+obj.deviceId+"上登录");
+			          		$page.open('../index.xml',{target:'_self'});
+			                return;
+			           }
 		               var result = obj.message.result;
 	                   if(result=="1"){    //状态更改成功,跳转到详情页
 	                       loadFlag = '0';
@@ -71,6 +76,11 @@
 		    var evoUrl = storage.getItem('evoUrl');
             $http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:realname,wordType:wordType,id:id,accessoryName:accessoryName,handOutTime:handOutTime},  function(data) {
                  var obj =eval('('+data+')');
+                 if(obj.logonerror &&obj.logonerror=='1'){
+		             alert("该账号已在设备"+obj.deviceId+"上登录");
+	          		 $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
                  //为页面赋值
                  $('title').text=realname;
                  $('writeOrg').text=writeOrg;
@@ -79,10 +89,9 @@
                      handOutTime = handOutTime.substring(0,10);
                  }
                  $('handOutTime').text=handOutTime;
-                 var docUrl="$http.download('"+obj.sys_server+"doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;id="+id+"');";
+                 var docUrl="$http.download('"+evoUrl+"/ezOffice/doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;id="+id+'&amp;viewName='+realname+wordType+"');";
                  $('docLook').add($C('<label style="align:right;color:#38adff;text-decoration:underline;font-size:16;" onclick="'+docUrl+'">点击查看正文</label>'));
                  $('title').text=realname;
-                 
                  if(accessoryName!=null&&accessoryName!=""){    //当有附件时，显示附件真实名称,并提供下载方法。
                     // alert("有附件");
                      getFiles(id);
@@ -97,6 +106,11 @@
              $http.post(evoUrl+'/ezOffice/doc/documentfiles.do',{recordId:recordId},  function(data) {
                 if(data){
                     var obj = JSON.parse(data);
+                    if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 	                var result = obj.message.result;
 	                if(result=="1"){
 	                    var objArr = obj.data.result.AccessoryFiles; //返回列表数组
@@ -143,12 +157,16 @@
             //   alert(data);
                if(data){
                    var obj = JSON.parse(data);
+                   if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		           }
 	               var attList = obj.attList;
-	               
 	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 	                  for(var k=0;k<attList.length;k++){
 	                 // alert(attList[k].savename);
-	                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">'+attList[k].realname+'</label></row>')
+	                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'&amp;viewName=' + attList[k].realname + '\')">'+attList[k].realname+'</label></row>')
 	                      $('docFiles').add(files); 
 	                  }
 	               }else{     //无附件，或者后台处理异常

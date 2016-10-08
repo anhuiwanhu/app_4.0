@@ -42,6 +42,11 @@
             $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/doc/index.do',{title : $('search').value,pagerOffset:pagerOffset},  function(data) {
                 if(data){
 	                var obj = JSON.parse(data);
+	                if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 	                var result = obj.message.result;
 	                pagerOffset = obj.data.pagerOffset;
 	                var recordCount = obj.data.recordCount;

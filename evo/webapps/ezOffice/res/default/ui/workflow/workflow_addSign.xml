@@ -20,6 +20,11 @@
 	        				return false;
 	        			}
 	        			var jsonData = eval('('+data+')');
+	        			if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 	        			if(!jsonData || jsonData.result == 'fail'){
 	        				alert('获取加签信息失败！');
 	        				return false;
@@ -130,6 +135,11 @@
 						return false;
 					}
 					var jsonData = eval('(' + data + ')');
+					if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(jsonData.result == 'fail'){
 						alert('发送失败！');
 						return false;

@@ -4,7 +4,7 @@
     <![CDATA[
         var versionNumber="V4.2";
        	var dbName = "mobile_evo.db";
-       	var evoUrl = "http://192.168.7.93:8080";
+       	var evoUrl = "http://192.168.7.99:8080";
 		
 		$page.onload = function() {
 		    
@@ -12,12 +12,16 @@
 		    
 		    //判断版本号不一致就更新
 		    var curVersionNumber = storage.getItem('curVersionNumber');
-		    if(curVersionNumber==null||curVersionNumber==''||curVersionNumber!=versionNumber){
-		       //alert('更新！');
+		    if(curVersionNumber==null){
+		    	storage.setItem('curVersionNumber',versionNumber);
+		    	$page.open('index.xml',{target:'_self'});
+		    }else if(curVersionNumber=='' ||curVersionNumber!=versionNumber){
 		       clearlogin();
 		       storage.setItem('curVersionNumber',versionNumber);
+		       storage.setItem('login_remember','false');
 		       $page.open('index.xml',{target:'_self'});
 		    }
+
 		
 		
 			var info = $phone.info();
@@ -61,26 +65,12 @@
 		        tx.executeSql('CREATE TABLE IF NOT EXISTS myApp(AppId,AppValue,clickvar1,imgg,appname,clickvar2,topname,titlename,workTime,userId)');
 		        tx.executeSql('DROP TABLE IF EXISTS myTopOrg');
 		        tx.executeSql('CREATE TABLE IF NOT EXISTS myTopOrg(orgId,orgName)');
-		        tx.executeSql('DROP TABLE IF EXISTS dealfile_list');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS dealfile_list(workStatus,currPage,offset,resultType,empLivingPhoto,workMainLinkFile,workId,workTitle,workSubmitTime,workCurStep,pageCount,recordcount,userId)');
-		        tx.executeSql('DROP TABLE IF EXISTS workflow_list');
+		        tx.executeSql('DROP TABLE IF EXISTS allOrg');
+		        tx.executeSql('CREATE TABLE IF NOT EXISTS allOrg(orgId,orgName,parentId,userId)');
+		        tx.executeSql('DROP TABLE IF EXISTS allUser');
+		        tx.executeSql('CREATE TABLE IF NOT EXISTS allUser(id,userName,photo,phone,parentId,hasMore,userId)');
+		   		tx.executeSql('DROP TABLE IF EXISTS workflow_list');
 		        tx.executeSql('CREATE TABLE IF NOT EXISTS workflow_list(moduleId,packageId,pool_processId,pool_processName,pool_process_type,pool_oldprocess_id,pool_oldprocess_formid,pool_ezflowprocess_key,pool_ezflowprocess_defid,pool_ezflowprocess_formKey,userId)');
-		        //论坛表：forum_data
-                //字段：帖子forumid，所属栏目classid，头像photo，标题title，时间forumTime，阅读数forumKits，评论数forumRevertNum
-		        tx.executeSql('DROP TABLE IF EXISTS forum_data');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS forum_data(forumid,classid,photo,title,forumTime,forumKits,forumRevertNum,userId,hasMore)');
-		        //汇报表：report_data
-                //字段：汇报reportid，汇报类型type，汇报时间reportTime，汇报人reportEmpName，汇报区间reportCourse，头像photo，是否已读read，未读数目notRead，所有的未读数目allNotRead
-		        tx.executeSql('DROP TABLE IF EXISTS report_data');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)');
-		        //邮件表：mail_data
-                //字段：邮件mailid，用户关联表mailuserid，是否已读read，头像photo，未读数目notRead，发件时间mailposttime，发件人mailpostername，邮件主题mailsubject，是否有附件accessorySize，邮件类型mailType
-		        tx.executeSql('DROP TABLE IF EXISTS mail_data');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS mail_data(mailid,mailuserid,read,photo,notRead,mailposttime,mailpostername,mailsubject,accessorySize,mailType,userId,hasMore)');
-		        tx.executeSql('DROP TABLE IF EXISTS doc_list');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS doc_list(picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,accessoryName,writeOrg,byteNumber,userIsReaded,pagerOffset,recordCount,userId)');
-		        tx.executeSql('DROP TABLE IF EXISTS information_list');
-		        tx.executeSql('CREATE TABLE IF NOT EXISTS information_list(informationKits,informationCommonNum,informationIssueTime,style,informationTitle,informationId,informationType,channelId,userId,pagerOffset,recordCount,id)');
 		    }
 		    function errorcreateDB(err) {
 		      hint(err);
@@ -127,6 +117,7 @@
 				  storage.setItem('serverUrl',obj.server);
 				  storage.setItem('webServiceUrl',obj.webServiceUrl);
 				  storage.setItem('sys_key',obj.key);
+				  storage.setItem('picPath',obj.picPath);
 				  if(obj.sys_photoName!=''){
 				     storage.setItem('sys_photoName', evoUrl+'/ezOffice/imges/'+obj.sys_photoName);
 				  }else{
@@ -235,40 +226,10 @@
           
             var dlg = $page.waiting("正在清理缓存...");
             var storage = $phone.localStorage();
-            storage.setItem('login_userAccount','');
-		    storage.setItem('login_password','');
-		    storage.setItem('login_remember','false');
-		     
             var dbName = storage.getItem('ezMobile_dbName');
-     
             var db = $phone.openDatabase(dbName);
 		    db.transaction(query_clearDB, function(err){alert(err);}, function(){});
-		    
-		      storage.setItem('isCreateDB','');
-		      storage.setItem('sys_userAccount','');
-			  storage.setItem('sys_password','');
-			  storage.setItem('sys_sys_userId','');
-			  storage.setItem('sys_orgId','');
-			  storage.setItem('sys_domainId','');
-			  storage.setItem('sys_userName','');
-			  storage.setItem('sys_orgName','');
-			  storage.setItem('sys_orgShortName','');
-			  storage.setItem('sys_orgIdString','');
-			  storage.setItem('sys_orgSimpleName','');
-			  storage.setItem('sys_userSimpleName','');
-			  storage.setItem('sys_fileType','');
-			  storage.setItem('sys_fileserver','');
-			  storage.setItem('sys_httpserver','');
-			  storage.setItem('sys_server','');
-			  storage.setItem('sys_key','');
-			  storage.setItem('sys_photoName', '');
-			  storage.setItem('sys_phone','');
-			  storage.setItem('sys_empDuty','');
-			  storage.setItem('ezMobile_dbName','');
-			  storage.setItem('workflow_classlist','');
-			  storage.setItem('workflow_list_topflow','');
-			  storage.setItem('sys_location','');
-			  
+		      storage.clear();
               dlg.close();
             
         }
@@ -277,14 +238,9 @@
 	        tx.executeSql('DROP TABLE IF EXISTS custmenu');
 	        tx.executeSql('DROP TABLE IF EXISTS myApp');
 	        tx.executeSql('DROP TABLE IF EXISTS myTopOrg');
-	        tx.executeSql('DROP TABLE IF EXISTS dealfile_list');
+	        tx.executeSql('DROP TABLE IF EXISTS allOrg');
+	        tx.executeSql('DROP TABLE IF EXISTS allUser');
 	        tx.executeSql('DROP TABLE IF EXISTS workflow_list');
-	        tx.executeSql('DROP TABLE IF EXISTS forum_data');
-	        tx.executeSql('DROP TABLE IF EXISTS report_data');
-	        tx.executeSql('DROP TABLE IF EXISTS mail_data');
-	        tx.executeSql('DROP TABLE IF EXISTS doc_list');
-	        tx.executeSql('DROP TABLE IF EXISTS information_list');
-	        
 	    }
     ]]>
     </script> 

@@ -9,7 +9,6 @@
         var storage = $phone.localStorage();
         var userAccount = storage.getItem('userAccount');
         var evoUrl = storage.getItem('evoUrl');
-        
         var selectuser_range = storage.getItem('sys_selectuser_range');
         var selectUserIds = storage.getItem('sys_selectuser_userids');
         var selectUserNames = storage.getItem('sys_selectuser_usernames');
@@ -37,22 +36,18 @@
 		}
 		
 		function setSelected(type,obj,id,name){
-
 		    if(obj.checked){
 		       addMult(type,id,name);
 		       if(type=="user"){
 		          if(selectUserIds.indexOf("$"+id+"$")==-1){
-		            
 		              selectUserIds += "$"+id+"$";
                       selectUserNames += name+",";
                   }
                }else if(type=="org"){
                   if(selectUserIds.indexOf("*"+id+"*")==-1){
-		            
 		              selectUserIds += "*"+id+"*";
                       selectUserNames += name+",";
                   }
-                  
                }
 	        }else{
 	           delMult(type,id,name);
@@ -78,7 +73,6 @@
 		function delSelected(type,id,name){
 		   delMult(type,id,name);
 		   if(type=="user"){
-
               if($('orgusercheck'+id)!=null){
                $('orgusercheck'+id).checked=false;
               }
@@ -96,20 +90,15 @@
            }
 		}
 		function addMult(type,id,name){
-		
            if(type=="user"){
-
               if($("mulView_user"+id)==null){
 		             $('multipleview').add($C('<multipleviewitem onclick="delSelected(\''+type+'\',\''+id+'\',\''+name+'\')" id="mulView_user'+id+'" style="margin-left:8;margin-right:8">' +
 		        			  '<icon src="login_user.png" style="width:30;height:30;"/>' +
 		        			  '<label style="color:#38adff;font-size:8">'+name+'</label>' +
 		        		      '</multipleviewitem>'));
                }
-        		         
            }else if(type=="org"){
-           
               if($("mulView_org"+id)==null){
-
 		              $('multipleview').add($C('<multipleviewitem onclick="delSelected(\''+type+'\',\''+id+'\',\''+name+'\')" id="mulView_org'+id+'" style="margin-left:8;margin-right:8">' +
 		        			  '<icon src="login_user.png" style="width:30;height:30;"/>' +
 		        			  '<label style="color:#38adff;font-size:8">'+name+'</label>' +
@@ -117,14 +106,11 @@
         	   }
            }
            $('multipleview').badge=$('multipleview').widgets().length;
-	        
 		}
 		
 		function delMult(type,id,name){
-
           if(type=="user"){
 	        //移除下方multipleview人员
-        	  
         	if($("mulView_user"+id)!=null){
         		$('multipleview').remove($("mulView_user"+id));
             }
@@ -134,7 +120,6 @@
             }
           }
           $('multipleview').badge=$('multipleview').widgets().length;
-	        
 		}
 		
 		function loadorgList(){
@@ -149,8 +134,12 @@
 		   $http.post(evoUrl+'/ezOffice/person/getTopOrgList.do','', 
 		   function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.message.result;
-			     
 			     if(result=="1"){
 			        var persondata = obj.data.list;
 			        if(persondata instanceof Array){
@@ -246,11 +235,14 @@
 		    $http.post(evoUrl+'/ezOffice/person/getOrgUserListByParent.do','range='+selectuser_range+'&offset=0&orgId='+orgId, 
 		    function(data) {
 		         var obj = JSON.parse(data);
+		         if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.orgList.message.result;
-			     
 			     if(result=="1"){
 			        var orgdata = obj.orgList.data;
-			        
 			        if(orgdata.list){
 			           var orgId = orgdata.list.id;
 			           var orgName = orgdata.list.name;
@@ -321,20 +313,15 @@
 			     }
 			     
 			     var result1 = obj.userList.message.result;
-			     
 			     if(result1=="1"){
-			     
 			            var userdata = obj.userList.data.list;
-			            
 				        for(var i=0;i<userdata.length;i++){
 				           var userId = userdata[i].userId;
 				           var userName = userdata[i].userName;
 				           var sel = "";
 				           if(selectUserIds.indexOf("$"+userId+"$")>-1){
-				            sel = ' checked=\'true\' ';
-				            //addMult("user",userId,userName);
-				          }
-				           
+				            	sel = ' checked=\'true\' ';
+				           }
 				           parentObj.add($C('<list-item>'+
 								'<item id="user'+userId+'" collapsed="true" indent="20" >'+
 									'<row>'+
@@ -344,7 +331,6 @@
 									'</row>'+
 								'</item>'+
 							'</list-item>'));
-				
 				        }
 			     }
 			     flag='0';
@@ -369,7 +355,6 @@
 	       }else{
 	         $(ic).src="forum_openup.png";
 	       }
-	       
 	    }
 
 		function loadpersonList(val){
@@ -377,10 +362,13 @@
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  'range='+selectuser_range+'&offset=0&searchuser='+val, 
 		  function(data) {
-                 
                  var listJson = {items:[]};
-
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
 			     
 			     if(result=="1"){
@@ -468,12 +456,14 @@
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  'range='+selectuser_range+'&offset='+offset+'&searchuser='+$('searchuser').value, 
 		  function(data) {
-                 
                  var listJson = {items:[]};
-	            
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
-			     
 			     if(result=="1"){
 			        var persondata = obj.person.data.list;
 			        var currentPage = obj.person.data.currentPage;

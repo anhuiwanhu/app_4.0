@@ -6,14 +6,11 @@
 			var storage = $phone.localStorage();
             var userAccount = storage.getItem('userAccount');
             var userId = storage.getItem('sys_sys_userId');
-			//hint(userAccount);
-			
-              var dbName = storage.getItem('ezMobile_dbName');
-              
-              var selectAppids = "";
-              var db = $phone.openDatabase(dbName);
-		      db.transaction(queryDB0, function(err){alert(err);}, function(){});
-		      function queryDB0(tx) {
+            var dbName = storage.getItem('ezMobile_dbName');
+            var selectAppids = "";
+            var db = $phone.openDatabase(dbName);
+		    db.transaction(queryDB0, function(err){alert(err);}, function(){});
+		    function queryDB0(tx) {
 				tx.executeSql('select AppId,AppValue from myApp where userId="'+userId+'" ',[],
 						function(results){
 						  if(results.rows!=null && results.rows.length>0){
@@ -166,16 +163,13 @@
 		}
 		
 		function saveAppMenu(){
-        
                var elements = $('addAppForm').elements;
 		       var storage = $phone.localStorage();
                var dbName = storage.getItem('ezMobile_dbName');
                var userId = storage.getItem('sys_sys_userId');
-	           
-	            var db = $phone.openDatabase(dbName);
-			    db.transaction(populateDB, function(err){alert(err);}, function(){});
-			    
-			    function populateDB(tx) {
+	           var db = $phone.openDatabase(dbName);
+			   db.transaction(populateDB, function(err){alert(err);}, function(){});
+			   function populateDB(tx) {
 			        tx.executeSql('delete from myApp');
 			        for (var i = 0; i < elements.length; i++) {
 		                var element = elements[i];
@@ -185,12 +179,10 @@
 		                    tx.executeSql(sql);
 		                }
 		            }
-			        
 			    }
-			    //$page.close(0,'addItemToPersonTab("add")');
 			    $page.close(0,'refushMyApp("add")');
-			    
         }
+        
         function selcheck(obj){
            if($(obj).checked){
              $(obj).checked=false;

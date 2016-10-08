@@ -5,26 +5,21 @@
         var offset = "0";
         var selectUserIds="";
         var selectUserNames="";
-        
         var storage = $phone.localStorage();
         var userAccount = storage.getItem('userAccount');
         var evoUrl = storage.getItem('evoUrl');
-        
         var selectuser_range = storage.getItem('sys_selectuser_range');
         var selectUserIds = storage.getItem('sys_selectuser_userids');
         var selectUserNames = storage.getItem('sys_selectuser_usernames');
         var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
-          
 		$page.onload = function() {
             loadpersonList();
 		}
 		function setSelected(type,obj,id,name){
-
 		    if(obj.checked){
 		       addMult(type,id,name);
 		       if(type=="user"){
 		          if(selectUserIds.indexOf("$"+id+"$")==-1){
-		            
 		              selectUserIds = "$"+id+"$";
                       selectUserNames = name+",";
                   }
@@ -34,7 +29,6 @@
 		              selectUserIds = "*"+id+"*";
                       selectUserNames = name+",";
                   }
-                  
                }
 	        }else{
 	           delMult(type,id,name);
@@ -135,6 +129,11 @@
 		  	{range:selectuser_range,offset:'0',searchuser:$('searchuser').value},
 		  function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
 			     if(result=="1"){
 			        var persondata = obj.person.data.list;
@@ -146,9 +145,7 @@
 			          $('content_per').showBottom();
 			        }
 			        offset  = obj.offset;
-			        
 			        if(persondata instanceof Array){
-			        
 			           for(var i=0;i<persondata.length;i++){
 				          var userId = persondata[i].userId;
 				          var userName = persondata[i].userName;
@@ -158,7 +155,6 @@
 				            sel = 'checked="true"';
 				            addMult("user",userId,userName);
 				          }
-				          
 				          $('resuelist').add($C('<list-item>'+
 								'<item style="background:#ffffff;col-width:40,55,*;">'+
 									'<col>'+
@@ -218,16 +214,18 @@
 		}
 		
 		function addpersonList(){
-          
           $('bottom_hasmore').css('display','none');
 		  $('bottom_load').css('display','block');
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  	{range:selectuser_range,offset:offset,searchuser:$('searchuser').value},
 		  function(data) {
-                 
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
-			     
 			     if(result=="1"){
 			        var persondata = obj.person.data.list;
 			        var currentPage = obj.person.data.currentPage;
@@ -238,9 +236,7 @@
 			          $('content_per').showBottom();
 			        }
 			        offset  = obj.offset;
-			        
 			        if(persondata instanceof Array){
-			        
 			           for(var i=0;i<persondata.length;i++){
 				          var userId = persondata[i].userId;
 				          var userName = persondata[i].userName;
@@ -264,7 +260,6 @@
 							'</list-item>'));
 				        }
 			        }else if(persondata instanceof Object){
-			        
 				          var userId = persondata.userId;
 				          var userName = persondata.userName;
 				          var orgNameString = persondata.orgNameString;
@@ -302,8 +297,6 @@
 			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 		}
-		
-		
 
 		 //完成选择
         function completeseleted(){

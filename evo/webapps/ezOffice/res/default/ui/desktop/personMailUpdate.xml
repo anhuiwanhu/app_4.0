@@ -7,27 +7,21 @@
         $page.onload = function() {
             initPhone();
         }
-        
-        
         function initPhone(){
             //获取手机缓存中的数据 ,并为页面赋值
             var storage = $phone.localStorage();
-		 //   alert(storage.getItem('desktopMail'));
 		    var desktopMail = storage.getItem('desktopMail');
 		    if(desktopMail ==null||desktopMail==""){
 		        return;
 		    }
 		    var mailArr = desktopMail.split(";");
-		    
 		    //为页面赋值
 		    if(mailArr[0]!=""&&mailArr[0]!=null){
 		       $('empemail').value=mailArr[0];
 		    }
-		    
 		    if(mailArr[1]!=""&&mailArr[1]!=null){
 		       $('empemail2').value=mailArr[1];
 		    }
-		    
 		    if(mailArr[2]!=""&&mailArr[2]!=null){
 		       $('empemail3').value=mailArr[2];
 		    }
@@ -74,35 +68,27 @@
 		    var  empenglishname = storage.getItem('desktopEmpenglishname');  //英文名
 		    var  desktopPhone = storage.getItem('desktopPhone');                   //所有电话
 		    var  phoneArr = desktopPhone.split(";");
-		    
-		   
 		    var empmobilephone = "";
             var empmobilephone2 = "";
             var empbusinessphone = "";
             var empphone = "";
-           
 		    if(phoneArr[0]!=""&&phoneArr[0]!=null){
 		       empmobilephone=phoneArr[0];
 		    }
-		    
 		    if(phoneArr[1]!=""&&phoneArr[1]!=null){
 		       empmobilephone2=phoneArr[1];
 		    }
-		    
 		    if(phoneArr[2]!=""&&phoneArr[2]!=null){
 		       empbusinessphone=phoneArr[2];
 		    }
-		    
 		    if(phoneArr[3]!=""&&phoneArr[3]!=null){
 		       empphone=phoneArr[3];
 		    }
-		     
 		    var  emplivingphoto = storage.getItem('desktopEmplivingphoto');  //头像名称
 		    var  empsex = storage.getItem('desktopEmpsex');  //性别
 		    var  empenglishname =  storage.getItem('desktopEmpenglishname');   //英文名
 		    var  nickname = storage.getItem('desktopNickname');   //昵称
 		    var  empdescribe = storage.getItem('desktopEmpdescribe');   //简介
-		    
 		    var evoUrl = storage.getItem('evoUrl');
             $http.post(evoUrl+'/ezOffice/set/updatePersonInfo.do', {empenglishname:empenglishname,
             empmobilephone:empmobilephone,empmobilephone2:empmobilephone2,empbusinessphone:empbusinessphone,
@@ -111,6 +97,11 @@
                 //alert(data);
                 if(data){
                     var obj = JSON.parse(data);
+                    if(obj.logonerror &&obj.logonerror=='1'){
+			         		alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		            }
                     if(obj.message.result=="1"){
                         alert("保存信息成功！");
                         loadFlag = '0';
@@ -157,7 +148,6 @@
                 <button target="_blank"  onclick="complete()" style="font-size:18;color:#ffffff;">完成</button>
             </right>
 	    </title>
-	  
 		<content id="docContent" style="background:#f0f0f3;">
 			<list id="docList" >
 	            <item style="padding:4;border:1 #f0f0f3;background:#f0f0f3;" >

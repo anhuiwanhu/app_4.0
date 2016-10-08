@@ -12,15 +12,12 @@
         function initPhone(){
             //获取手机缓存中的数据 ,并为页面赋值
             var storage = $phone.localStorage();
-		  //  alert(storage.getItem('desktopPhone'));
 		    var desktopPhone = storage.getItem('desktopPhone');  //所有电话
 		    var phoneArr = desktopPhone.split(";");
-		    
 		    //为页面赋值
 		    if(phoneArr[0]!=""&&phoneArr[0]!=null){
 		       $('empmobilephone').value=phoneArr[0];
 		    }
-		    
 		    if(phoneArr[1]!=""&&phoneArr[1]!=null){
 		       $('empmobilephone2').value=phoneArr[1];
 		    }
@@ -88,11 +85,9 @@
 		    if(mailArr[1]!=""&&mailArr[1]!=null){
 		       empemail2=mailArr[1];
 		    }
-		    
 		    if(mailArr[2]!=""&&mailArr[2]!=null){
 		       empemail3=mailArr[2];
 		    }
-		    
 		    var  emplivingphoto = storage.getItem('desktopEmplivingphoto');  //头像名称
 		    var  empsex = storage.getItem('desktopEmpsex');  //性别
 		    var  empenglishname =  storage.getItem('desktopEmpenglishname');   //英文名
@@ -106,6 +101,11 @@
             nickname:nickname,empdescribe:empdescribe,emplivingphoto:emplivingphoto},function(data) {
                 if(data){
                     var obj = JSON.parse(data);
+                    if(obj.logonerror &&obj.logonerror=='1'){
+			         		alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		            }
                     if(obj.message.result=="1"){
                         alert("保存信息成功！");
                         loadFlag = '0';

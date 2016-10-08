@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+        var offset = "0";
+        var selectUserIds="";
+        var selectUserNames="";
+        var storage = $phone.localStorage();
+        var evoUrl = storage.getItem('evoUrl');
+        var selectuser_range = storage.getItem('sys_selectuser_range');
+        var selectUserIds = storage.getItem('sys_selectuser_userids');
+        var selectUserNames = storage.getItem('sys_selectuser_usernames');
+        var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
+          
+		$page.onload = function() {
+            loadpersonList();
+		}
+
+		function loadpersonList(){
+		  $('resuelist').clear();
+		  $http.post(evoUrl+'/ezOffice/schedule/selectChidren.do',
+		  	{},
+		  function(data) {
+			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		    $page.open('../index.xml',{target:'_self'});
+	                return;
+	             }
+			     var result = obj.message.result;
+			     if(result=="1"){
+			     	var record = obj.data;
+			     	if(record  == null || record.length == 0){
+		     			$('resuelist').add($C('<list-item>'+
+							'<item><col><row><label style="align:center;">暂无相关记录</label></row></col></item>'+
+						'</list-item>'));
+						 $('content_bottom').css('display','none');
+						 $('indexContent').hideTop();
+			     	}else{
+						var persondata = obj.data;
+				        if(persondata instanceof Array){
+				           for(var i=0;i<persondata.length;i++){
+					          var userId = persondata[i].empId;
+					          var userName = persondata[i].empName;
+					          var sel = '';
+					          if(selectUserIds.indexOf("$"+userId+"$")>-1){
+					            sel = 'checked="true"';
+					            addMult("user",userId,userName);
+					          }
+					          
+					          $('resuelist').add($C('<list-item>'+
+									'<item style="background:#ffffff;col-width:40,55,*;">'+
+										'<col>'+
+										'<radio style="align:left;font-size:18" id="chek_user'+userId+'" value="'+userName+'" '+sel+' name="radio1" onclick="setSelected(\'user\',this,\''+userId+'\',\''+userName+'\');"/>'+
+										'</col><col>'+
+										'<img default="login_user.png" src="" style="width:35;height:35;margin-left:5;" effect="round"/>'+
+										'</col><col>'+
+										'<row><label style="align:left;font-size:16;color:#555555;">'+userName+'</label></row>'+
+										'</col>'+
+									'</item>'+
+								'</list-item>'));
+					        }
+				        }else if(persondata instanceof Object){
+					          var userId = persondata.empId;
+					          var userName = persondata.empName;
+					          var sel = '';
+					          if(selectUserIds.indexOf("$"+userId+"$")>-1){
+					            sel = 'checked="true"';
+					            addMult("user",userId,userName);
+					          }
+					          $('resuelist').add($C('<list-item>'+
+									'<item style="background:#ffffff;col-width:40,55,*;">'+
+										'<col>'+
+										'<radio style="align:left;font-size:18" id="chek_user'+userId+'" value="'+userName+'" '+sel+' name="radio1" onclick="setSelected(\'user\',this,\''+userId+'\',\''+userName+'\');"/>'+
+										'</col><col>'+
+										'<img default="login_user.png" src="" style="width:35;height:35;margin-left:5;" effect="round"/>'+
+										'</col><col>'+
+										'<row><label style="align:left;font-size:16;color:#555555;">'+userName+'</label></row>'+
+										'</col>'+
+									'</item>'+
+								'</list-item>'));
+				        }			     	
+			     	}
+			     }else{
+			        $('resuelist').add($C('<list-item>'+
+								'<item><col><row><label style="align:center;">暂无相关记录</label></row></col></item>'+
+							'</list-item>'));
+			        $('content_per').hideBottom();
+			        $('content_per').hideTop();
+			     }
+			     $('content_per').hideTop();
+			    // $('bottom_more').css('display','block');
+		  	 	 $('bottom_load').css('display','none');
+			},function(error) {
+			    if (error == 'timeout') {
+			        hint('连接服务器超时！');
+			    } else if (error == '404') {
+			        hint('链接超时重新登录！');
+			    } else if (error == '500') {
+			        hint('内部服务器错误！');
+			    } else {
+			        hint('访问网络错误！错误代码:' + error);
+			    }
+			    $page.open('../index.xml',{animation:'down-to-up'});
+		    });
+		}
+		
+		function setSelected(type,obj,id,name){
+		    if(obj.checked){
+		       addMult(type,id,name);
+		       if(type=="user"){
+		          if(selectUserIds.indexOf("$"+id+"$")==-1){
+		              selectUserIds = "$"+id+"$";
+                      selectUserNames = name+",";
+                  }
+               }
+	        }else{
+	           delMult(type,id,name);
+	           if(type=="user"){
+		          if($('chek_user'+id)!=null){
+	                $('chek_user'+id).checked=false;
+	              }
+	              selectUserIds = selectUserIds.replace("$"+id+"$","");
+                  selectUserNames = selectUserNames.replace(name+",","");
+               }
+			}
+		}
+		function delSelected(type,id,name){
+		   delMult(type,id,name);
+		   if(type=="user"){
+
+              if($('chek_user'+id)!=null){
+               $('chek_user'+id).checked=false;
+              }
+              selectUserIds = selectUserIds.replace("$"+id+"$","");
+              selectUserNames = selectUserNames.replace(name+",","");
+           }
+		}
+		function addMult(type,id,name){
+		   
+		   $('multipleview').clear();
+           if(type=="user"){
+
+              if($("mulView_user"+id)==null){
+		             $('multipleview').add($C('<multipleviewitem onclick="delSelected(\''+type+'\',\''+id+'\',\''+name+'\')" id="mulView_user'+id+'" style="margin-left:8;margin-right:8">' +
+		        			  '<icon src="login_user.png" style="width:30;height:30"/>' +
+		        			  '<label style="color:#38adff;font-size:8">'+name+'</label>' +
+		        		      '</multipleviewitem>'));
+               }
+           }
+		}
+		
+		function delMult(type,id,name){
+          if(type=="user"){
+	        //移除下方multipleview人员
+        	if($("mulView_user"+id)!=null){
+        		$('multipleview').remove($("mulView_user"+id));
+            }
+          }
+		}
+		
+		 //完成选择
+        function completeseleted(){
+            var returnfuc = selectuser_returnfuc+'(\"'+selectUserIds+'\",\"'+selectUserNames+'\")' ;
+            //alert(selectUserIds+"  "+selectUserNames);
+        	$page.close(0, returnfuc);
+       	} 
+       	
+       	function upfrsh(){
+      		$('bottom_more').css('display','none');
+            $('bottom_load').css('display','none');
+            $('content_per').showBottom();
+	   		curpage = '1';
+			loadpersonList();
+       	}
+       	
+       	function downfrsh(){
+			curpage = parseInt(curpage)+1+"";
+			$('bottom_more').css('display','none');
+            $('bottom_load').css('display','block');
+			loadpersonList();
+		}
+		
+    ]]>
+    </script> 
+	<page>
+		<title style="background:#3daffe;tint-color:white">
+            <left>
+                <button role="back"></button>
+            </left>
+            <center>
+                <label style="color:#ffffff">人员选择</label>
+            </center>
+        </title>
+	    <header>
+            <row style="text-align:center;">
+			   <input type="search" id="searchuser" placeholder="请输入用户查询" onclick="loadpersonList();"/>
+		    </row>
+        </header>
+        <content id="content_per" draggable="true" ondragdown="upfrsh();">
+	         <list id="resuelist">
+	         </list>
+            <bottom id="content_bottom">
+	             <list>
+	                 <item onclick="downfrsh();">
+	                     <row id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+	                   	<row style="display:none" id="bottom_more">
+	                      <label style="align:center;">点击加载更多...</label>
+	                      <progress id="more_progress" style="display:none;align:center"/>
+	                  </row>
+	              </item>
+	             </list>
+            </bottom>
+     </content>
+        <footer style="background:#e0e0e0;">
+			<multipleview id="multipleview" style="tint-color:#ffffff;margin-right:2;confirm-titlesize:16;height:50;" confirmBackground="#0000ff,#0000ff" onclick="completeseleted();"></multipleview>
+		</footer>
+		
+	</page>
+	
+</imag>

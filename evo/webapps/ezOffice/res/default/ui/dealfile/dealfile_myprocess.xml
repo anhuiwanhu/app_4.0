@@ -9,6 +9,10 @@
         	var detailUrl;
         	var webServiceUrl;
         	var evoUrl;
+        	var draftPerson = '';  //发起人
+        	var worktitle = '';  //流程标题
+        	var worksubmittime = '';   //发起时间
+        	var bodyIndex = 1 ;      //正文index
         	(function(){
         		storage = $phone.localStorage();
 	           	workStatus = storage.getItem('workflow_workStatus');
@@ -19,7 +23,6 @@
         	
         	var itemContent = '';
         	$page.onload = function(){
-
         		$http.post(
         			evoUrl + '/ezOffice/dealfile/process.do',{workId : workId},
         			function(data){
@@ -27,6 +30,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_1.message.result;
         				//var personResult = jsonData.data_2.message.result;  || personResult != '1'
@@ -66,6 +74,8 @@
 						createCommentCon($contentFormList,workInfo,detailData);
 						// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(workInfo,detailData);
+						//创建编辑正文附件名称
+						createBodyFileName(workInfo);
 						// 创建附件内容
 						createAttachCon();
        					// 创建底部内容
@@ -85,6 +95,21 @@
         		);
 
 	        }
+	        
+	        function createBodyFileName(workInfo){
+	        	draftPerson = workInfo.worksubmitperson == null ? '': workInfo.worksubmitperson;
+	        	worktitle =  workInfo.worktitle== null ? '': workInfo.worktitle;
+	        	worktitle = worktitle.replace('等待您的审阅！','');
+	        	worktitle = worktitle.replace('等待您的审阅','');
+	        	worktitle = worktitle.replace('等待您的办理！','');
+	        	worktitle = worktitle.replace('等待您的办理','');	
+	        	worksubmittime = workInfo.worksubmittime == null ? '': workInfo.worksubmittime;
+	        	if(worksubmittime != null && worksubmittime != '' && worksubmittime.length>10){
+	        		worksubmittime = worksubmittime.substring(0,10).replace(/-/g,'');
+	        	}
+	        }
+	        
+	        
 	        //播放语音
 			function playSound(path){
 			    
@@ -201,11 +226,15 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
-							var serverUrl = obj.serverUrl;
+							if(obj.logonerror &&obj.logonerror=='1'){
+			         			alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>');
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName=' + attList[k].realname + '\')">' + attList[k].realname + '</label></row>');
 									$(attachments[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
@@ -247,19 +276,17 @@
 	        		//Word编辑
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles">';
-	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
-	        		
+	        		viewFiles('docFiles',"正文",field.value+".doc","information",".doc");   //显示名不能为空
 	        	}else if(showType == '117'){
 	        		//Excel编辑
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles">';
-	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
+	        		viewFiles('xlsFiles',"正文",field.value+".xls","information",".xls");   //显示名不能为空
 	        	}else if(showType == '118'){
 	        	    //WPS编辑 118
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles">';
-	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
-	        		
+	        		viewFiles('wpsFiles',"正文",field.value+".wps","information",".wps");   //显示名不能为空
 	        	}else if(showType == '401'){
 		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 		        				   '</row></col><col style="padding:10;margin:10;">';
@@ -346,6 +373,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -525,18 +557,18 @@
 				    // word
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles"></col></item>';
-	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
+	        		viewFiles('docFiles',"正文",field.value+".doc","information",".doc");   //显示名不能为空
 
 				}else if(field.showtype == '117'){
 					// excel
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles"></col></item>';
-	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
+	        		viewFiles('xlsFiles',"正文",field.value+".xls","information",".xls");   //显示名不能为空
 				}else if(field.showtype == '118'){
 				    // wps
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles"></col></item>';
-	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
+	        		viewFiles('wpsFiles',"正文",field.value+".wps","information",".wps");   //显示名不能为空
 				}else{
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 					subTabelItemContent += '<row><label style="align:right">' + (field.hiddenval == "undefined" ? "" : field.hiddenval) + '</label></row></col></item>';
@@ -572,71 +604,43 @@
 			function sendFlow(){
 				$page.open('dealfile_pressInfo.xml?'+$('sendForm').serialize(),{animation:'down-to-up'});
 			}
-			function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path){
-            var storage = $phone.localStorage();
-		    var evoUrl = storage.getItem('evoUrl');
-            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
-               if(data){
-                   var obj = JSON.parse(data);
-	               var attList = obj.attList;
-	               
-	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
-	                  for(var k=0;k<attList.length;k++){
-	                 // alert(attList[k].savename);
-	                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">查看正文</label></row>')
-	                      $(filetype).add(files); 
-	                  }
-	               }else{     //无附件，或者后台处理异常
-	               
+			function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path,fileType){
+	            var storage = $phone.localStorage();
+			    var evoUrl = storage.getItem('evoUrl');
+	            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
+	               if(data){
+	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror &&obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
+		               var attList = obj.attList;
+		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
+		                  for(var k=0;k<attList.length;k++){
+		                      var viewName = draftPerson +worksubmittime +worktitle+"的正文"+bodyIndex+fileType;
+		                      bodyIndex++;
+		                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'&amp;viewName='+viewName+'\')">查看正文</label></row>')
+		                      $(filetype).add(files); 
+		                  }
+		               }else{     //无附件，或者后台处理异常
+		               
+		               }
 	               }
-               }
-            },function(error) {
-				    if (error == 'timeout') {
-				        hint('连接服务器超时！');
-				    } else if (error == '404') {
-				        hint('页面不存在！');
-				    } else if (error == '500') {
-				        hint('内部服务器错误！');
-				    } else {
-				        hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-			   }
-            );
-        }
-        function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path){
-            var storage = $phone.localStorage();
-		    var evoUrl = storage.getItem('evoUrl');
-            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
-               if(data){
-                   var obj = JSON.parse(data);
-	               var serverUrl = obj.serverUrl;
-	               var attList = obj.attList;
-	               
-	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
-	                  for(var k=0;k<attList.length;k++){
-	                 // alert(attList[k].savename);
-	                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+serverUrl+'download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">查看正文</label></row>')
-	                      $(filetype).add(files); 
-	                  }
-	               }else{     //无附件，或者后台处理异常
-	               
-	               }
-               }
-            },function(error) {
-				    if (error == 'timeout') {
-				        hint('连接服务器超时！');
-				    } else if (error == '404') {
-				        hint('页面不存在！');
-				    } else if (error == '500') {
-				        hint('内部服务器错误！');
-				    } else {
-				        hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-			   }
-            );
-        }
+	            },function(error) {
+					    if (error == 'timeout') {
+					        hint('连接服务器超时！');
+					    } else if (error == '404') {
+					        hint('页面不存在！');
+					    } else if (error == '500') {
+					        hint('内部服务器错误！');
+					    } else {
+					        hint('访问网络错误！错误代码:' + error);
+					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
+				   }
+	            );
+	        }
 			
         ]]>
     </script>

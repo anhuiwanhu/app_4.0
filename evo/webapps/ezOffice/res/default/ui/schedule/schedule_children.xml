@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+ 	<script>
+    	<![CDATA[
+    		var storage = $phone.localStorage();
+    		var curpage = '1';
+            var evoUrl = storage.getItem('evoUrl');
+            var userId = storage.getItem('sys_sys_userId');
+            $page.onload=function(){
+            	selectBranchList('');
+            }
+            
+            function selectAttendto(){
+				var storage = $phone.localStorage();
+        		storage.setItem('sys_selectuser_range','*0*');
+        		storage.setItem('sys_selectuser_userids',$('attendIds').value);
+        		storage.setItem('sys_selectuser_usernames',$('attend').value);
+        		storage.setItem('sys_selectuser_returnfuc','completeAttendto');
+	    		$page.open('branchList.xml', {animation:'down-to-up'});
+			}
+			function completeAttendto(id,name){
+	 	 		$('attendIds').value=id;
+	  			$('attend').value=name;
+	  			selectBranchList(id);
+			}
+            
+            function selectBranchList(branchId){
+            	if(curpage=='1'){
+					$('listView').clear();
+				}
+            	$http.post(evoUrl+'/ezOffice/schedule/selectBranchList.do', 
+					{curpage:curpage,queryTitle:$('subject').value,branchId:branchId},function(data) {
+						//alert(data);
+						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
+						var result = obj.message.result;
+						var listJson = {items:[]};
+						if(result = 1){
+							var recordCount = obj.data.recordCount;
+							if(parseInt(recordCount) <=0){
+								var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('listView').update(listJson);
+								$('listContent').hideBottom();
+							}else{
+								var pageCount = obj.data.pageCount;
+			                	var list = obj.data.list;
+			                	if(list instanceof Array){
+			                		for(var i=0;i<list.length;i++){
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list[i].id+'")',
+			                   			widgets : {
+			                       			eventAddress : {text :"[" + list[i].eventAddress + "]"},
+			                       			eventTitle : {text :list[i].eventTitle},
+			                       			eventDate : {text :list[i].eventBeginDate}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                		}
+			                	}else if(list instanceof Object){
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list.id+'")',
+			                   			widgets : {
+			                       			eventAddress : {text :"[" + list.eventAddress + "]"},
+			                       			eventTitle : {text :list.eventTitle},
+			                       			eventDate : {text :list.eventBeginDate}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                	}
+			                	$('listView').addMore(listJson);
+								$('listContent').hideBottom();
+							}
+						}else{
+							var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('listView').update(listJson);
+								$('listContent').hideBottom();
+						}
+		   		},function(error) {
+					toErro(error);
+				});
+            }
+            
+            function toView(eventId,dataValue){
+            	storage.setItem('eventId',eventId);
+				$page.open('schedule_view.xml',{animation:'down-to-up'});
+            }
+            
+            function searchSchedule(){
+            	//curpage = '1';
+				//$('bottom_more').css('display','none');
+	            //$('bottom_load').css('display','block');
+            	//selectBranchList();
+            }
+            
+            function toErro(error){
+				if (error == 'timeout') {
+					hint('连接服务器超时！');
+				} else if (error == '404') {
+					hint('链接超时重新登录！');
+				} else if (error == '500') {
+					hint('内部服务器错误！');
+				} else {
+					hint('访问网络错误！错误代码:' + error);
+				}
+				$page.open('../index.xml',{animation:'down-to-up'});
+			}
+			
+    		function openPopupMenu() {
+                $('popmenu').open();
+                $('arrow').src = 'mail_up.png'; 
+            }
+    	]]>
+    </script> 
+    <page>
+		<popupmenu id="popmenu" position="topcenter" onclose="$('arrow').src = 'mail_down.png';" style="width:130">
+            <list>
+                <item onclick="$('popmenu').close();$page.open('schedule_my.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">我的日程</label>
+                    </row>
+                </item>
+                <item onclick="$('popmenu').close();$page.open('schedule_children.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">下属日程</label>
+                        <icon src="top_updown.png" style="align:right;width:15;"></icon>
+                    </row>
+                </item>
+            </list>
+		</popupmenu> 
+        <title style="background:#38adff;tint-color:white">
+            <left>
+                <button role="back"/>
+            </left>
+            <center>
+                <label onclick="openPopupMenu();">下属日程</label>
+                <icon id="arrow" src="mail_down.png" style="width:15;margin-left:5;" onclick="openPopupMenu();"></icon>
+            </center>
+            <right>
+                <button onclick="$page.open('schedule_write.xml',{animation:'down-to-up'});" icon="desk_personcenter_add.png"></button>
+            </right>
+        </title>
+		<header style="margin-top:0">
+              <input type="search" onclick="searchSchedule();" id="subject" placeholder="请输入日程主题查询" style="height:40"/>
+				<content>
+					<list>
+					<item style="col-width:100,*" onclick="selectAttendto();" accessory="indicator">
+                        <col>
+                           <label style="font-size:16;color:#555555;">选择员工：</label>
+                        </col>
+                        <col>
+                        	<input type="hidden" id="attendIds" name="attendIds"/>
+                            <input type="text" id="attend" name="attend" readonly="true" placeholder="请选择" style="text-align:right;border:0 white;font-size:16;color:#555555;" onclick="selectAttendto();"/>
+                        </col>
+                    </item>
+                    </list>
+				</content>
+		</header>
+			<content  id="listContent" draggable="true" ondragdown="">
+					<list id="listView" reuse="true">
+            			<item style="">
+            			<row>
+                    		 <label reusekey="eventDate"></label>
+                    	</row>
+                    	<row>
+                    		 <label reusekey="eventAddress"></label>
+                    		 <label reusekey="eventTitle"></label>
+                    	</row>
+                </item>
+                
+                <item>
+                   <col><row><label reusekey="title" style="align:center;"></label></row></col>
+                </item>
+            </list>
+            <bottom id="bottom" style="display:block">
+	            <list>
+	                <item onclick="downfrsh();" style="background:null,#DEE3E7">
+	                    <row id="bottom_load">
+		                    <label style="align:center;">正在加载...</label>
+		                    <progress style="align:center"/>
+	                    </row>
+	                    <row id="bottom_more" style="display:none">
+	                        <label style="align:center;">点击加载更多...</label>
+	                        <progress id="globalProgress" style="display:hidden;align:center;"/>
+	                    </row>
+	                </item>
+	            </list>
+	        </bottom>
+			</content>
+	</page>
+</imag>
+

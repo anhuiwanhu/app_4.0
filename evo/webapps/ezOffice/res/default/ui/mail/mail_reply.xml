@@ -24,6 +24,9 @@
         	}else if(type=="again"){
         		$("lab").text="发送邮件";
         		again();
+        	}else if(type=="signAttach"){
+        		$("lab").text="回复邮件";
+        		replyAttach();
         	}
         }
 		
@@ -31,6 +34,11 @@
 			$http.post(evoUrl+'/ezOffice/mail/reply.do', 
 				{mailuserId:mailuserId,mailId:mailId,type:type}, function(data){
 					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(obj.result =="1"){
 						$("mailtoid").value=obj.mailtoid;
 						$("mailto").value=obj.mailto;
@@ -53,10 +61,70 @@
 			});
 		}
 		
+		function replyAttach(){
+			$http.post(evoUrl+'/ezOffice/mail/reply.do', 
+				{mailuserId:mailuserId,mailId:mailId,type:type}, function(data){
+					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
+					if(obj.result =="1"){
+						$("mailtoid").value=obj.mailtoid;
+						$("mailto").value=obj.mailto;
+						$("mailsubject").value=obj.mailsubject;
+						$("oldCont").value=obj.oldCont;
+						var newCont=obj.mailcontent;
+						var mailType=obj.mailType;
+						if(mailType =='1'){
+							$("mailweb").html=newCont;
+							$('mailweb').css('display', 'block');
+							$('newCont').css('display', 'none');
+						}else{
+							$("newCont").text=newCont;
+							$('mailweb').css('display', 'none');
+							$('newCont').css('display', 'block');
+						}
+						$("accessorySize").value=obj.accessorySize;
+						var objArr = obj.attachments;
+						var accessoryNameseries="";
+		                var accessorySaveNameseries="";
+		                var sfilenames="";
+		                var rfileNames="";
+						if(objArr.length>0){
+							for (var i = 0; i < objArr.length; i++) {
+			        	        if(i<objArr.length-1){
+			        	            accessoryNameseries += objArr[i].name+"|";
+			        	            rfileNames += objArr[i].name+"$F$";
+			        	            accessorySaveNameseries += objArr[i].saveName+"|";
+			        	            sfilenames += objArr[i].saveName+"$F$";
+			        	        }else if(i==objArr.length-1){
+			        	            accessoryNameseries += objArr[i].name;
+			        	            rfileNames += objArr[i].name;
+			        	            accessorySaveNameseries += objArr[i].saveName;
+			        	            sfilenames += objArr[i].saveName;
+			        	        }
+			        	    }
+			        	    $("rfileNames").value=rfileNames;
+			        	    $("sfilenames").value=sfilenames;
+				        	viewFiles(accessoryNameseries,accessorySaveNameseries);
+						}
+					}
+			 },function(error) {
+				toErro(error);
+			});
+		}
+		
 		function replyAll(){
 			$http.post(evoUrl+'/ezOffice/mail/reply.do', 
 				{mailuserId:mailuserId,mailId:mailId,type:type}, function(data){
 					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(obj.result =="1"){
 						$("mailtoid").value=obj.mailtoid;
 						$("mailto").value=obj.mailto;
@@ -85,6 +153,11 @@
 			$http.post(evoUrl+'/ezOffice/mail/reply.do', 
 				{mailuserId:mailuserId,mailId:mailId,type:type}, function(data){
 					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(obj.result =="1"){
 						$("mailsubject").value=obj.mailsubject;
 						$("oldCont").value=obj.oldCont;
@@ -136,6 +209,11 @@
               function(data) {
 	               if(data){
 	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
 		               var attList = obj.attList;
 		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 		                  for(var k=0;k<attList.length;k++){
@@ -156,6 +234,11 @@
 			$http.post(evoUrl+'/ezOffice/mail/reply.do', 
 				{mailuserId:mailuserId,mailId:mailId,type:type}, function(data){
 					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(obj.result =="1"){
 						$("mailtoid").value=obj.mailtoid;
 						$("mailto").value=obj.mailto;

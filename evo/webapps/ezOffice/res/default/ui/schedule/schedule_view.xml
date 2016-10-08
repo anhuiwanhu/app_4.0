@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+        <![CDATA[
+			var storage = $phone.localStorage();
+			var evoUrl = storage.getItem('evoUrl');
+			var eventId = storage.getItem('eventId');
+			var fucType = "";
+			$page.onload=function(){
+        		scheduleView();
+            }
+			
+			function scheduleView(){
+				$http.post(evoUrl+'/ezOffice/schedule/scheduleViewdate.do', 
+					{eventId:eventId},function(data) {
+					//alert(data);
+					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+		     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		     		    $page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
+					var result = obj.message.result;
+					if(result == "1"){
+						var data = obj.data;
+						$("eventId").value=eventId;
+						$("eventTitle").value=data.eventTitle;
+						$("eventAddress").value=data.eventAddress;
+						$("eventBeginTime").value=data.eventBeginTime;
+						$("eventEndTime").value=data.eventEndTime;
+						$("attend").value=data.attend;
+						$("attendIds").value=data.attendId;
+						$("eventContent").value=data.eventContent;
+						if(data.eventFullDay == "1"){
+							$("eventFullDay").checked=true;
+							$("eventFullDay").value=="1";
+						}
+						if(data.eventOnTimeMode  == "1"){
+							$("eventOnTimeMode").checked=true;
+							$("eventOnTimeMode").value=="1";
+						}
+					}
+		   		},function(error) {
+					toErro(error);
+				});
+			}
+			
+			function updateSchedule(){
+				 $('scheduleFrom').action=evoUrl+"/ezOffice/schedule/scheduleUpdate.do";
+				 if($('eventTitle').value.trim().length == 0){
+       				hint('日程主题不能为空！');
+       				return false;
+   				 }
+   				 
+   				 if($("eventFullDay").checked){
+					$("eventFullDay").value="1";
+				 }
+				 if($("eventOnTimeMode").checked){
+					$("eventOnTimeMode").value="1";
+				 }
+			
+				 $('scheduleFrom').submit(function(data) {
+                 var obj = JSON.parse(data);
+                 hint(obj.message.description);
+                 $page.close();
+                 }, function(error) {
+                    hint('提交失败！');
+                 });
+			}
+			
+			function insertSchedule(){
+				 $('scheduleFrom').action=evoUrl+"/ezOffice/schedule/scheduleInsert.do";
+				 if($('eventTitle').value.trim().length == 0){
+       				hint('日程主题不能为空！');
+       				return false;
+   				 }
+   				 
+   				 if($("eventFullDay").checked){
+					$("eventFullDay").value="1";
+				 }
+				 if($("eventOnTimeMode").checked){
+					$("eventOnTimeMode").value="1";
+				 }
+			
+				 $('scheduleFrom').submit(function(data) {
+                 var obj = JSON.parse(data);
+                 hint(obj.message.description);
+                 $page.close();
+                 }, function(error) {
+                    hint('提交失败！');
+                 });
+			}
+			
+			function deSchedule(){
+				$http.post(evoUrl+'/ezOffice/schedule/delSchedule.do', 
+					{eventId:eventId},function(data) {
+					var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+		     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		     		    $page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
+					var result = obj.message.result;
+					if(result == "1"){
+						alert("日程删除成功！");
+						$page.open('schedule_my.xml', {animation:'down-to-up'});
+					}else{
+						alert("日程删除失败！");
+						$page.close();
+					}
+		   		},function(error) {
+					toErro(error);
+				});
+			}
+			
+			function selectAttendto(){
+				var storage = $phone.localStorage();
+        		storage.setItem('sys_selectuser_range','*0*');
+        		storage.setItem('sys_selectuser_userids',$('attendIds').value);
+        		storage.setItem('sys_selectuser_usernames',$('attend').value);
+        		storage.setItem('sys_selectuser_returnfuc','completeAttendto');
+	    		$page.open('../public/selectUser.xml', {animation:'down-to-up'});
+			}
+			function completeAttendto(id,name){
+	 	 		$('attendIds').value=id;
+	  			$('attend').value=name;
+			}
+			
+			
+			function toErro(error){
+				if (error == 'timeout') {
+					hint('连接服务器超时！');
+				} else if (error == '404') {
+					hint('链接超时重新登录！');
+				} else if (error == '500') {
+					hint('内部服务器错误！');
+				} else {
+					hint('访问网络错误！错误代码:' + error);
+				}
+				$page.open('../index.xml',{animation:'down-to-up'});
+			}
+        ]]>
+    </script>
+    <page>
+        <title style="background:#38adff;tint-color:white">
+            <left>
+                <button role="back">返回</button>
+            </left>
+            <center>
+                <label>我的日程</label>
+            </center>
+            <right>
+                <label onclick="updateSchedule();" style="margin-left:7;font-size:16;color:#ffffff">完成</label>
+            </right>
+        </title>
+        <content>
+        	<form id="scheduleFrom" action="" progress="提交表单|正在提交表单，请稍后...">
+        	 	<list>
+                    <item style="col-width:100,*">
+                        <col>
+                           <label style="font-size:16;color:#555555;">主题：</label>
+                        </col>
+                        <col>
+                           <row><input type="text" id="eventTitle" name="eventTitle" style="text-align:right;border:0 white;font-size:16;color:#555555;"/></row>
+                        </col>
+                    </item>
+                    <item style="col-width:100,*">
+                        <col>
+                           <label style="font-size:16;color:#555555;">地点：</label>
+                        </col>
+                        <col>
+                           <row><input type="text" id="eventAddress" name="eventAddress" style="text-align:right;border:0 white;font-size:16;color:#555555;"/></row>
+                        </col>
+                    </item>
+                    <item style="col-width:100,*">
+                        <col >
+                           <label style="font-size:16;color:#555555;">类型：</label>
+                        </col>
+                        <col>
+                           <row>
+                           	 	<checkbox id="eventFullDay" name="eventFullDay" style="align:right;font-size:16;color:#555555" >全天</checkbox>
+                                <checkbox id="eventOnTimeMode" name="eventOnTimeMode" style="align:right;font-size:16;color:#555555" >分时段</checkbox>
+                           </row>
+                        </col>
+                    </item>
+                    <item style="">
+                        <col>
+                             <row>
+                             	<label style="font-size:16;color:#555555;">开始时间：</label>
+                             	<input type="text" id="eventBeginTime" name="eventBeginTime" style="text-align:right;border:0 white;font-size:16;color:#555555;"/>
+                             </row>	
+							<row>
+								<label style="font-size:16;color:#555555;">结束时间：</label>
+								<input type="text" id="eventEndTime" name="eventEndTime" style="text-align:right;border:0 white;font-size:16;color:#555555;"/>
+							</row>
+                        </col>
+                    </item>
+                    <item style="col-width:60,*" onclick="selectAttendto();" accessory="indicator">
+                        <col>
+                           <label style="font-size:16;color:#555555;">参与人：</label>
+                        </col>
+                        <col>
+                        	<input type="hidden" id="attendIds" name="attendIds"/>
+                            <input type="hidden" id="eventId" name="eventId"/>
+                            <input type="text" id="attend" name="attend" readonly="true" placeholder="请选择" style="text-align:right;border:0 white;font-size:16;color:#555555;" onclick="selectAttendto();"/>
+                        </col>
+                    </item>
+                    <item>
+                        <label style="margin-bottom:5;font-size:16;color:#555555;">日程内容：</label>
+                        <textarea id="eventContent" name="eventContent" rows="6" maxrows="6" style="margin-bottom:5;border:0 white;font-size:16;color:#555555;"></textarea>
+                    </item>
+                </list>
+                </form>
+        </content>
+        <footer id="foot" style="background:#cac9ce;">
+            <button icon="mail_dele.png" onclick="deSchedule();" style="align:center;color:#FF3300;font-size:16;height:50;border:0 white">  删除</button>
+        </footer>
+    </page>
+</imag>

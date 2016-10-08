@@ -21,6 +21,10 @@
 			var appRealFiles;
 	        var appSaveFiles;
 	        var itemContent = '';
+	        var draftPerson = '';  //发起人
+        	var worktitle = '';  //流程标题
+        	var worksubmittime = '';   //发起时间
+        	var bodyIndex = 1 ;      //正文index
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -30,6 +34,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror && jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_1.message.result;
         				if(workInfoResult != '1' || detailResult != '1'){
@@ -56,6 +65,8 @@
        					    createCommentCon(workInfo,officeList);
        					}
        					$contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+       					//创建编辑正文附件名称
+						createBodyFileName(workInfo);
        					// 根据信息类型,设置信息内容
 						setInfoContent(detailData);	
 						idArrays.map(function(id){
@@ -77,6 +88,19 @@
 				  }
         		);
         	}
+        	
+        	function createBodyFileName(workInfo){
+	        	draftPerson = workInfo.worksubmitperson == null ? '': workInfo.worksubmitperson;
+	        	worktitle =  workInfo.worktitle== null ? '': workInfo.worktitle;
+	        	worktitle = worktitle.replace('等待您的审阅！','');
+	        	worktitle = worktitle.replace('等待您的审阅','');
+	        	worktitle = worktitle.replace('等待您的办理！','');
+	        	worktitle = worktitle.replace('等待您的办理','');
+	        	worksubmittime = workInfo.worksubmittime == null ? '': workInfo.worksubmittime;
+	        	if(worksubmittime != null && worksubmittime != '' && worksubmittime.length>10){
+	        		worksubmittime = worksubmittime.substring(0,10).replace(/-/g,'');
+	        	}
+	        }
         	
         	//创建工作流程信息隐藏域
 			function createWorkInfoHiddenArea(workInfo){
@@ -148,30 +172,35 @@
 	        		if(cons && cons.length==2){
 	        			var reName = cons[0];
 	        			var saName = cons[1];
-	        			viewFiles2('infoContent',reName,saName,"information");
+	        			viewFiles2('infoContent',reName,saName,"information","");
 	        		}
 	        	}else if(informationType == '4'){
 	        		//word
-	        		viewFiles2('infoContent',"正文",content+".doc","information");
+	        		viewFiles2('infoContent',"正文",content+".doc","information",".doc");
 	        	}else if(informationType == '5'){
 	        		// excel
-	        		viewFiles2('infoContent',"正文",content+".xls","information");
+	        		viewFiles2('infoContent',"正文",content+".xls","information",".xls");
 	        	}else if(informationType == '6'){
 	        		// ppt
-	        		viewFiles2('infoContent',"正文",content+".ppt","information");
+	        		viewFiles2('infoContent',"正文",content+".ppt","information",".ppt");
 	        	}
 			}
 			
-			function viewFiles2(filetype,name1,name2,path){
+			function viewFiles2(filetype,name1,name2,path,fileType){
 	            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:name1,accessorySaveNameseries:name2,path:path},  function(data) {
 	               if(data){
 	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror && obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
 		               var attList = obj.attList;
-		               
 		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 		                  for(var k=0;k<attList.length;k++){
-		                 // alert(attList[k].savename);
-		                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">查看正文</label></row>')
+		                      var viewName = draftPerson +worksubmittime +worktitle+"的正文"+bodyIndex+fileType;
+		                      bodyIndex++;
+		                      var files = $C('<row><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'&amp;viewName='+viewName+'\')">查看正文</label></row>')
 		                      $(filetype).add(files); 
 		                  }
 		               }else{     //无附件，或者后台处理异常
@@ -288,14 +317,17 @@
 				}, function(data) {
 					if (data) {
 						var obj = JSON.parse(data);
+						if(obj.logonerror && obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
 						var attList = obj.attList;
 						if (!attList == '') { //不为空，数据进行迭代,并为附件赋值
 							for (var k = 0; k < attList.length; k++) {
-								var files = $C('<row style="margin-bottom:5"><icon src="mail_fujian.png" style="align:left;width:16;height:16"></icon><label style="color:#38adff;text-decoration:underline;align:left;font-size:16;margin-left:5"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+								var files = $C('<row style="margin-bottom:5"><icon src="mail_fujian.png" style="align:left;width:16;height:16"></icon><label style="color:#38adff;text-decoration:underline;align:left;font-size:16;margin-left:5"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '&amp;viewName=' + attList[k].realname +'\')">' + attList[k].realname + '</label></row>')
 								$(appendId).add(files);
 							}
-						} else { //无附件，或者后台处理异常
-			
 						}
 					}
 				},function(error) {
@@ -390,7 +422,7 @@
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
-						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;"/></row>');
+						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;align:right;"/></row>');
 						$('comment_input_sxyy').add(row);
 						drfNum = "1";
 						$('comment_input_sxyy').onclick = 'delrow_sx()';
@@ -685,6 +717,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -784,6 +821,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						var isForkTask = $('isForkTask').value;
@@ -820,6 +862,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('发送成功！');
@@ -846,6 +893,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('撤办成功！');

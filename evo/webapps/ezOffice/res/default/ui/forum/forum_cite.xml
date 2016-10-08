@@ -27,6 +27,11 @@
         	$http.post(evoUrl+'/ezOffice/forum/getCont.do', 
 				{repId:repId,classId:classId}, function(data){
 				    var obj = JSON.parse(data);
+				    if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 					var result = obj.result;
 					if(result =="1"){
 						$("newCont").text=cont + obj.oldCont;
@@ -55,18 +60,23 @@
    			$('newCont').value=newCont;
 			$('forumForm').submit(function(data) {
 				var obj = JSON.parse(data);
-				var result = obj.message.result
-					if(result =="1"){
-					   var checkexamin = obj.data.checkexamin;
-					   if(checkexamin=="1"){
-					   		hint('您发表的帖子已提交给版主审核！');
-					   }else{
-					   		hint(obj.message.description);
-					   }
-					}else{
-						hint(obj.message.description);
-					}
-	                $page.close();
+				if(obj.logonerror &&obj.logonerror=='1'){
+		            alert("该账号已在设备"+obj.deviceId+"上登录");
+	          		$page.open('../index.xml',{target:'_self'});
+	                return;
+	            }
+				var result = obj.message.result;
+				if(result =="1"){
+				   var checkexamin = obj.data.checkexamin;
+				   if(checkexamin=="1"){
+				   		hint('您发表的帖子已提交给版主审核！');
+				   }else{
+				   		hint(obj.message.description);
+				   }
+				}else{
+					hint(obj.message.description);
+				}
+                $page.close();
 			}, function(error) {
 				hint('提交失败！');
 			});

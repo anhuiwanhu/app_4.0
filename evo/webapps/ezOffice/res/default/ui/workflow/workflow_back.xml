@@ -46,6 +46,11 @@
 							return false;
 						}
 						var jsonData = eval('(' + data + ')');
+						if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						if(!jsonData){
 							return false;
 						}
@@ -167,6 +172,11 @@
 						return false;
 					}
 					var jsonData = eval('(' + data + ')');
+					if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					if(jsonData.result == 'fail'){
 						alert('退回失败！');
 						return false;

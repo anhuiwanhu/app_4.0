@@ -34,8 +34,12 @@
 		   var title = $('title').value;
 		   $('content').clear();
 		   $http.post(evoUrl+'/ezOffice/forum/getChannel.do',{title:title}, function(data) {
-
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+		            alert("该账号已在设备"+obj.deviceId+"上登录");
+	          		$page.open('../index.xml',{target:'_self'});
+	                return;
+	             }
 			     if(obj.message.result=="1"){
                     var groups = obj.data.infomationChannel;
 			        for(var i=0;i<groups.length;i++){
@@ -64,7 +68,6 @@
                           hasacc= "opencloseMenu(this,'icon_"+channelId+"')";
                        }
                        var hasChek = "";
-
                        if(selectChannels.indexOf("|"+channelId+"|")>-1){
                           hasChek = " checked=\"true\" ";
                        }
@@ -100,15 +103,12 @@
 		}
 
 	   function createItem(groups){
-
 			if(groups){
 				var itemStr = '';
 				for(var i =0;i<groups.length;i++){
-				
 				      var channelId = groups[i].channelId;
 			          var channelName = groups[i].channelName;
 			          var estopAnonymity = groups[i].estopAnonymity;
-
 			          var btncolor = "#f98e75";
 			          if((i%6)==0){
                          btncolor = "#f98e75";
@@ -198,6 +198,11 @@
 		function getSearch(title){
 			 $http.post(evoUrl+'/ezOffice/forum/searchChannel.do',{title:title}, function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+		            alert("该账号已在设备"+obj.deviceId+"上登录");
+	          		$page.open('../index.xml',{target:'_self'});
+	                return;
+	             }
 			     var result = obj.message.result;
 			     if(result =="1"){
 			     	var data = obj.data;

@@ -25,11 +25,15 @@
 				$http.post(
         			evoUrl + '/ezOffice/boardroom/meetProcess.do',{workId : workId},
         			function(data){
-        			    
         				if(!data){
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_1.message.result;
         				if(workInfoResult != '1' || detailResult != '1'){
@@ -66,14 +70,18 @@
 	            var storage = $phone.localStorage();
 			    var evoUrl = storage.getItem('evoUrl');
 	            $http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessoryNameseries:accessoryNameseries,accessorySaveNameseries:accessorySaveNameseries,path:path},  function(data) {
-	            //   alert(data);
 	               if(data){
 	                   var obj = JSON.parse(data);
+	                   if(obj.logonerror &&obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
 		               var attList = obj.attList;
 		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 		                  for(var k=0;k<attList.length;k++){
 		                 // alert(attList[k].savename);
-		                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath='+path+'\')">'+attList[k].realname+'</label></row>')
+		                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath='+path+'&amp;viewName=' + attList[k].realname +'\')">'+attList[k].realname+'</label></row>')
 		                      $('meetFilesId').add(files); 
 		                  }
 		               }else{     //无附件，或者后台处理异常
@@ -178,10 +186,15 @@
 				}, function(data) {
 					if (data) {
 						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		               }
 						var attList = obj.attList;
 						if (!attList == '') { //不为空，数据进行迭代,并为附件赋值
 							for (var k = 0; k < attList.length; k++) {
-								var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+								var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '&amp;viewName=' + attList[k].realname +'\')">' + attList[k].realname + '</label></row>')
 								$(appendId).add(files);
 							}
 						} else { //无附件，或者后台处理异常
@@ -223,11 +236,16 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
+							if(obj.logonerror &&obj.logonerror=='1'){
+			         			alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName=' + attList[k].realname + '\')">' + attList[k].realname + '</label></row>')
 									$(attachments[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
@@ -402,23 +420,9 @@
 	        	
 	        	
 	        	}
-	        	
-	        	
-	        	
 	        	//已经批示的意见
 	        	if(commentList){
 	        	    createCommList(commentList);
-	        		//var commentList = govDocDetail.commentList;
-	        	/*	var commentType = '';
-	        		var commentShouxie = '';
-					var commentYuyin = '';
-		        	if(commentList instanceof Array){
-		        		for(var i=0,length=commentList.length;i<length;i++){
-			        	    itemContent += createCommentCon(commentList[i]);
-		        		}
-		        	}else if(commentList instanceof Object){
-		        			itemContent += createCommentCon(commentList.comment);  //非数组与数组返回的格式不一样
-		        	} */
 	        	}
 	        	
 	        function createCommList(commentList){
@@ -497,7 +501,7 @@
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
-						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;"/></row>');
+						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;align:right;"/></row>');
 						$('comment_input_sxyy').add(row);
 						drfNum = "1";
 						$('comment_input_sxyy').onclick = 'delrow_sx()';
@@ -807,6 +811,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -906,6 +915,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						var isForkTask = $('isForkTask').value;
@@ -960,6 +974,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('发送成功！');
@@ -986,6 +1005,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('撤办成功！');

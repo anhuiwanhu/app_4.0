@@ -16,7 +16,12 @@
             var data = storage.getItem('custMenu_data'+custMenu_menuId);
             if(data!=null && data!= ''){
             	  var obj = JSON.parse(data);
-			     if(obj.message.result=="1"){
+            	  if(obj.logonerror && obj.logonerror=='1'){
+         			alert("该账号已在设备"+obj.deviceId+"上登录");
+          			$page.open('../index.xml',{target:'_self'});
+                    return;
+                  } 
+			      if(obj.message.result=="1"){
                     var groups = obj.data.menuList;
 			        for(var i=0;i<groups.length;i++){
 			           var menuId = groups[i].menuId;
@@ -94,6 +99,11 @@
 		            storage.setItem('custMenu_data'+custMenu_menuId,data);   //将返回数据放入缓存中。
 		         }
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror && obj.logonerror=='1'){
+         			alert("该账号已在设备"+obj.deviceId+"上登录");
+          			$page.open('../index.xml',{target:'_self'});
+                    return;
+                 } 
 			     if(obj.message.result=="1"){
                     var groups = obj.data.menuList;
 			        for(var i=0;i<groups.length;i++){
@@ -135,9 +145,7 @@
 							'</item>'+
 						'</list>'));
 			        }
-
 			     }
-			 
 			},function(error) {
 			    if (error == 'timeout') {
 			        hint('连接服务器超时！');
@@ -153,7 +161,6 @@
 		}
 
 	   function createItem(groups){
-
 			if(groups){
 				var itemStr = '';
 				for(var i =0;i<groups.length;i++){

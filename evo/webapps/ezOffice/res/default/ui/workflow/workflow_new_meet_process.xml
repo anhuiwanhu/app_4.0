@@ -162,6 +162,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var result = jsonData.message.result;
         				if(result != '1'){
         					alert('数据获取失败！');
@@ -727,6 +732,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                       return;
+                    }
 					var result = dataJson.message.result;
 					if(result == '1'){   //返回成功
 					    if(dataJson.data.isConflict == '0'){  //没有被占用，-1被占用
@@ -752,6 +762,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.message.result;
 					if(result == '1'){
 						var infoid = dataJson.data.infoid;

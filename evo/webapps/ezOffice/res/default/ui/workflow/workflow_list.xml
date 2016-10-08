@@ -21,6 +21,12 @@
 	           $http.post(
 	       			evoUrl + '/ezOffice/workflow/getTopFlowList.do',{processName : ''}, 
 			        function(data) {
+			            var jsonData = eval('(' + data + ')');
+						if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 			            if(data!=''&&data!='[]'){
 			              storage.setItem('workflow_list_topflow',data); 
 			            }else{
@@ -49,6 +55,11 @@
         					return false;
         				}
         				var jsonData = eval('('+data+')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				if(!jsonData){
         					alert('加载列表失败！');
         					return false;
@@ -94,22 +105,17 @@
                var db = $phone.openDatabase(dbName);
 		       db.transaction(DbToCacheData_1);
 		       function DbToCacheData_1(tx) {
-			        
                     if(resultData){
 				        tx.executeSql('delete from workflow_list');
-				        
 				        if(resultData instanceof Array){
 				            var workflow_classlist = '';
         					for(var i=0;i<resultData.length;i++){
-        					
         					    var processCon = resultData[i].process;
 								var processNum = resultData[i].processNum;
 								var packageName = resultData[i].packageName;
 								var packageId = resultData[i].packageId;
 								var moduleId = resultData[i].moduleId;
-								
                                 workflow_classlist = workflow_classlist + packageId+','+packageName+';';
-
 								if(processNum == 1){
 									var processType = processCon.pool_process_type;
 									var pool_processId = processCon.pool_processId;
@@ -237,7 +243,6 @@
 
 	        }
 	        function CacheDataToPage2(packageId){
-	           
 	              var itemprocess = '';
 	              var storage = $phone.localStorage();
 	        	  var dbName = storage.getItem('ezMobile_dbName');
@@ -246,7 +251,6 @@
 			      function queryClassListDB(tx) {
 				        tx.executeSql('select moduleId,pool_processId,pool_processName,pool_process_type,pool_oldprocess_id,pool_oldprocess_formid,pool_ezflowprocess_key,pool_ezflowprocess_defid,pool_ezflowprocess_formKey from workflow_list where packageId="'+packageId+'" and userId = "'+userId+'"',[],
 						function(results){
-
 						  if(results.rows!=null && results.rows.length>0){
 						    for(var i=0; i<results.rows.length; i++){
 						    
@@ -307,19 +311,16 @@
 	           return itemprocess;
 	        }
 	        function CacheDataToPage3(data){
-
 	               var jsonData = eval('('+data+')');
 	               var result = jsonData.data_0.message.result;
 	               var resultData = jsonData.data_0.data.process;
 	               if(!resultData){
 	                  resultData = jsonData.data_0.data;
 	               }
-	               
 	               var items =  '';
 	               if(result=='1'){
 		               if(resultData instanceof Array){
 	      					for(var i=0,length=resultData.length;i<length;i++){
-	      						
                                 var moduleId = resultData[i].moduleId;
 						        var pool_processId = resultData[i].pool_processId;
 						        var pool_processName = resultData[i].pool_processName;
@@ -430,6 +431,11 @@
         					return false;
         				}
         				var jsonData = eval('('+data+')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				if(!jsonData){
         					alert('加载列表失败！');
         					return false;

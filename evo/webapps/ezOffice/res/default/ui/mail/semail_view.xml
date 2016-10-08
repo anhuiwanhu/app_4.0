@@ -16,6 +16,11 @@
 				$http.post(evoUrl+'/ezOffice/mail/remailDetail.do', 
 					{mailuserId:mailuserId,mailId:mailId}, function(data){
 					    var obj = JSON.parse(data);
+					    if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						var result = obj.message.result;
 						var newcontent = obj.newcontent;
 						if(result =="1"){
@@ -124,6 +129,11 @@
 	              function(data) {
 		               if(data){
 		                   var obj = JSON.parse(data);
+		                   if(obj.logonerror &&obj.logonerror=='1'){
+			         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			         		    $page.open('../index.xml',{target:'_self'});
+			                    return;
+			               }
 			               var attList = obj.attList;
 			               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 			                  for(var k=0;k<attList.length;k++){

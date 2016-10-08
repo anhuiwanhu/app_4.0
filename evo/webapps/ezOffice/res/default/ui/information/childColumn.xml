@@ -53,6 +53,11 @@
 	                if(data){
 	                  //  alert(data);
 		                var obj = JSON.parse(data);
+		                if(obj.logonerror &&obj.logonerror=='1'){
+				            alert("该账号已在设备"+obj.deviceId+"上登录");
+			          		$page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
 		                var result = obj.message.result;
 		                var listJson = {items:[]};   //存储返回数据列表信息
 			            var itemJson;
@@ -185,11 +190,14 @@
                 if(data){
                     //alert(data);
 	                var obj = JSON.parse(data);
+	                if(obj.logonerror &&obj.logonerror=='1'){
+			            alert("该账号已在设备"+obj.deviceId+"上登录");
+		          		$page.open('../index.xml',{target:'_self'});
+		                return;
+		            }
 	                var result = obj.message.result;
 	                pagerOffset = obj.data.pager_offset;
 	                var recordCount = obj.data.recordCount;
-	                //alert(pagerOffset);
-	               // alert(recordCount);
 	                var listJson = {items:[]};   //存储返回数据列表信息
 		            var itemJson;
 				    if(result =="1"){

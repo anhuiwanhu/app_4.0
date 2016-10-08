@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+        function toNewAdd(id){
+	         if(id=='innermail'){
+               $page.open('mail/mail_write.xml', {animation:'down-to-up',target:'_self'});
+	         }else if(id=='information'){
+	           $page.open('information/index.xml', {animation:'down-to-up',target:'_self'});
+	         }else if(id=='workflow'){
+	           $page.open('dealfile/dealfile_index.xml', {animation:'down-to-up',target:'_self'});
+	         }else if(id=='workmanager_calendar'){
+	         
+	         }else if(id=='workmanager_workreport'){
+	           $page.open('report/reweek_new.xml', {animation:'down-to-up',target:'_self'});
+	         }else if(id=='workmanager_worklog'){
+	         
+	         }
+         
+       }
+		$page.onload = function() {
+			var storage = $phone.localStorage();
+            var userAccount = storage.getItem('userAccount');
+			//hint(userAccount);
+		}
+    ]]>
+    </script> 
+	<page>
+	    <title style="background:#3DAFFE">
+            <left>
+                <button role="back" style="background:null" onclick=";"/>
+            </left>
+            <center>
+                <icon src="logo.png" style="align:center;height:30;width:240"/>
+            </center>
+            <right>
+                <button type="icon" icon="desktop_edit.png" onclick="$page.close()"/>
+            </right>
+        </title>
+        <content id="contentcust" style="background:#ffffff">
+            <grid id="gridcust" cols="3" style="vertical-spacing:0">
+               <item onclick="toNewAdd('information');" icon="quickadd_info.png"><label>发信息</label></item>
+               <item onclick="toNewAdd('innermail');" icon="quickadd_mail.png"><label>写邮件</label></item>
+               <item onclick="toNewAdd('workflow');" icon="quickadd_flow.png"><label>发流程</label></item>
+               <item onclick="toNewAdd('workmanager_workreport');" icon="quickadd_report.png"><label>写汇报</label></item>
+               <item onclick="toNewAdd('workmanager_worklog');" icon="quickadd_log.png"><label>记日志</label></item>
+               <item onclick="toNewAdd('workmanager_calendar');" icon="quickadd_schedule.png"><label>写日程</label></item>
+            </grid>
+        </content>
+
+    </page>
+</imag>

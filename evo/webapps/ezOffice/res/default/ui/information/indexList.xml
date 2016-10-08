@@ -54,6 +54,11 @@
 	                if(data){
 	                   // alert(data);
 		                var obj = JSON.parse(data);
+		                if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 		                var result = obj.message.result;
 		                var channelAllItem = $C('<tabbar-item><item label="全部"  onchange="channelList(\'\',\'\',\'1\',\'0\')" ></item></tabbar-item>');
 			        	var channelInfoItem =$C('<tabbar-item><item label="信息管理"   onchange="channelList(\'\',\'info\',\'0\',\'0\')" ></item></tabbar-item>');
@@ -207,6 +212,11 @@
 			    var evoUrl = storage.getItem('evoUrl');	
 	            $http.post(evoUrl+'/ezOffice/information/listAll.do',{pagerOffset:'0',userChannelId:userChannelId,userDefine:userDefine,channelType:channelType},function(data) {
 			            var obj = eval('('+data+')');
+			            if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 			            if(obj){
 			        	  DbToCacheData(obj,userChannelId,contentIdIndex,userDefine,channelType);
 			        	  CacheDataToPage(userChannelId,contentIdIndex,userDefine,channelType);
@@ -375,6 +385,11 @@
                 if(data){
                  //  alert(data);
 	                var obj = JSON.parse(data);
+	                if(obj.logonerror &&obj.logonerror=='1'){
+	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+	         		    $page.open('../index.xml',{target:'_self'});
+	                    return;
+	                }
 	                var result = obj.message.result;
 	                var listJson = {items:[]};   //存储返回数据列表信息
 		            var itemJson;
@@ -676,11 +691,11 @@
 	}
 	
 	function openDetail(informationId,informationType,channelId){
-	  var storage = $phone.localStorage();
-      storage.setItem('information_informationId',informationId);
-      storage.setItem('information_informationType',informationType);
-      storage.setItem('information_channelId',channelId);
-      $page.open('info.xml', {animation:'down-to-up'});
+	   var storage = $phone.localStorage();
+       storage.setItem('information_informationId',informationId);
+       storage.setItem('information_informationType',informationType);
+       storage.setItem('information_channelId',channelId);
+       $page.open('info.xml', {animation:'down-to-up'});
 	}
 	]]>
 	</script>

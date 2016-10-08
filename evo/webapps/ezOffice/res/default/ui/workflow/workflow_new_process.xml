@@ -169,6 +169,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				//var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_0.message.result;
         				//var personResult = jsonData.data_2.message.result;  || personResult != '1'
@@ -235,6 +240,9 @@
 				    //多个子表
 					for(var i=0,length=subTableList.length;i<length;i++){
 					    var tableName = subTableList[i].tableName;
+					    if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						subFieldList = subTableList[i].subFieldList;
 						itemContent = '<item id="item_' + tableName + '" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList[i].name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" placeholder="" value="'+fieldCount+'条子表数据>"/></row></col></item>';
@@ -247,10 +255,12 @@
 				}else if(subTableList instanceof Object){
 						subFieldList = subTableList.subTable.subFieldList;
 						var tableName = subTableList.subTable.tableName;
+						if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						if(!subFieldList){
 							subFieldList = subTableList.subTable;
 						}
-
 						itemContent = '<item id="item_'+tableName+'"  style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 									  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 
@@ -284,6 +294,9 @@
 				    //多个子表
 					for(var i=0,length=subTableList.length;i<length;i++){
 					    var tableName = subTableList[i].tableName;
+					    if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						subFieldList = subTableList[i].subFieldList;
 					    default_openSubTableCon(JSON.stringify(subFieldList) ,tableName,subTableList[i].name);
 					}
@@ -291,6 +304,9 @@
 				}else if(subTableList instanceof Object){
 						subFieldList = subTableList.subTable.subFieldList;
 						var tableName = subTableList.subTable.tableName;
+						 if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						if(!subFieldList){
 							subFieldList = subTableList.subTable;
 						}
@@ -499,7 +515,6 @@
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
 			function createSubTableField_add(fields,k){
-
                 var itemContent = '';
 				if(fields instanceof Array){
 					for(var i=0,length=fields.length;i<length;i++){
@@ -520,7 +535,6 @@
 			   var fieldType = field.fieldtype;
 			   var readWrite = field.readwrite;
 			   var mustfilled = field.mustfilled;
-
 	        	var mustfilled_view = '';
         	    if(mustfilled && mustfilled=='1'){
         	       mustfilled_view = '<label style="align:left;font-size:12;color:#FF4617">*</label>';
@@ -1161,6 +1175,11 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
+							if(obj.logonerror &&obj.logonerror=='1'){
+				         		alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
@@ -1594,6 +1613,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.result;
 					if(result == 'success'){
 						var infoId = dataJson.data_0.data.infoId;

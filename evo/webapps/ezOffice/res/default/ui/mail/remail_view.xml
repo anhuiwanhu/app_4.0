@@ -16,10 +16,19 @@
 				$http.post(evoUrl+'/ezOffice/mail/remailDetail.do', 
 					{mailuserId:mailuserId,mailId:mailId}, function(data){
 					    var obj = JSON.parse(data);
+					    if(obj.logonerror &&obj.logonerror=='1'){
+		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		         		    $page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						var result = obj.message.result;
 						var newcontent = obj.newcontent;
 						if(result =="1"){
 							var data = obj.data;
+							//当发件人是系统时，回复邮件没有回复等操作
+							if((data.mailposterid+"")=="0" || (data.mailpostername+"")=="系統"){
+								$('relayType').css('display', 'none');
+							}
 							if((data.mailpostername+"")==null || (data.mailpostername+"")==""){
 								$("mailpostername").text="";
 							}else{
@@ -30,13 +39,11 @@
 							}else{
 								$("mailto").text=data.mailto;
 							}
-							
 							if((data.mailcc+"")==null || (data.mailcc+"")==""){
 								$("mailcc").text="";
 							}else{
 								$("mailcc").text=data.mailcc;
 							}
-							
 							if((data.mailsubject+"")==null || (data.mailsubject+"")==""){
 								$("mailsubject").text="无主题";
 							}else{
@@ -98,6 +105,11 @@
 	              function(data) {
 		               if(data){
 		                   var obj = JSON.parse(data);
+		                   if(obj.logonerror &&obj.logonerror=='1'){
+			         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			         		    $page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 			               var attList = obj.attList;
 			               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 			                  for(var k=0;k<attList.length;k++){
@@ -148,6 +160,11 @@
                         <label onclick="reply('sign');" style="margin-left:10;font-size:16;color:#ffffff">回复</label>
                     </row>
                 </item>
+                <item onclick="reply('signAttach');" style="background:#3daffe,#474747">
+                    <row>
+                        <label onclick="reply('signAttach');" style="margin-left:10;font-size:16;color:#ffffff">回复(带附件)</label>
+                    </row>
+                </item>
                 <item onclick="reply('all');" style="background:#3daffe,#474747">
                     <row>
                         <label onclick="reply('all');" style="margin-left:10;font-size:16;color:#ffffff">回复全部</label>
@@ -168,7 +185,7 @@
                 <label>查看邮件</label>
             </center>
             <right>
-                <button onclick="openPopupMenu();" icon="mail_relay.png"></button>
+                <button id="relayType" onclick="openPopupMenu();" icon="mail_relay.png"></button>
             </right>
         </title>
         <content>

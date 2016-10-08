@@ -6,8 +6,6 @@
         $page.onload = function() {
             initInfo();
         }
-        
-        
         function initInfo(){
             //获取手机缓存中的数据
             var storage = $phone.localStorage();
@@ -15,11 +13,9 @@
         //    var desktopPhotoPath = storage.getItem('desktopPhotoPath');      //头像路径
             var desktopUsername = storage.getItem('desktopUsername');        //性别
             var desktopEmpenglishname = storage.getItem('desktopEmpenglishname');        //英文名
-            
             var sys_photoName = storage.getItem('sys_photoName');  //缓存中的图片绝对路径，不是从后台获取的
             $('emplivingphoto').src = sys_photoName;
             $('sys_photoName_hidden').value = sys_photoName;     //传后台，上传图片后用于删除
-            
          // $('emplivingphoto').src = desktopPhotoPath;
             $('username').text = desktopUsername;
             $('empenglishname').value = desktopEmpenglishname;
@@ -130,6 +126,11 @@
               //  alert(data);
                 if(data){
                     var obj = JSON.parse(data);
+                    if(obj.logonerror &&obj.logonerror=='1'){
+			         		alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		            }
                     if(obj.message.result=="1"){
                         alert("保存信息成功！");
                         loadFlag = '0';
@@ -174,8 +175,6 @@
                $('empsex').text="无";
             }
         }
-        
-        
 		
     ]]>
     </script> 
@@ -191,7 +190,6 @@
                 <button target="_blank"  onclick="complete()" style="font-size:16;font-weight:bold;color:#ffffff;">完成</button>
             </right>
 	    </title>
-	  
 		<content id="docContent" style="background:#f0f0f3;">
 		    <form action="" target="_self"  id="myForm" multipart="true" prompt="正在保存..">
 		        <input type="hidden" id="empenglishname_hidden"  name="empenglishname" />
@@ -207,7 +205,6 @@
 		        <input type="hidden" id="nickname_hidden"  name="nickname" />
 		        <input type="hidden" id="empdescribe_hidden"  name="empdescribe" />
 		        <input type="hidden" id="sys_photoName_hidden"  name="sys_photoName" />
-		        
 				<list id="docList" >
 				    <item style="padding:4;border:1 #f0f0f3;background:#f0f0f3;" >
 				           <col>

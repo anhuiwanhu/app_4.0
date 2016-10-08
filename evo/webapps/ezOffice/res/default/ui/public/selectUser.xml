@@ -9,18 +9,14 @@
         var storage = $phone.localStorage();
         var userAccount = storage.getItem('userAccount');
         var evoUrl = storage.getItem('evoUrl');
-        
         var selectuser_range = storage.getItem('sys_selectuser_range');
         var selectUserIds = storage.getItem('sys_selectuser_userids');
         var selectUserNames = storage.getItem('sys_selectuser_usernames');
         var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
-          
 		$page.onload = function() {
-
             loadpersonList('');
 		}
 		function setSelected(type,obj,id,name){
-
 		    if(obj.checked){
 		       addMult(type,id,name);
 		       if(type=="user"){
@@ -135,10 +131,13 @@
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  'range='+selectuser_range+'&offset=0&searchuser='+val, 
 		  function(data) {
-                 
                  var listJson = {items:[]};
-	            
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
 			     if(result=="1"){
 			        var persondata = obj.person.data.list;
@@ -221,18 +220,19 @@
 		}
 		
 		function addpersonList(){
-          
           $('bottom_hasmore').css('display','hidden');
 		  $('bottom_load').css('display','');
 		  $http.post(evoUrl+'/ezOffice/person/getSearchUserList.do',
 		  'range='+selectuser_range+'&offset='+offset+'&searchuser='+$('searchuser').value, 
 		  function(data) {
-                 
                  var listJson = {items:[]};
-	            
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.person.message.result;
-			     
 			     if(result=="1"){
 			        var persondata = obj.person.data.list;
 			        var currentPage = obj.person.data.currentPage;
@@ -243,9 +243,7 @@
 			          $('content_per').showBottom();
 			        }
 			        offset  = obj.offset;
-			        
 			        if(persondata instanceof Array){
-			        
 			           for(var i=0;i<persondata.length;i++){
 				          var userId = persondata[i].userId;
 				          var userName = persondata[i].userName;
@@ -296,7 +294,6 @@
 			        }
 			     }
 			     $('resuelist').addMore(listJson);
-			 
 			},function(error) {
 			    if (error == 'timeout') {
 			        hint('连接服务器超时！');
@@ -312,8 +309,6 @@
 			$('bottom_hasmore').css('display','');
 		    $('bottom_load').css('display','hidden');
 		}
-		
-		
 
 		 //完成选择
         function completeseleted(){

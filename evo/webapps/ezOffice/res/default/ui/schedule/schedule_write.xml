@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+        <![CDATA[
+			var storage = $phone.localStorage();
+			var evoUrl = storage.getItem('evoUrl');
+			var eventId = storage.getItem('eventId');
+			$page.onload=function(){
+        		$('scheduleFrom').action=evoUrl+"/ezOffice/schedule/scheduleInsert.do";
+            }
+			
+			function insertSchedule(){
+				 if($('eventTitle').value.trim().length == 0){
+       				hint('日程主题不能为空！');
+       				return false;
+   				 }
+   				 
+   				 if($("eventFullDay").checked){
+					$("eventFullDay").value="1";
+				 }
+				 if($("eventOnTimeMode").checked){
+					$("eventOnTimeMode").value="1";
+				 }
+			
+				 $('scheduleFrom').submit(function(data) {
+	                 var obj = JSON.parse(data);
+					if(obj.logonerror &&obj.logonerror=='1'){
+		     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		     		    $page.open('../index.xml',{target:'_self'});
+		                return;
+		             }
+	                 hint(obj.message.description);
+	                 $page.open('schedule_my.xml', {animation:'down-to-up'});
+                 }, function(error) {
+                    hint('提交失败！');
+                 });
+			}
+			
+			function selectAttendto(){
+				var storage = $phone.localStorage();
+        		storage.setItem('sys_selectuser_range','*0*');
+        		storage.setItem('sys_selectuser_userids',$('attendIds').value);
+        		storage.setItem('sys_selectuser_usernames',$('attend').value);
+        		storage.setItem('sys_selectuser_returnfuc','completeAttendto');
+	    		$page.open('../public/selectSingleUser.xml', {animation:'down-to-up'});
+			}
+			function completeAttendto(id,name){
+	 	 		$('attendIds').value=id;
+	  			$('attend').value=name;
+			}
+			
+			
+			function toErro(error){
+				if (error == 'timeout') {
+					hint('连接服务器超时！');
+				} else if (error == '404') {
+					hint('链接超时重新登录！');
+				} else if (error == '500') {
+					hint('内部服务器错误！');
+				} else {
+					hint('访问网络错误！错误代码:' + error);
+				}
+				$page.open('../index.xml',{animation:'down-to-up'});
+			}
+        ]]>
+    </script>
+    <page>
+        <title style="background:#38adff;tint-color:white">
+            <left>
+                <button role="back">返回</button>
+            </left>
+            <center>
+                <label>写日程</label>
+            </center>
+            <right>
+                <label onclick="insertSchedule();" style="margin-left:7;font-size:16;color:#ffffff">完成</label>
+            </right>
+        </title>
+        <content>
+        	<form id="scheduleFrom" action="" progress="提交表单|正在提交表单，请稍后...">
+        	 	<list>
+                    <item style="col-width:100,*">
+                        <col>
+                           <label style="font-size:16;color:#555555;">主题：</label>
+                        </col>
+                        <col>
+                           <row><input type="text" id="eventTitle" placeholder="请输入主题" name="eventTitle" style="text-align:right;border:0 white;font-size:16;color:#555555;"/></row>
+                        </col>
+                    </item>
+                    <item style="col-width:100,*">
+                        <col>
+                           <label style="font-size:16;color:#555555;">地点：</label>
+                        </col>
+                        <col>
+                           <row><input type="text" id="eventAddress" placeholder="请输入地点" name="eventAddress" style="text-align:right;border:0 white;font-size:16;color:#555555;"/></row>
+                        </col>
+                    </item>
+                    <item style="col-width:100,*">
+                        <col >
+                           <label style="font-size:16;color:#555555;">类型：</label>
+                        </col>
+                        <col>
+                           <row>
+                           	 	<checkbox id="eventFullDay" name="eventFullDay" style="align:right;font-size:16;color:#555555" >全天</checkbox>
+                                <checkbox id="eventOnTimeMode" name="eventOnTimeMode" style="align:right;font-size:16;color:#555555" >分时段</checkbox>
+                           </row>
+                        </col>
+                    </item>
+                    <item style="">
+                        <col>
+                             <row>
+                             	<label style="font-size:16;color:#555555;">开始时间：</label>
+                             	<input type="text" id="eventBeginTime" name="eventBeginTime"  placeholder="请输入开始时间" style="text-align:right;border:0 white;font-size:16;color:#555555;"/>
+                             </row>	
+							<row>
+								<label style="font-size:16;color:#555555;">结束时间：</label>
+								<input type="text" id="eventEndTime" name="eventEndTime"  placeholder="请输入结束时间" style="text-align:right;border:0 white;font-size:16;color:#555555;"/>
+							</row>
+                        </col>
+                    </item>
+                    <item style="col-width:60,*" onclick="selectAttendto();" accessory="indicator">
+                        <col>
+                           <label style="font-size:16;color:#555555;">参与人：</label>
+                        </col>
+                        <col>
+                        	<input type="hidden" id="attendIds" name="attendIds"/>
+                            <input type="hidden" id="eventId" name="eventId"/>
+                            <input type="text" id="attend" name="attend" readonly="true" placeholder="请选择" style="text-align:right;border:0 white;font-size:16;color:#555555;" onclick="selectAttendto();"/>
+                        </col>
+                    </item>
+                    <item>
+                        <label style="margin-bottom:5;font-size:16;color:#555555;">日程内容：</label>
+                        <textarea id="eventContent" name="eventContent" placeholder="请输入日程内容" rows="6" maxrows="6" style="margin-bottom:5;border:0 white;font-size:16;color:#555555;"></textarea>
+                    </item>
+                </list>
+                </form>
+        </content>
+    </page>
+</imag>

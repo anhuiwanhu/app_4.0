@@ -16,11 +16,9 @@
         var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
           
 		$page.onload = function() {
-
             loadorgList();
 		}
 		function setSelected(type,obj,id,name){
-
 		    if(obj.checked){
 		       addMult(type,id,name);
 		       if(type=="user"){
@@ -79,9 +77,7 @@
            }
 		}
 		function addMult(type,id,name){
-		
            if(type=="user"){
-
               if($("mulView_user"+id)==null){
 		             $('multipleview').add($C('<multipleviewitem onclick="delSelected(\''+type+'\',\''+id+'\',\''+name+'\')" id="mulView_user'+id+'" style="margin-left:8;margin-right:8">' +
 		        			  '<icon src="login_user.png" style="width:30;height:30;"/>' +
@@ -104,10 +100,8 @@
 		}
 		
 		function delMult(type,id,name){
-
           if(type=="user"){
 	        //移除下方multipleview人员
-        	  
         	if($("mulView_user"+id)!=null){
         		$('multipleview').remove($("mulView_user"+id));
             }
@@ -117,7 +111,6 @@
             }
           }
           $('multipleview').badge=$('multipleview').widgets().length;
-	        
 		}
 		
 		function loadorgList(){
@@ -131,6 +124,11 @@
 		   $('list_org').clear();
 		   $http.post(evoUrl+'/ezOffice/person/getTopOrgList.do','', function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.message.result;
 			     if(result=="1"){
 			        var persondata = obj.data.list;
@@ -226,12 +224,14 @@
             flag='1';
 		    $http.post(evoUrl+'/ezOffice/person/getOrgListByParent.do','range='+selectuser_range+'&offset=0&orgId='+orgId, 
 		    function(data) {
-
 		         var obj = JSON.parse(data);
+		         if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.orgList.message.result;
-			     
 			     if(result=="1"){
-
 			        var orgdata = obj.orgList.data;
 			        if(orgdata.list){
 			           var orgId = orgdata.list.id;

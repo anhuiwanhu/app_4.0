@@ -5,7 +5,6 @@
         var offset = "0";
         var selectUserIds="";
         var selectUserNames="";
-        
         var storage = $phone.localStorage();
         var userAccount = storage.getItem('userAccount');
         var evoUrl = storage.getItem('evoUrl');
@@ -16,11 +15,9 @@
         var selectuser_returnfuc = storage.getItem('sys_selectuser_returnfuc');
           
 		$page.onload = function() {
-
             loadorgList();
 		}
 		function setSelected(type,obj,id,name){
-
 		    if(obj.checked){
 		       addMult(type,id,name);
 		       if(type=="user"){
@@ -31,11 +28,9 @@
                   }
                }else if(type=="org"){
                   if(selectUserIds.indexOf("*"+id+"*")==-1){
-		            
 		              selectUserIds = "*"+id+"*";
                       selectUserNames = name+",";
                   }
-                  
                }
 	        }else{
 	           delMult(type,id,name);
@@ -128,8 +123,12 @@
 		   $('list_org').clear();
 		   $http.post(evoUrl+'/ezOffice/person/getTopOrgList.do', function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.message.result;
-			     
 			     if(result=="1"){
 			        var persondata = obj.data.list;
 			         if(persondata instanceof Array){
@@ -200,7 +199,6 @@
 							'</list-item>'));
 					}
 				}
-				
 			     flag='0';
 			},function(error) {
 			    if (error == 'timeout') {
@@ -227,11 +225,14 @@
 		    $http.post(evoUrl+'/ezOffice/person/getOrgListByParent.do','range='+selectuser_range+'&offset=0&orgId='+orgId, 
 		    function(data) {
 		         var obj = JSON.parse(data);
+		         if(obj.logonerror &&obj.logonerror=='1'){
+	     		     alert("该账号已在设备"+obj.deviceId+"上登录");
+	     		     $page.open('../index.xml',{target:'_self'});
+	                 return;
+	             }
 			     var result = obj.orgList.message.result;
-			     
 			     if(result=="1"){
 			        var orgdata = obj.orgList.data;
-			        
 			        if(orgdata.list){
 			           var orgId = orgdata.list.id;
 			           var orgName = orgdata.list.name;
@@ -245,9 +246,9 @@
                        }
                        var sel = "";
 			           if(selectUserIds.indexOf("*"+orgId+"*")>-1){
-			            sel = ' checked=\'true\' ';
-			            addMult("org",orgId,orgName);
-			          }
+			              sel = ' checked=\'true\' ';
+			              addMult("org",orgId,orgName);
+			           }
 			           parentObj.add($C('<list-item>'+
 							'<item id="org'+orgId+'" collapsed="true" indent="20" onclick="createItem(this,\''+orgId+'\');'+hasacc+';"  >'+
 								'<row>'+
@@ -258,9 +259,7 @@
 								'</row>'+
 							'</item>'+
 						'</list-item>'));
-
 			        }else{
-			            
 				        for(var i=0;i<orgdata.length;i++){
 				           var orgId = orgdata[i].id;
 				           var orgName = orgdata[i].name;
@@ -281,10 +280,9 @@
 				           }
 				           var sel = "";
 				           if(selectUserIds.indexOf("*"+orgId+"*")>-1){
-				            sel = ' checked=\'true\' ';
-				            addMult("org",orgId,orgName);
-				          }
-                       
+				              sel = ' checked=\'true\' ';
+				              addMult("org",orgId,orgName);
+				           }
 				           parentObj.add($C('<list-item>'+
 								'<item id="org'+orgId+'" collapsed="true" indent="20" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" >'+
 									'<row>'+

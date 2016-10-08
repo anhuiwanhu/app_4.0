@@ -275,6 +275,11 @@
               $('myForm').action=evoUrl+"/ezOffice/information/save.do";
               $('myForm').submit(function(data) {
                 var obj = JSON.parse(data);
+                if(obj.logonerror &&obj.logonerror=='1'){
+         		    alert("该账号已在设备"+obj.deviceId+"上登录");
+         		    $page.open('../index.xml',{target:'_self'});
+                    return;
+                }
                 if(obj.message.result=="1"){
                    alert('发布信息成功！');
                    $page.close(-1);

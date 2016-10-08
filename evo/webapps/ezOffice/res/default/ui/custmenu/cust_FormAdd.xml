@@ -176,7 +176,11 @@
         					return;
         				}
         				var jsonData = eval('(' + data + ')');
-        				//var workInfoResult = jsonData.data_0.message.result;
+        				if(jsonData.logonerror && jsonData.logonerror=='1'){
+		         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                } 
         				var detailResult = jsonData.data_0.message.result;
         				if(detailResult != '1'){
         					alert('数据获取失败！');
@@ -519,6 +523,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror && dataJson.logonerror=='1'){
+	         			alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+	                    return;
+	                } 
 					var result = dataJson.result;
 					if(result == 'success'){
 						var infoId = dataJson.data_0.data.infoId;

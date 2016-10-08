@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+ 	<script>
+    	<![CDATA[
+    		var storage = $phone.localStorage();
+    		var curpage = '1';
+            var evoUrl = storage.getItem('evoUrl');
+            var userId = storage.getItem('sys_sys_userId');
+            var selectDateValue = "";
+            var searchType = "";//标识是什么查询方式
+            $page.onload=function(){
+            	loadCalendarList('');
+            }
+            
+            function changeContent(channelType){
+				if(channelType == "calendar"){
+					//$('listContent').clear();   //清理上一个content内容
+					searchType="calendar";
+					loadCalendarList(selectDateValue);
+				}
+				if(channelType == "list"){
+					//$('calendarContent').clear();   //清理上一个content内容
+					searchType="list";
+					loadListView();
+				}
+			}
+            
+            function loadCalendarList(dataValue){
+            	selectDateValue = dataValue;
+            	if(curpage=='1'){
+					$('calendarView').clear();
+				}
+            	$http.post(evoUrl+'/ezOffice/schedule/scheduleListdate.do', 
+					{curpage:curpage,queryTitle:$('subject').value,queryDate:selectDateValue},function(data) {
+						//alert(data);
+						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
+						var result = obj.message.result;
+						var listJson = {items:[]};
+						if(result = 1){
+							var record = obj.data;
+							if(record == null || record.length == 0){
+								var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('calendarView').update(listJson);
+								$('calendarContent').hideTop();
+								$('calendarContent').hideBottom();
+							}else{
+								var list = obj.data;
+			                	if(list instanceof Array){
+			                		for(var i=0;i<list.length;i++){
+			                			var schedulePeriod = "";
+			                			if(list[i].eventFullDay == "1" ){
+			                				schedulePeriod = "全天";
+			                			}
+			                			if(list[i].eventOnTimeMode == "1" ){
+			                				schedulePeriod = list[i].eventBeginTime + list[i].eventEndTime;
+			                			}
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list[i].id+'","calendar")',
+			                   			widgets : {
+			                       			schedulePeriod : {text :schedulePeriod },
+			                       			eventAddress : {text :"[" + list[i].eventAddress + "]"},
+			                       			eventTitle : {text :list[i].eventTitle},
+			                       			eventDate : {text :dataValue}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                		}
+			                	}else if(list instanceof Object){
+			                			var schedulePeriod = "";
+			                			if(list.eventFullDay == "1" ){
+			                				schedulePeriod = "全天";
+			                			}
+			                			if(list.eventOnTimeMode == "1" ){
+			                				schedulePeriod = list.eventBeginTime + list.eventEndTime;
+			                			}
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list.id+'","calendar")',
+			                   			widgets : {
+			                       			schedulePeriod : {text :schedulePeriod },
+			                       			eventAddress : {text :"[" + list.eventAddress + "]"},
+			                       			eventTitle : {text :list.eventTitle},
+			                       			eventDate : {text :dataValue}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                	}
+			                	$('calendarView').addMore(listJson);
+			                	$('calendarContent').hideTop();
+								$('calendarContent').hideBottom();//这里根据接口返回的页数字段，显示底部正在加载和点击加载更多
+							}
+						}else{
+							var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('calendarView').update(listJson);
+								$('calendarContent').hideTop();
+								$('calendarContent').hideBottom();
+						}
+		   		},function(error) {
+					toErro(error);
+				});
+            }
+            
+            function loadListView(){
+            	if(curpage=='1'){
+					$('listView').clear();
+				}
+            	$http.post(evoUrl+'/ezOffice/schedule/listViewdate.do', 
+					{curpage:curpage,queryTitle:$('subject').value},function(data) {
+						//alert(data);
+						var obj = JSON.parse(data);
+						if(obj.logonerror &&obj.logonerror=='1'){
+			     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+			     		    $page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
+						var result = obj.message.result;
+						var listJson = {items:[]};
+						if(result = 1){
+							var recordCount = obj.data.recordCount;
+							if(parseInt(recordCount) <=0){
+								var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('listView').update(listJson);
+								$('listContent').hideBottom();
+								$('listContent').hideTop();
+							}else{
+								var pageCount = obj.data.pageCount;
+			                	var list = obj.data.list;
+			                	if(list instanceof Array){
+			                		for(var i=0;i<list.length;i++){
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list[i].id+'","list")',
+			                   			widgets : {
+			                       			eventAddress : {text :"[" + list[i].eventAddress + "]"},
+			                       			eventTitle : {text :list[i].eventTitle},
+			                       			eventDate : {text :list[i].eventBeginDate}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                		}
+			                	}else if(list instanceof Object){
+			                			var itemJson = {
+			                    		template : 0,
+			                    		onclick : 'toView("'+list.id+'","list")',
+			                   			widgets : {
+			                       			eventAddress : {text :"[" + list.eventAddress + "]"},
+			                       			eventTitle : {text :list.eventTitle},
+			                       			eventDate : {text :list.eventBeginDate}
+			                    			}
+			               			 	}
+			                			listJson.items.push(itemJson);
+			                	}
+			                	$('listView').addMore(listJson);
+								$('listContent').hideBottom();//这里根据接口返回的页数字段，显示底部正在加载和点击加载更多
+								$('listContent').hideTop();
+							}
+						}else{
+							var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'暂无相关记录'}
+			                   		}
+			                	}
+			                	listJson.items.push(itemJson);
+								$('listView').update(listJson);
+								$('listContent').hideBottom();
+								$('listContent').hideTop();
+						}
+		   		},function(error) {
+					toErro(error);
+				});
+            }
+            
+            function toView(eventId,delType){
+            	storage.setItem('eventId',eventId);
+				$page.open('schedule_view.xml',{animation:'down-to-up'});
+            }
+            
+            function searchSchedule(){
+            	curpage = '1';
+            	alert(searchType);
+				$('bottom_more').css('display','none');
+	            $('bottom_load').css('display','block');
+            	if(searchType == "list"){
+            		loadListView();
+            	}else if(searchType == "calendar" || searchType == ""){
+            		loadCalendarList(selectDateValue);
+            	}
+            }
+            
+            function listContentupfrsh(){
+      			$('bottom_more').css('display','none');
+            	$('bottom_load').css('display','none');
+            	$('listContent').showBottom();
+	   			curpage = '1';
+				loadListView();
+       		}
+       		
+       		function listContentdownfrsh(){
+				curpage = parseInt(curpage)+1+"";
+				$('bottom_more').css('display','none');
+            	$('bottom_load').css('display','block');
+				loadListView();
+			}
+            function calendarContentupfrsh(){
+      			$('bottom_more').css('display','none');
+            	$('bottom_load').css('display','none');
+            	$('listContent').showBottom();
+	   			curpage = '1';
+				loadCalendarList(selectDateValue);
+       		}
+       		
+       		function calendarContentdownfrsh(){
+				curpage = parseInt(curpage)+1+"";
+				$('bottom_more').css('display','none');
+            	$('bottom_load').css('display','block');
+				loadCalendarList(selectDateValue);
+			}
+            
+            function toErro(error){
+				if (error == 'timeout') {
+					hint('连接服务器超时！');
+				} else if (error == '404') {
+					hint('链接超时重新登录！');
+				} else if (error == '500') {
+					hint('内部服务器错误！');
+				} else {
+					hint('访问网络错误！错误代码:' + error);
+				}
+				$page.open('../index.xml',{animation:'down-to-up'});
+			}
+			
+    		function openPopupMenu() {
+                $('popmenu').open();
+                $('arrow').src = 'mail_up.png'; 
+            }
+    	]]>
+    </script> 
+    <page>
+		<popupmenu id="popmenu" position="topcenter" onclose="$('arrow').src = 'mail_down.png';" style="width:130">
+            <list>
+                <item onclick="$('popmenu').close();$page.open('schedule_my.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">我的日程</label>
+                        <icon src="top_updown.png" style="align:right;width:15;"></icon>
+                    </row>
+                </item>
+                <item onclick="$('popmenu').close();$page.open('schedule_children.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">下属日程</label>
+                    </row>
+                </item>
+            </list>
+		</popupmenu> 
+        <title style="background:#38adff;tint-color:white">
+            <left>
+                <button role="back"/>
+            </left>
+            <center>
+                <label onclick="openPopupMenu();">我的日程</label>
+                <icon id="arrow" src="mail_down.png" style="width:15;margin-left:5;" onclick="openPopupMenu();"></icon>
+            </center>
+            <right>
+                <button onclick="$page.open('schedule_write.xml',{animation:'down-to-up'});" icon="desk_personcenter_add.png"></button>
+            </right>
+        </title>
+		<header style="margin-top:0">
+			  <tabbar id="tabbar" controlContents="true" style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;" >
+              		<item onchange="changeContent('calendar')" label="日历视图"></item>
+              		<item onchange="changeContent('list')" label="列表视图"></item>
+              </tabbar>
+              <input type="search" onclick="searchSchedule();" id="subject" placeholder="请输入日程主题查询" style="height:40"/>
+		</header>
+		<contents id="contents">
+			<content id="calendarContent" draggable="true" ondragdown="calendarContentupfrsh();">
+				<calendar onselect="loadCalendarList(this.value)"/>
+				<list id="calendarView" reuse="true" >
+            	<item style="col-width:25,*" accessory="indicator">
+                   	 <col>
+                         	<label reusekey="schedulePeriod" style="margin-right:10"></label>
+                    </col>
+                    <col>
+                    	<row>
+                    		 <label reusekey="eventAddress"></label>
+                    		 <label reusekey="eventTitle"></label>
+                    	</row>
+                       
+                        <row>
+                    		 <label reusekey="eventDate" style="color:#b8b8b8;font-size:12"></label>
+                    	</row>
+                    </col>
+                </item>
+                
+                <item>
+                   <col><row><label reusekey="title" style="align:center;"></label></row></col>
+                </item>
+            </list>
+            <bottom id="bottom" style="display:block">
+	            <list>
+	                <item onclick="calendarContentdownfrsh();" style="background:null,#DEE3E7">
+	                    <row id="bottom_load">
+		                    <label style="align:center;">正在加载...</label>
+		                    <progress style="align:center"/>
+	                    </row>
+	                    <row id="bottom_more" style="display:none">
+	                        <label style="align:center;">点击加载更多...</label>
+	                        <progress id="globalProgress" style="display:hidden;align:center;"/>
+	                    </row>
+	                </item>
+	            </list>
+	        </bottom>
+			</content>
+			<content  id="listContent" draggable="true" ondragdown="listContentupfrsh();"> 
+					<list id="listView" reuse="true">
+            			<item style="">
+            			<row>
+                    		 <label reusekey="eventDate"></label>
+                    	</row>
+                    	<row>
+                    		 <label reusekey="eventAddress"></label>
+                    		 <label reusekey="eventTitle"></label>
+                    	</row>
+                </item>
+                
+                <item>
+                   <col><row><label reusekey="title" style="align:center;"></label></row></col>
+                </item>
+            </list>
+            <bottom id="bottom" style="display:block">
+	            <list>
+	                <item onclick="listContentdownfrsh();" style="background:null,#DEE3E7">
+	                    <row id="bottom_load">
+		                    <label style="align:center;">正在加载...</label>
+		                    <progress style="align:center"/>
+	                    </row>
+	                    <row id="bottom_more" style="display:none">
+	                        <label style="align:center;">点击加载更多...</label>
+	                        <progress id="globalProgress" style="display:hidden;align:center;"/>
+	                    </row>
+	                </item>
+	            </list>
+	        </bottom>
+			</content>
+		</contents>
+	</page>
+</imag>
+

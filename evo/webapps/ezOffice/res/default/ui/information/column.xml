@@ -28,13 +28,17 @@
 		        loadFlag = '1';
 		        $('bottom_load').css('display','');
 		        $('indexContent').showBottom();
-		       // alert("要ajax了");
 		        var storage = $phone.localStorage();
 				var evoUrl = storage.getItem('evoUrl');
 	            $http.post(evoUrl+'/ezOffice/information/getLevelOneChannel.do', function(data) {
 	                if(data){
 	                  //  alert(data);
 		                var obj = JSON.parse(data);
+		                if(obj.logonerror &&obj.logonerror=='1'){
+				            alert("该账号已在设备"+obj.deviceId+"上登录");
+			          		$page.open('../index.xml',{target:'_self'});
+			                return;
+			            }
 		                var result = obj.message.result;
 		                var listJson = {items:[]};   //存储返回数据列表信息
 			            var itemJson;

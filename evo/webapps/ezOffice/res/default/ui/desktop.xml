@@ -12,6 +12,7 @@
         var custMenuStr="";
         var linkBookStr="";
         var sys_location = "";
+        var waitRead = ''; //待办，传递到待办列表
         
 		$page.onload = function() {
 		    var storage = $phone.localStorage();
@@ -58,18 +59,23 @@
 		}
 	   
        function getRemindNum(){
-         
             var storage = $phone.localStorage();
             $http.post(evoUrl+'/ezOffice/desktop/getRemindNumList.do','', function(data) {
                  var obj = JSON.parse(data);
+                 if(obj.logonerror && obj.logonerror=='1'){
+		          	alert("该账号已在设备"+obj.deviceId+"上登录");
+		            $page.open('index.xml',{target:'_self'});
+		            return;
+		         }         
                  if(obj.message.result=="1"){
                     var waitFile = obj.data.waitFile;
+                    waitRead = obj.data.waitRead;
                     var newMail = obj.data.newMail;
                     var newInnerSendFile = obj.data.newInnerSendFile;
                     var newReport = obj.data.newReport;
 			        if($("workflow")){
 			          if(eval(waitFile)>0){
-			             $("workflow").badge = waitFile;
+			             $("workflow").badge = parseInt(waitFile)+parseInt(waitRead)+'';
 			          }
 			         }
 			        if($("innermail")){
@@ -109,6 +115,12 @@
 	   function setLinkbookDB(){
             var storage = $phone.localStorage();
             $http.post(evoUrl+'/ezOffice/desktop/getOrgByUserIdWithRange.do','', function(data) {
+            	 var obj = JSON.parse(data);
+                 if(obj.logonerror && obj.logonerror=='1'){
+		          	alert("该账号已在设备"+obj.deviceId+"上登录");
+		            $page.open('index.xml',{target:'_self'});
+		            return;
+		         } 
                  linkBookStr = data;
 			},function(error) {
 			    if (error == 'timeout') {
@@ -143,18 +155,14 @@
 			        for(var i=0;i<persondata.length;i++){
 			          var orgId = persondata[i].orgId;
 				      var orgName = persondata[i].orgName;
-		
 			          tx.executeSql('INSERT INTO myTopOrg (orgId,orgName) VALUES ("'+orgId+'","'+orgName+'")');
 			        }
 		        }else if(fields instanceof Object){
 			        var orgId = persondata.orgId;
 				    var orgName = persondata.orgName;
-		
 			        tx.executeSql('INSERT INTO myTopOrg (orgId,orgName) VALUES ("'+orgId+'","'+orgName+'")');
-			        
 		        }
 	        }
-	        
 	        if(linkBookStr!=null&&linkBookStr!=""){
 	           getLinkbook();
 	        }
@@ -164,14 +172,11 @@
 	          var storage = $phone.localStorage();
 	          var dbName = storage.getItem('ezMobile_dbName');
               var sys_orgShortName = storage.getItem('sys_orgShortName');
-              
               $('mylinkbook_list').clear();
               var db = $phone.openDatabase(dbName);
 		      db.transaction(query_LinkbookDB, function(err){alert(err);}, function(){});
-	
               var sys_orgId = storage.getItem('sys_orgId');
               var sys_orgShortName = storage.getItem('sys_orgShortName');
-            
 		      var item = $C('<list-item><item style="background:#ffffff;padding:16 10" icon="desk_persondept_mydept.png" onclick="goMyDeptList(\''+sys_orgId+'\',\''+sys_orgShortName+'\')">'+
 					       '<col><row><label style="color:#555555;font-size:16;">我的部门：'+sys_orgShortName+'</label>'+
 					       '<icon style="align:right" src="desk_setting_n.png"/></row></col></item></list-item>');
@@ -209,10 +214,8 @@
 	   }
        function toNewMenu(code,id,name){
          if(code=='innermail'){
-         
            $page.open('mail/mail_receive.xml', {animation:'down-to-up'});
          }else if(code=='workmanager_workreport'){
-         
            $page.open('report/myreport_list.xml', {animation:'down-to-up'});
          }else if(code=='documentmanager'){
          
@@ -221,7 +224,6 @@
          
            $page.open('information/indexList.xml', {animation:'down-to-up'});
          }else if(code=='workflow'){
-           
            $page.open('dealfile/dealfile_index.xml', {animation:'down-to-up'});
          }else if(code=='weibo'){
          
@@ -311,6 +313,12 @@
        function setCustMenuDB(){
             var storage = $phone.localStorage();
             $http.post(evoUrl+'/ezOffice/desktop/getMobileCustMenuList.do','', function(data) {
+                 var obj = JSON.parse(data);
+                 if(obj.logonerror && obj.logonerror=='1'){
+		          	alert("该账号已在设备"+obj.deviceId+"上登录");
+		            $page.open('index.xml',{target:'_self'});
+		            return;
+		         } 
                  custMenuStr = data;
 			},function(error) {
 			    if (error == 'timeout') {
@@ -353,10 +361,8 @@
 	    }
 		
        function addItemToPubtab(){
-
             var storage = $phone.localStorage();
             var dbName = storage.getItem('ezMobile_dbName');
-            
             $('gridcust').clear();
             var db = $phone.openDatabase(dbName);
 		    db.transaction(query_pubDB, function(err){alert(err);}, function(){});
@@ -476,12 +482,14 @@
             	    storage.setItem('workflow_workId',workId);
 	        	    $page.open('dealfile/dealfile_receiveDoc_process.xml?fromXml=personRight&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
 		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovReceiveFileLoadAction.do') > -1){
-		    		
 		    		storage.setItem('workflow_workStatus',workStatus);
             	    storage.setItem('workflow_workId',workId);
 	        	    $page.open('dealfile/dealfile_receiveDoc_process.xml?fromXml=personRight&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovDocSendCheckProcess') > -1){  //送审签
+		    		storage.setItem('workflow_workStatus',workStatus);
+            	    storage.setItem('workflow_workId',workId);
+	        	    $page.open('dealfile/dealfile_docSendCheck_process.xml?fromXml=personRight&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
 		    	}else{
-	
 		    		storage.setItem('workflow_workStatus',workStatus);
             	    storage.setItem('workflow_workId',workId);
 	        	    $page.open('dealfile/dealfile_process.xml?fromXml=personRight&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
@@ -504,19 +512,15 @@
         
         //将缓存数据更新到页面
 	    function myAppCacheDataToPage(){
-	        	
 	          $('personcenter_list').clear();
         	  var storage = $phone.localStorage();
         	  var dbName = storage.getItem('ezMobile_dbName');
-
         	  var db = $phone.openDatabase(dbName);
 		      db.transaction(queryRemindListDB, function(err){alert(err);}, function(){});
 		      function queryRemindListDB(tx) {
 				tx.executeSql('select AppId,AppValue,clickvar1,imgg,appname,clickvar2,topname,titlename,workTime from myApp where userId = "'+userId+'"',[],
 					function(results){
-					
 					  if(results.rows!=null && results.rows.length>0){
-					  
 					    for(var i=0; i<results.rows.length; i++){
 					        var AppId = results.rows.item(i).AppId;
 					        var AppValue = results.rows.item(i).AppValue;
@@ -527,16 +531,13 @@
 					        var topname = results.rows.item(i).topname;
 					        var titlename = results.rows.item(i).titlename;
 					        var workTime = results.rows.item(i).workTime;
-
 					        var item = $C('<list-item><item style="background:#ffffff;margin:1;col-width:20%,*;">'+
 						         '<col '+clickvar1+'><row><icon src="'+imgg+'" style="align:center"/></row><row><label style="align:center;color:#b9b9b9;">'+appname+'</label></row></col>'+
 						         '<col '+clickvar2+'><row><label style="align:left;color:#b8b8b8;font-size:16">'+topname+'</label></row><row>'+
 						         '<label style="align:left;color:#555555;">'+titlename+'</label></row><row>'+
 						         '<label style="align:left;color:#b8b8b8;font-size:12">'+workTime+'</label></row></col>'+
 						         '</item></list-item>');
-						    
 			                $('personcenter_list').add(item);
-
 					    }
 					    
 					  }
@@ -550,7 +551,6 @@
         }
         //取我的常用应用栏目
         function addItemToPersonTab2(ty){
-
               $('personcenter_list').clear();
               var storage = $phone.localStorage();
               var dbName = storage.getItem('ezMobile_dbName');
@@ -580,12 +580,14 @@
 		      var remindModelvaluess = remindModelvalues.split(',');
 		      
 		    $http.post(evoUrl+'/ezOffice/desktop/getRemindList.do',
-		    'remindModelids='+remindModelids+'&remindModelvalues='+remindModelvalues, function(data) {
-		    
+		      'remindModelids='+remindModelids+'&remindModelvalues='+remindModelvalues, function(data) {
               var remindObj = JSON.parse(data);
-              
+              if(remindObj.logonerror && remindObj.logonerror=='1'){
+		          	alert("该账号已在设备"+remindObj.deviceId+"上登录");
+		            $page.open('index.xml',{target:'_self'});
+		            return;
+		       } 
               if(remindModelidss!=null && remindModelidss.length>0){
-						  
 				  for(var i=0; i<remindModelidss.length; i++){
 				      var AppId = remindModelidss[i];
 				      var AppValue = remindModelvaluess[i];
@@ -597,7 +599,6 @@
 				      var clickvar1 = "";
 				      var clickvar2 = "";
 				    if(AppId!=''){
-				      
 				      if(AppId.indexOf('flowApp')>-1){
 				         imgg = "desk_com_flow.png";
 				         appname = "流程";
@@ -612,19 +613,16 @@
 				           var workStatus = "0";
 				           var workId = remindObj.flowApp.data.dealedWorkFlow.workId;
 				           var empLivingPhoto = remindObj.flowApp.data.dealedWorkFlow.empLivingPhoto;
-				           
 				           clickvar1 = " onclick=\"$page.open('dealfile/dealfile_index.xml?fromXml=personLeft', {animation:'down-to-up'});\" ";
 				           clickvar2 = " onclick=\"goWorkflowView('"+workMainLinkFile+"','"+workStatus+"','"+workId+"','"+empLivingPhoto+"');\" ";
 				         }else{
 				           topname = "最近暂无文件";
-				           
 				         }
 				      }else if(AppId.indexOf('govApp')>-1){
 				         imgg = "desk_com_gov.png";
 				         appname = "公文";
 				         if(remindObj.govApp.message.result=="1" && 
-				            remindObj.govApp.data.result){
-				           
+				           remindObj.govApp.data.result){
 				           titlename = remindObj.govApp.data.result.title;
 				           workTime = remindObj.govApp.data.result.createdTime;
 				           var filename = remindObj.govApp.data.result.goldGridId;
@@ -780,6 +778,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 			    if(ty=='add'){
 			      dlg.close();
 			    }
@@ -787,17 +786,13 @@
 		      
         }
         function updateRemindCache(AppId,AppValue,clickvar1,imgg,appname,clickvar2,topname,titlename,workTime){
-               
                var storage = $phone.localStorage();
 	           var dbName = storage.getItem('ezMobile_dbName');
-	           
                var db = $phone.openDatabase(dbName);
 		       db.transaction(DbToCacheData_1);
 		       function DbToCacheData_1(tx) {
-			   
 			        var myApp_sql = 'update myApp set clickvar1=?,imgg=?,appname=?,clickvar2=?,topname=?,titlename=?,workTime=? '+
 			               ' where AppId=? and AppValue=? and userId=? ';
-			        //alert(myApp_sql);
 		        	tx.executeSql(myApp_sql,[clickvar1,imgg,appname,clickvar2,topname,titlename,workTime,AppId,AppValue,userId]);
     
 			   }
@@ -810,7 +805,6 @@
               }
               var storage = $phone.localStorage();
               var dbName = storage.getItem('ezMobile_dbName');
-              
               var remindModelids = "";
               var remindModelvalues = "";
               var db = $phone.openDatabase(dbName);
@@ -819,7 +813,6 @@
 				tx.executeSql('select AppId,AppValue from myApp',[],
 						function(results){
 						  if(results.rows!=null && results.rows.length>0){
-						  
 						    for(var i=0; i<results.rows.length; i++){
 						      var AppId = results.rows.item(i).AppId;
 						      var AppValue = results.rows.item(i).AppValue;
@@ -833,13 +826,17 @@
 		    $http.post(evoUrl+'/ezOffice/desktop/getRemindList.do',
 		    'remindModelids='+remindModelids+'&remindModelvalues='+remindModelvalues, function(data) {
               var remindObj = JSON.parse(data);
+              if(remindObj.logonerror && remindObj.logonerror=='1'){
+		          alert("该账号已在设备"+remindObj.deviceId+"上登录");
+		          $page.open('index.xml',{target:'_self'});
+		          return;
+		      } 
               var db = $phone.openDatabase(dbName);
 		      db.transaction(queryDB0, function(err){alert(err);}, function(){});
 		      function queryDB0(tx) {
 				tx.executeSql('select AppId,AppValue from myApp',[],
 						function(results){
 						  if(results.rows!=null && results.rows.length>0){
-						  
 						    for(var i=0; i<results.rows.length; i++){
 						      var AppId = results.rows.item(i).AppId;
 						      var AppValue = results.rows.item(i).AppValue;
@@ -850,7 +847,6 @@
 						      var workTime = "";
 						      var clickvar1 = "";
 						      var clickvar2 = "";
-						      
 						      if(AppId.indexOf('flowApp')>-1){
 						         imgg = "desk_com_flow.png";
 						         appname = "流程";
@@ -865,7 +861,6 @@
 						           var workStatus = "0";
 						           var workId = remindObj.flowApp.data.dealedWorkFlow.workId;
 						           var empLivingPhoto = remindObj.flowApp.data.dealedWorkFlow.empLivingPhoto;
-						           
 						           clickvar1 = " onclick=\"$page.open('dealfile/dealfile_index.xml?fromXml=personLeft', {animation:'down-to-up'});\" ";
 						           clickvar2 = " onclick=\"goWorkflowView('"+workMainLinkFile+"','"+workStatus+"','"+workId+"','"+empLivingPhoto+"');\" ";
 						         }else{
@@ -1044,6 +1039,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
         }
         
@@ -1055,61 +1051,26 @@
 	        tx.executeSql('DROP TABLE IF EXISTS custmenu');
 	        tx.executeSql('DROP TABLE IF EXISTS myApp');
 	        tx.executeSql('DROP TABLE IF EXISTS myTopOrg');
-	        tx.executeSql('DROP TABLE IF EXISTS dealfile_list');
+	        tx.executeSql('DROP TABLE IF EXISTS allOrg');
+	        tx.executeSql('DROP TABLE IF EXISTS allUser');
 	        tx.executeSql('DROP TABLE IF EXISTS workflow_list');
-	        tx.executeSql('DROP TABLE IF EXISTS forum_data');
-	        tx.executeSql('DROP TABLE IF EXISTS report_data');
-	        tx.executeSql('DROP TABLE IF EXISTS mail_data');
-	        tx.executeSql('DROP TABLE IF EXISTS doc_list');
-	        tx.executeSql('DROP TABLE IF EXISTS information_list');
 	    }
 	    
         function clearlogin() {
-         
           if(confirm('缓存包含您的登录信息、某些设置项，图标等数据，清除后需要重新登录，是否执行？')){
-          
             hint("正在清理缓存...");
             var storage = $phone.localStorage();
-            storage.setItem('login_userAccount','');
-		    storage.setItem('login_password','');
-		    storage.setItem('login_remember','false');
+            var curVersionNumber = storage.getItem('curVersionNumber');
             var dbName = storage.getItem('ezMobile_dbName');
             var db = $phone.openDatabase(dbName);
 		    db.transaction(query_clearDB, function(err){alert(err);}, function(){});
-		      storage.setItem('isCreateDB','');
-		      storage.setItem('sys_userAccount','');
-			  storage.setItem('sys_password','');
-			  storage.setItem('sys_sys_userId','');
-			  storage.setItem('sys_orgId','');
-			  storage.setItem('sys_domainId','');
-			  storage.setItem('sys_userName','');
-			  storage.setItem('sys_orgName','');
-			  storage.setItem('sys_orgShortName','');
-			  storage.setItem('sys_orgIdString','');
-			  storage.setItem('sys_orgSimpleName','');
-			  storage.setItem('sys_userSimpleName','');
-			  storage.setItem('sys_fileType','');
-			  storage.setItem('sys_fileserver','');
-			  storage.setItem('sys_httpserver','');
-			  storage.setItem('sys_server','');
-			  storage.setItem('sys_key','');
-			  storage.setItem('sys_photoName', '');
-			  storage.setItem('sys_phone','');
-			  storage.setItem('sys_empDuty','');
-			  storage.setItem('ezMobile_dbName','');
-			  storage.setItem('workflow_classlist','');
-			  if(custMentIdStr!=null && custMentIdStr!=''){
-			      var custMentIdStrArr = custMentIdStr.split('\,');
-			      for(var i=0;i<custMentIdStrArr.length-1;i++){
-			      	   storage.setItem('custMenu_data'+custMentIdStrArr[i],'');
-			      }
-			  }
-			  storage.setItem('workflow_list_topflow','');
-			  storage.setItem('sys_location','');
-              hint("清理完毕");
-              $page.open('index.xml', {target:'_self'});
-            }
-        }
+	        storage.clear();
+	        storage.setItem('curVersionNumber',curVersionNumber);
+	        storage.setItem('login_remember','false');
+            hint("清理完毕");
+            $page.open('index.xml', {target:'_self'});
+           }
+       }
         function gologin() {
            var storage = $phone.localStorage();
            if(confirm('确定要退出吗？')){
@@ -1144,6 +1105,11 @@
 		     $http.post(evoUrl+'/ezOffice/attendance/checkSignIn.do', function(data) {
 		          if(data){
 		              var obj = JSON.parse(data);
+		              if(obj.logonerror && obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('index.xml',{target:'_self'});
+		                    return;
+		              } 
 	                  var result = obj.message.result;
 	                  if(result == "1"){  //返回成功
 	                      if(obj.data.isSign == '1'){  //1表示签退了，0表示签到了
@@ -1168,6 +1134,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
 		     loadFlag = '0';
 		}
@@ -1222,6 +1189,11 @@
 		     $http.post(evoUrl+'/ezOffice/attendance/sign.do',{address:address,signStatus:signStatus}, function(data) {
 		          if(data){
 		              var obj = JSON.parse(data);
+		              if(obj.logonerror && obj.logonerror=='1'){
+		         			alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('index.xml',{target:'_self'});
+		                    return;
+		              } 
 		              var result = obj.message.result;
 		              if(result == "1"){
 		                 hint("当前定位信息为："+currentAddress);
@@ -1259,7 +1231,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
-			    $page.open('../index.xml',{animation:'down-to-up'});
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
 			  loadFlag = '0';
          }
@@ -1268,12 +1240,10 @@
            //$page.open('quickAdd.xml', {animation:'down-to-up'});
         }
          function toNewAdd(id){
-        
 	         if(id=='innermail'){
                $page.open('mail/mail_write.xml', {animation:'down-to-up'});
                $('quickAdd_popupmenu').close();
 	         }else if(id=='information'){
-	         
 	           $page.open('information/new.xml', {animation:'down-to-up'});
 	           $('quickAdd_popupmenu').close();
 	         }else if(id=='workflow'){
@@ -1282,7 +1252,6 @@
 	         }else if(id=='workmanager_calendar'){
 	         
 	         }else if(id=='workmanager_workreport'){
-	         
 	           $page.open('report/reweek_new.xml', {animation:'down-to-up'});
 	           $('quickAdd_popupmenu').close();
 	         }else if(id=='workmanager_worklog'){

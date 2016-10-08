@@ -16,6 +16,11 @@
             $('search_form_list').clear();
             $http.post(evoUrl+'/ezOffice/custmenu/getCustMenuDataSearchList.do','menuid='+menuId, function(data) {
 			     var obj = JSON.parse(data);
+			     if(obj.logonerror && obj.logonerror=='1'){
+         			alert("该账号已在设备"+obj.deviceId+"上登录");
+          			$page.open('../index.xml',{target:'_self'});
+                    return;
+                 } 
 			     if(obj.message.result=="1"&&
 			        obj.data.searchFields){
                     var groups = obj.data.searchFields;
@@ -243,9 +248,7 @@
 			        
 			        var item = $C('<list-item><item><col><row><button onclick="searchclick();" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:330;height:40;font-size:14;">查  询</button></row></col></item></list-item>');
 			        $('search_form_list').add(item);
-
 			     }
-			 
 			},function(error) {
 			    if (error == 'timeout') {
 			        hint('连接服务器超时！');

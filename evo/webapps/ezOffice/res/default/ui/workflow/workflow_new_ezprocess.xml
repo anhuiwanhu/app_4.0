@@ -35,13 +35,11 @@
 					$page.browseImage({
 						complete: function(path) {
 						 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-				            
                             var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
 						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
 						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
 						    $(appendId).add(row);
 						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
-				            
 				        	fileindex++;
 				        	fileTotle++;
 				        },
@@ -172,6 +170,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				//var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_0.message.result;
         				//var personResult = jsonData.data_2.message.result;  || personResult != '1'
@@ -235,6 +238,9 @@
 				    //多个子表
 					for(var i=0,length=subTableList.length;i<length;i++){
 					    var tableName = subTableList[i].tableName;
+					    if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						subFieldList = subTableList[i].subFieldList;
 						itemContent = '<item id="item_' + tableName + '" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList[i].name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" placeholder="" value="'+fieldCount+'条子表数据>"/></row></col></item>';
@@ -247,10 +253,12 @@
 				}else if(subTableList instanceof Object){
 						subFieldList = subTableList.subTable.subFieldList;
 						var tableName = subTableList.subTable.tableName;
+						if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return false; 
+					    }
 						if(!subFieldList){
 							subFieldList = subTableList.subTable;
 						}
-
 						itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 									  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 
@@ -285,6 +293,9 @@
 				    //多个子表
 					for(var i=0,length=subTableList.length;i<length;i++){
 					    var tableName = subTableList[i].tableName;
+					    if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						subFieldList = subTableList[i].subFieldList;
 					    default_openSubTableCon(JSON.stringify(subFieldList) ,tableName,subTableList[i].name);
 					}
@@ -292,6 +303,9 @@
 				}else if(subTableList instanceof Object){
 						subFieldList = subTableList.subTable.subFieldList;
 						var tableName = subTableList.subTable.tableName;
+						if(tableName==null || tableName == '' ||tableName.length == 0 ){
+					        return; 
+					    }
 						if(!subFieldList){
 							subFieldList = subTableList.subTable;
 						}
@@ -405,13 +419,11 @@
 				}else if(subFieldList instanceof Object){
 				    var subdataId = subFieldList.dataId;
 				    subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><label style="align:left;font-size:14;">表1</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value=""/></row></col></item>';
-				
 					createSubTableField(subFieldList.field,0);
 					global_subDatalen = 1;
 				}
 
 				$('subTabel_form_list').update('<imag><list>' + subTabelItemContent + '</list></imag>');
-				
 				$('subTabel_form_list').css('display','');
 				$('content_form_list').css('display','none');
 				$('subTable_footer_list').css('display','');
@@ -435,13 +447,11 @@
 	        	}
 	        }
 			function sub_total(){
-
 			   var totalFieldcons = totalFieldcon.split(";");
 			   $('totallist').clear();
                var itemtot = $C('<list-item><item><col><row><label style="color:#38adff;align:center;font-size:16;">合计项</label></row></col></item></list-item>');
 	           $('totallist').add(itemtot); 
 			   for(var i=0,length=totalFieldcons.length;i<length;i++){
-			       
 			       if(totalFieldcons[i]!=''){
 			         var ff = totalFieldcons[i].split(",");
 			         var sumd = 0;
@@ -479,26 +489,19 @@
 			}
 			//新增子表数据
 			function addIteminList(subFieldList){
-                
                 var subFieldList = JSON.parse(subFieldList);
                 var subTabelItemContentAdd = '';
-                
 				if(subFieldList instanceof Array){
 				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
 				    subTabelItemContentAdd += createSubTableField_add(subFieldList[0].field,global_subDatalen);
-
 				}else if(subFieldList instanceof Object){
-				
 				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
 					subTabelItemContentAdd += createSubTableField_add(subFieldList.field,global_subDatalen);
 				}
 				global_subDatalen = global_subDatalen+1;
-				
 				$('subTabel_form_list').addMore('<imag><list>' + subTabelItemContentAdd + '</list></imag>');
-				
 				global_subDatalen_cur=global_subDatalen_cur+1;
 				$('sub_overbutton').text="完成("+global_subDatalen_cur+")";
-
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
 			function createSubTableField_add(fields,k){
@@ -699,7 +702,6 @@
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
 			function createSubTableField(fields,k){
-
 				if(fields instanceof Array){
 					for(var i=0,length=fields.length;i<length;i++){
 						getFieldCon2(fields[i],k,i);
@@ -1159,6 +1161,11 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
+							if(obj.logonerror &&obj.logonerror=='1'){
+				         		alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
@@ -1577,6 +1584,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -1654,9 +1666,6 @@
 				if(!checkForm()){
 					return false;
 				}
-				//if(!confirm('确定发送？')){
-				//	return false;
-				//}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -1664,6 +1673,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.result;
 					if(result == 'success'){
 						var infoId = dataJson.data_0.data.infoId;

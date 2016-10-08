@@ -3,7 +3,7 @@
     <script>
         <![CDATA[
             var fromXml = $param['fromXml'];
-        	var storage = $phone.localStorage();
+            var storage = $phone.localStorage();
  			var evoUrl = storage.getItem('evoUrl');
         	//打开菜单
             function openPopupMenu(type) {
@@ -19,34 +19,26 @@
             		$mainPopupmenu.onclose = "$('upOrDownIcon').src = 'mail_down.png'";
             		$('upOrDownIcon').src = 'mail_up.png';
             		var seeProcess0 = 'display:hidden';
-            		var seeProcess2 = 'display:hidden';
             		var seeProcess101 = 'display:hidden';
             		var seeProcess1100 = 'display:hidden';
 
             		if(workStatus=='0'){
             		  seeProcess0 = '';
-            		}else if(workStatus=='2'){
-            		  seeProcess2 = '';
             		}else if(workStatus=='101'){
             		  seeProcess101 = '';
             		}else if(workStatus=='1100'){
             		  seeProcess1100 = '';
             		}
-            		 
             		items = 
-	            	 '<item onclick="selectList(\'0\');" id="" style="background:#3daffe,#474747"><row>'+
+	            	 '<item onclick="$(\'main_popupmenu\').close();selectList(\'0\');" id="" style="background:#3daffe,#474747"><row>'+
 					 	'<label style="margin-left:15;font-size:18;color:white;">待办文件</label>'+
 						'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess0+'" id="wait_process_file"/></row>'+
 					 '</item>'+
-				     '<item onclick="selectList(\'2\');" id="" style="background:#3daffe,#474747"><row>'+
-				      	'<label style="margin-left:15;font-size:18;color:white;">待阅文件</label>'+
-				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess2+'" id="wait_read_file"/></row>'+
-				     '</item>'+
-				     '<item onclick="selectList(\'101\');" id="" style="background:#3daffe,#474747"><row>'+
+				     '<item onclick="$(\'main_popupmenu\').close();selectList(\'101\');" id="" style="background:#3daffe,#474747"><row>'+
 				      	'<label style="margin-left:15;font-size:18;color:white;">已办文件</label>'+
 				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess101+'" id="processed_file"/></row>'+
 				     '</item>'+
-				     '<item onclick="selectList(\'1100\');" id="" style="background:#3daffe,#474747"><row>'+
+				     '<item onclick="$(\'main_popupmenu\').close();selectList(\'1100\');" id="" style="background:#3daffe,#474747"><row>'+
 				      	'<label style="margin-left:15;font-size:18;color:white;">我的文件</label>'+
 				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess1100+'" id="my_file"/></row>'+
 				     '</item>';
@@ -95,40 +87,57 @@
 	        var currPage = '0';
 	        var offset = '0';
 	        var loadFlag = '0';
-	        var hasMore;
 	        var workStatus = '0';
 	        var titleText = '';
+	        var cunrrentContentIdIndex = '';   //当前从contentList 的id序号。加载下一个tabbar时，清楚前一个content中的模板内
+	        var contentIsCreat = '0' ;  //content是否创建，0表示未创建，1表示创建
 	       
 	        //刷新列表数据   
 	        function onloadList() {
-	            $('content').hideTop();
+	            $('content'+cunrrentContentIdIndex).hideTop();
 	            currPage = '0';
 	        	offset = '0';
-	        	hasMore = '';
 	        	loadList('update');
 	        }
 	        //初始化列表数据   
 	        function initList() {
+	            if('0'==workStatus||'2'==workStatus){
+	                if(contentIsCreat == '0'){  //存在，就不需要增加content了
+	                	addContentToPage(); //同时显示待办和待阅
+	                	contentIsCreat = '1';
+	                }
+	            }else{
+	               $('tabbarId').css('display','none');   //隐藏tabbar
+	               if($('contentRead')){
+	               		$("indexContent").remove($('contentRead'));  //删除一个content
+	               }
+	               contentIsCreat = '0';
+	            }
 	        	loadList('update');
 	        }
 
 	        //分页加载列表数据
 	        function loadList(loadType){
-	        	if(loadFlag == '1' || hasMore == 'false'){
+	        	if(loadFlag == '1' ){
 	        		return false;
 	        	}
+	        	loadFlag == '1';
 	        	if(loadType == "update"){
-		           $('content_list').clear();
+		           $('content'+cunrrentContentIdIndex+'_list').clear();
 		        }
-		        loadFlag == '1';
-	        	$('content').showBottom();
-	        	$('bottom_hasmore').css('display','none');
+	        	$('content'+cunrrentContentIdIndex).showBottom();
+	        	$('bottom'+cunrrentContentIdIndex+'_hasmore').css('display','none');
 				$http.progress('正在加载，请稍后...').post(
 	       			evoUrl + '/ezOffice/dealfile/list.do',
 			        {workStatus : workStatus, currPage : currPage, offset : offset,title : $('search').value}, 
 			        function(data) {
 			        	if(data){
 			        		var jsonData = eval('('+data+')');
+			        		if(jsonData.logonerror && jsonData.logonerror=='1'){
+			         			alert("该账号已在设备"+jsonData.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 			        		if(!jsonData){
 			        			noDataContent(listJson,itemJson);
 			        			return false;
@@ -148,7 +157,28 @@
 			        			if(!titleText){
 			        				titleText = '待办文件';
 			        			}
-			        			$('centerTitle').text = titleText + '(' + recordcount + ')';
+			        			if(workStatus=='0'||workStatus == '2'){
+			        				if(recordcount !=null && recordcount!="" && recordcount!="0"){
+										$('tabbarTitle'+cunrrentContentIdIndex).badge=recordcount;
+									}else{
+										$('tabbarTitle'+cunrrentContentIdIndex).badge="";
+									}
+									titleText = '待办文件';
+									$('centerTitle').text = titleText;
+									var data_6 = jsonData.data_6;
+									if(data_6){   //待阅数量
+									    var waitReadNum = data_6.data.waitRead;
+									    var waitFileNum = data_6.data.waitFile;
+									    if(waitReadNum!=null && waitReadNum!=''&&waitReadNum!='0' ){
+									    	$('tabbarTitleRead').badge=waitReadNum;
+									    }
+									    if(waitReadNum!=null && waitReadNum!=''&&waitReadNum!='0' ){
+									    	$('tabbarTitle').badge=waitFileNum;
+									    }
+				        			}
+			        			}else{
+			        				$('centerTitle').text = titleText + '(' + recordcount + ')';
+			        			}
 			        			var empLivingPhoto;
 			        			// 打开文件办理详情url
 			        			var dealFileDatailUrl;
@@ -212,16 +242,15 @@
 			        				noDataContent(listJson,itemJson);
 			        			}
 			        			if(parseInt(pageCount) > parseInt(currPage)){
-			        				$('bottom_hasmore').css('display','block');
+			        				$('bottom'+cunrrentContentIdIndex+'_hasmore').css('display','block');
 			        			}else{
-			        				$('bottom_hasmore').css('display','none');
-			        				$('content').hideBottom();
-			        				hasMore = 'false';
+			        				$('bottom'+cunrrentContentIdIndex+'_hasmore').css('display','none');
+			        				$('content'+cunrrentContentIdIndex).hideBottom();
 			        			}
 			        			if(loadType == 'add'){
-				        			$('content_list').addMore(listJson);
+				        			$('content'+cunrrentContentIdIndex+'_list').addMore(listJson);
 			        			}else if(loadType == 'update'){
-				        			$('content_list').update(listJson);
+				        			$('content'+cunrrentContentIdIndex+'_list').update(listJson);
 			        			}
 			        		}else{
 			        			//查询数据异常
@@ -229,6 +258,9 @@
 			        		}
 			        	}
 	        			loadFlag == '0';
+	        			if(workStatus == '2'){
+	        				$('tabbarTitleRead').current=true;
+	        			}
 					},function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -257,7 +289,9 @@
 	            
 	        //页面加载完成后执行
 	        $page.onload = function() {
-	          if($param['refresh']=="1"){
+	          if($param['workStatus'] == '2'){
+	            changeStatus('2');
+	          }else  if($param['refresh']=="1"){
 	             if($param['workStatus']!=null && $param['workStatus']!=''){
 		               workStatus = $param['workStatus'];
 		               switch (workStatus){
@@ -278,13 +312,13 @@
 		        	   }
 		        	currPage = '0';
 		        	offset = '0';
-		        	hasMore = '';
 	             }
 	             initList();
 	          }else{
 	            initList();
 	          }
 	        }
+	        
 	        
 	        // 获取打开详情链接
 	        function getOpenDetailUrl(workMainLinkFile){
@@ -393,37 +427,22 @@
 	        
 	        //选择头中部菜单事件
 	        function selectList(status){
-	        	var $menuBut = $('menuBut');
 	        	$('main_popupmenu').close();
 	        	switch (status){
 	        		case '0' :
-	        			//$menuBut.css('display','');
 	        			$('wait_process_file').css('display','');
-	        			$('wait_read_file').css('display','none');
 	        			$('processed_file').css('display','none');
 	        			$('my_file').css('display','none');
 		        		titleText = '待办文件';
 		        		break;
-		        	case '2' :
-		        		//$menuBut.css('display','none');
-		        		$('wait_process_file').css('display','none');
-	        			$('wait_read_file').css('display','');
-	        			$('processed_file').css('display','none');
-	        			$('my_file').css('display','none');
-		        		titleText = '待阅文件';
-		        		break;
 		        	case '101' :
-		        		//$menuBut.css('display','none');
 		        		$('wait_process_file').css('display','none');
-	        			$('wait_read_file').css('display','none');
 	        			$('processed_file').css('display','');
 	        			$('my_file').css('display','none');
 		        		titleText = '已办文件';
 		        		break;
 		        	case '1100' :
-		        		//$menuBut.css('display','none');
 		        		$('wait_process_file').css('display','none');
-	        			$('wait_read_file').css('display','none');
 	        			$('processed_file').css('display','none');
 	        			$('my_file').css('display','');
 		        		titleText = '我的文件';
@@ -431,24 +450,79 @@
 		        	default :
 		        		break;
 	        	}
+	        	cunrrentContentIdIndex = '';  //初始进入页面，默认为空
 	        	workStatus = status;
 	        	currPage = '0';
 	        	offset = '0';
-	        	hasMore = '';
-	        	loadList('update');
+	        	initList();
 	        }
 	        
 	        //列表查询方法
 	        function searchList(){
 	        	currPage = '0';
 	        	offset = '0';
-	        	hasMore = '';
 	        	loadList('update');
 	        }
 	        
 	        // 打开新建流程列表
 	        function openNewFlowList(){
 	        	$page.open('../workflow/workflow_list.xml',{animation:'down-to-up'});
+	        }
+	        
+	        function addContentToPage(){  //待办与待阅页面
+	           $('tabbarId').css('display','block');
+	        	var contentItem  =  $C('<content id="contentRead" ondragdown="onloadList();$(\'contentRead\').hideTop();"  draggable="true" >'+
+								            '<list id="contentRead_list" reuse="true">'+
+								                '<item style="col-width: 12%,*">'+
+								                    '<col>'+
+									                    '<row>'+
+									                    	'<img effect="round" reusekey="empLivingPhoto" src="" style="height:35;width:35;" default="login_per.png"/>'+
+									                    '</row>'+
+								                   '</col>'+
+								                   '<col>'+
+								                   		'<label reusekey="title" style="color:#555555;font-size:16;"></label>'+
+								                    	'<row>'+
+									                   		'<label reusekey="submitTime" style="color:#b8b8b8;font-size:12;"></label>'+
+								                    	'</row>'+
+								                    	'<row>'+
+								                    		'<label style="align:right;text-align:center;background:#38adff;corner-radius:5;color:white;font-size:10" reusekey="workCurStep"></label>'+
+								                    	'</row>'+
+								                    '</col>'+
+								                '</item>'+
+								                '<item>'+
+								                    '<col>'+
+								                    	'<row>'+
+								                    		'<label reusekey="title_tips"></label>'+
+								                    	'</row>'+
+								                    '</col>'+
+								                '</item>'+
+								            '</list>'+
+								            '<bottom id="contentRead_bottom">'+
+								               '<list>'+
+								                   '<item onclick="loadList(\'add\');">'+
+								                      	'<row style="display:hidden" id="bottomRead_hasmore">'+
+									                        '<label style="align:center;">点击加载更多...</label>'+
+									                        '<progress id="more_progress" style="display:none;align:center"/>'+
+									                    '</row>'+
+								                	'</item>'+
+								               '</list>'+
+								            '</bottom>'+
+       								 '</content>');
+       			$('indexContent').add(contentItem);
+	        }
+	        
+	        function changeStatus(status){  //切换列表状态
+	            currPage = '0';
+	        	offset = '0';
+	        	workStatus = status;
+	        	if('2'==workStatus){
+	        		cunrrentContentIdIndex = 'Read';
+		        	titleText = '待阅文件';
+	        	}else{
+	        		cunrrentContentIdIndex = '';
+	        		titleText = '待办文件';
+	        	}
+	        	initList();
 	        }
         ]]>
     </script>
@@ -458,7 +532,7 @@
             	<button role="back"/>
             </left>
             <center>
-            	<label id="centerTitle" onclick="openPopupMenu('main');">待办文件(0)</label>
+            	<label id="centerTitle" onclick="openPopupMenu('main');">待办文件</label>
             	<icon id="upOrDownIcon" src="mail_down.png"/>
             </center>
             <right>
@@ -470,47 +544,53 @@
             <row>
                 <input id="search" type="search" name="search" placeholder="请输入文件标题" onclick="searchList();"/>
             </row>
-        </header>
+            <tabbar controlContents="true" id="tabbarId" style="background:#f9f9f9;label-color:#b8b8b8,#38adff;indicator-color:#38adff;">
+                <item label="待办文件"  id="tabbarTitle" badge=""  onchange="changeStatus('0');"></item>
+                <item label="待阅文件" id="tabbarTitleRead" badge=""  onchange="changeStatus('2');"></item>
+            </tabbar>
+       </header>
 		<popupmenu id="main_popupmenu">
 			<list id="popupmenu_list">
 		    </list>
 		</popupmenu>
-        <content id="content" ondragdown="onloadList();$('content').hideTop();" draggable="true" >
-            <list id="content_list" reuse="true">
-                <item style="col-width: 12%,*">
-                    <col>
-	                    <row>
-	                    	<img effect="round" reusekey="empLivingPhoto" src="" style="height:35;width:35;" default="login_per.png"/>
-	                    </row>
-                    </col>
-                    <col>
-                   		<label reusekey="title" style="color:#555555;font-size:16;"></label>
-                    	<row>
-	                   		<label reusekey="submitTime" style="color:#b8b8b8;font-size:12;"></label>
-                    	</row>
-                    	<row>
-                    		<label style="align:right;text-align:center;background:#38adff;corner-radius:5;color:white;font-size:10" reusekey="workCurStep"></label>
-                    	</row>
-                    </col>
-                </item>
-                <item>
-                    <col>
-                    	<row>
-                    		<label reusekey="title_tips"></label>
-                    	</row>
-                    </col>
-                </item>
-            </list>
-            <bottom id="content_bottom">
-               <list>
-                   <item onclick="loadList('add');">
-                      	<row style="display:hidden" id="bottom_hasmore">
-	                        <label style="align:center;">点击加载更多...</label>
-	                        <progress id="more_progress" style="display:none;align:center"/>
-	                    </row>
-                	</item>
-               </list>
-            </bottom>
-        </content>
+		<contents id="indexContent" draggable="true"  scrollable="true">
+	        <content id="content" ondragdown="onloadList();$('content').hideTop();" draggable="true" >
+	            <list id="content_list" reuse="true">
+	                <item style="col-width: 12%,*">
+	                    <col>
+		                    <row>
+		                    	<img effect="round" reusekey="empLivingPhoto" src="" style="height:35;width:35;" default="login_per.png"/>
+		                    </row>
+	                    </col>
+	                    <col>
+	                   		<label reusekey="title" style="color:#555555;font-size:16;"></label>
+	                    	<row>
+		                   		<label reusekey="submitTime" style="color:#b8b8b8;font-size:12;"></label>
+	                    	</row>
+	                    	<row>
+	                    		<label style="align:right;text-align:center;background:#38adff;corner-radius:5;color:white;font-size:10" reusekey="workCurStep"></label>
+	                    	</row>
+	                    </col>
+	                </item>
+	                <item>
+	                    <col>
+	                    	<row>
+	                    		<label reusekey="title_tips"></label>
+	                    	</row>
+	                    </col>
+	                </item>
+	            </list>
+	            <bottom id="content_bottom">
+	               <list>
+	                   <item onclick="loadList('add');">
+	                      	<row style="display:hidden" id="bottom_hasmore">
+		                        <label style="align:center;">点击加载更多...</label>
+		                        <progress id="more_progress" style="display:none;align:center"/>
+		                    </row>
+	                	</item>
+	               </list>
+	            </bottom>
+	        </content>
+        </contents>
     </page>
 </imag>

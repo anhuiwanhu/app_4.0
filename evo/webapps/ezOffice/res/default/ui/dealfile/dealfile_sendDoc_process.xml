@@ -20,6 +20,10 @@
 	        var oaUrl = '';
 	        var workName='';
 	        var pdflist='';
+	        var draftPerson = '';  //发起人
+        	var worktitle = '';  //流程标题
+        	var worksubmittime = '';;   //发起时间
+        	var isDossier = '';  //是否归档标识
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -29,6 +33,11 @@
         					alert('数据获取失败！');
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var workInfoResult = jsonData.data_0.message.result;
         				officeList = jsonData.data_0.data.officelist;       				
         				var detailResult = jsonData.data_1.message.result;
@@ -41,6 +50,7 @@
         				   alert(dealTipsContent.replace(/(<[^>]+>)|(&nbsp;)/g,""));
         				}
         				passRoundCommField = workInfo.passRoundCommField;
+        				isDossier = workInfo.isDossier == null? '' : workInfo.isDossier;
 						var detailData = jsonData.data_1.data;
 						oaUrl = jsonData.data_1.oaUrl;
 						workName = workInfo.workcurstep;
@@ -54,6 +64,8 @@
        					createFormData(detailData.baseData,detailData,jsonData.data_0.data);
        					$contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
        					pdflist = detailData.pdflist;
+       					//创建编辑正文附件名称
+						createBodyFileName(workInfo);
        					// 创建附件对象
        					createDocView();
        					createAttCon();
@@ -75,6 +87,19 @@
 				  }
         		);
         	}
+        	
+        	function createBodyFileName(workInfo){
+	        	draftPerson = workInfo.worksubmitperson == null ? '': workInfo.worksubmitperson;
+	        	worktitle =  workInfo.worktitle== null ? '': workInfo.worktitle;
+	        	worktitle = worktitle.replace('等待您的审阅！','');
+	        	worktitle = worktitle.replace('等待您的审阅','');
+	        	worktitle = worktitle.replace('等待您的办理！','');
+	        	worktitle = worktitle.replace('等待您的办理','');
+	        	worksubmittime = workInfo.worksubmittime == null ? '': workInfo.worksubmittime;
+	        	if(worksubmittime != null && worksubmittime != '' && worksubmittime.length>10){
+	        		worksubmittime = worksubmittime.substring(0,10).replace(/-/g,'');
+	        	}
+	        }
         	
         	//创建工作流程信息隐藏域
 			function createWorkInfoHiddenArea(workInfo){
@@ -159,11 +184,15 @@
 				}, function(data) {
 					if (data) {
 						var obj = JSON.parse(data);
-						var serverUrl = obj.serverUrl;
+						if(obj.logonerror &&obj.logonerror=='1'){
+			         		alert("该账号已在设备"+obj.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
 						var attList = obj.attList;
 						if (!attList == '') { //不为空，数据进行迭代,并为附件赋值
 							for (var k = 0; k < attList.length; k++) {
-								var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+								var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName='+attList[k].realname+ '\')">' + attList[k].realname + '</label></row>')
 								$(appendId).add(files);
 							}
 						} else { //无附件，或者后台处理异常
@@ -193,10 +222,11 @@
 					$('docContent').add($C('<row><label style="align:right;color:blue;text-decoration:underline;" onclick="doPdf();">PDF批注</label></row>'));
 				}else if(evoword =='1' && (workStatus=='0' || workStatus=='2')){
 					$('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="doWps();">编辑正文</label>'));
-				}else{
+				}else{  
 					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
 		                 var obj =eval('('+data+')');
-		                 var docUrl="$http.download('"+obj.sys_server+"doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"');";
+		                 var viewName = draftPerson +worksubmittime +worktitle+"的正文"+wordType;
+		                 var docUrl="$http.download('"+evoUrl + "/ezOffice/doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;viewName="+viewName+"');";
 		                 $('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="'+docUrl+'">查看正文</label>'));
 		            },function(error) {
 					    if (error == 'timeout') {
@@ -345,11 +375,15 @@
 					}, function(data) {
 						if (data) {
 							var obj = JSON.parse(data);
-							var serverUrl = obj.serverUrl;
+							if(obj.logonerror &&obj.logonerror=='1'){
+				         		alert("该账号已在设备"+obj.deviceId+"上登录");
+			          			$page.open('../index.xml',{target:'_self'});
+			                    return;
+			                }
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '&amp;viewName='+attList[k].realname+'\')">' + attList[k].realname + '</label></row>')
 									$(attachments[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
@@ -375,10 +409,9 @@
 	        function createFormData(govDocDetail,detailData,workInfoData){
 	            var commentList = workInfoData.commentList;   //已办审批意见列表
 	            var workcurstep = workInfoData.workInfo.workcurstep;    //当前审批意见名称
-	            
 	            for(var key in govDocDetail) {
 		       	 	if(key=='title'&&govDocDetail.title){
-		       	 		docTitle = govDocDetail.title;
+		       	 		docTitle = govDocDetail.title.text == undefined ? '' : govDocDetail.title.text;
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
 		        				   '</row></col><col  style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.title.text == undefined ? '' : govDocDetail.title.text)+'</label></row></col></item>';
 		        	}
@@ -433,6 +466,7 @@
 		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.counterSign.text == undefined ? '' : govDocDetail.counterSign.text)+'</label></row></col></item>';
 		        	}
 		        	if(key=='draft'&&govDocDetail.draft){
+		        	    draftPerson = govDocDetail.draft.text == undefined ? '' : govDocDetail.draft.text;  //获取发起人，编辑正文显示在页面
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.draft.name+':</label>'+
 		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.draft.text == undefined ? '' : govDocDetail.draft.text)+'</label></row></col></item>';
 		        	}
@@ -1064,6 +1098,11 @@
         					return false;
         				}
         				var jsonData = eval('(' + data + ')');
+        				if(jsonData.logonerror &&jsonData.logonerror=='1'){
+			         		alert("该账号已在设备"+jsonData.deviceId+"上登录");
+		          			$page.open('../index.xml',{target:'_self'});
+		                    return;
+		                }
         				var data_0 = jsonData.data_0;
         				if(!data_0){
         					alert('查询流程记录失败！');
@@ -1150,6 +1189,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.result;
 					if(result == 'success'){
 						var isForkTask = $('isForkTask').value;
@@ -1163,7 +1207,7 @@
 						$page.open(
 						'../workflow/workflow_sendnew.xml?fromXml='+fromXml+'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
 						'&workSubmitTime='+encodeURIComponent(workSubmitTime)+'&empLivingPhoto='+empLivingPhoto+
-						'&isForkTask='+isForkTask+'&commentType='+commentType+encodeURIComponent(commentCon),
+						'&isForkTask='+isForkTask+'&commentType='+commentType+encodeURIComponent(commentCon)+'&isDossier='+isDossier,
 						{animation:'down-to-up'});*/
 						
 						var commentType = $('commentType').value;
@@ -1186,7 +1230,7 @@
 						'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
 						'&workSubmitTime='+encodeURIComponent(workSubmitTime)+'&empLivingPhoto='+empLivingPhoto+
 						'&isForkTask='+isForkTask+'&commentType='+commentType+'&comment='+encodeURIComponent(commentCon)+
-						'&commentShouxie_backName='+commentShouxie_backName+'&commentYuyin_backName='+commentYuyin_backName,
+						'&commentShouxie_backName='+commentShouxie_backName+'&commentYuyin_backName='+commentYuyin_backName+'&isDossier='+isDossier,
 						{animation:'down-to-up'});
 					}else{
 						alert('保存表单失败！');					
@@ -1211,10 +1255,16 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('发送成功！');
-						$page.close(0, 'selectList("'+2+'")');
+						$page.close(-1);
+					    $page.open('dealfile_index.xml?workStatus=2',{target:'_self'});		
 					}else{
 						alert('发送失败！');					
 					}
@@ -1240,6 +1290,11 @@
 						return false;
 					}
 					var dataJson = eval('('+data+')');
+					if(dataJson.logonerror &&dataJson.logonerror=='1'){
+		         		alert("该账号已在设备"+dataJson.deviceId+"上登录");
+	          			$page.open('../index.xml',{target:'_self'});
+                        return;
+                    }
 					var result = dataJson.result;
 					if(result == 'success'){
 						alert('撤办成功！');

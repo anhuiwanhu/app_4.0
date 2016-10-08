@@ -12,6 +12,11 @@
                  $http.post(evoUrl+'/ezOffice/report/getUserInfoById.do',function(data) {
 	             if(data){
 	                 var obj = JSON.parse(data);
+	                 if(obj.logonerror &&obj.logonerror=='1'){
+		     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+		     		    $page.open('../index.xml',{target:'_self'});
+		                return;
+		             }
 	                 if(obj.message.result=="1"){
 	                    var leaderIds = obj.data.leaderids;
 	                    var leadernames = obj.data.leadernames;
@@ -63,6 +68,11 @@
                 	$http.post(evoUrl+'/ezOffice/report/checkReport.do',{selYear:selYear,selMonth:selMonth,reportType:"3",checkType:"2"}, function(data) {
 	                 	if(data){
 	                 	   var obj = JSON.parse(data);
+	                 	   if(obj.logonerror &&obj.logonerror=='1'){
+				     		    alert("该账号已在设备"+obj.deviceId+"上登录");
+				     		    $page.open('../index.xml',{target:'_self'});
+				                return;
+				            }
 			               if(obj.message.result=="1"){
 				               	var count = obj.data.recordCount;
 				                if(count == 0){
