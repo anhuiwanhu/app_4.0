@@ -15,11 +15,10 @@
         	
         	// 创建头部内容
         	function createHeaderContent(){
-        		var serverUrl = storage.getItem('serverUrl');
         		var webServiceUrl = storage.getItem('webServiceUrl');
         		var workTitle = decodeURIComponent($param['worktitle']);
         		var workSubmitTime = decodeURIComponent($param['worksubmittime']).substring(0,16);
-        		var empLivingPhoto = serverUrl + 'download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
+        		var empLivingPhoto = evoUrl + '/ezOffice/download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
         		if($param['empLivingPhoto'] && $param['empLivingPhoto'] != 'null'){
 	        		$('empLivingPhoto').src = empLivingPhoto;
         		}
@@ -38,7 +37,7 @@
 				var forkStepCount = $param['forkStepCount'];
 				var isForkTask = $param['isForkTask'];
 				var curCommField = $param['curCommField'];
-				$http.post(evoUrl + '/ezOffice/workflow/back.do',
+				$http.progress('正在加载，请稍后...').post(evoUrl + '/ezOffice/workflow/back.do',
 					{'workId':workId,'tableId':tableId,'recordId':recordId,'stepCount':stepCount,'forkId':forkId,'forkStepCount':forkStepCount,
 					'isForkTask':isForkTask},
 					function(data){
@@ -114,7 +113,7 @@
         	// 创建固定ITEM内容
         	function createOtherItem(){
         		var itemContent =  
-        		'<item style="col-width: 100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:12;color:#FF4617">*</label><label style="align:left;font-size:16;">退回原因:</label></row></col><col style="padding:10;margin:10;"><row><textarea rows="5"  id="tips" maxrows="500"></textarea></row></col> </item>';
+        		'<item style="col-width: 100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:12;color:#FF4617">*</label><label style="align:left;font-size:16;">退回原因:</label></row></col><col style="padding:10;margin:10;"><row><textarea rows="5"  id="tips" maxrows="5"></textarea></row></col> </item>';
                $('content_list').addMore('<imag><list>' + itemContent + '</list></imag>');
         	}
         	
@@ -222,7 +221,7 @@
 	        	</item>
         	</list>
         </header>
-        <content id="content">
+        <content id="content" style="background:white;">
         	<form id="backForm" multipart="true" prompt="请稍后...">
 				<!--backMailRange 邮件提醒范围0:退回环节经办人1:所有办理人-->
 				<input type="hidden" name="backMailRange" value="0"/>

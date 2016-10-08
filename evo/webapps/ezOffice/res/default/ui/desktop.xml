@@ -21,8 +21,8 @@
             var sys_photoName = storage.getItem('sys_photoName');
             sys_location = storage.getItem('sys_location');
 
-            $('myphotoimg').src = sys_photoName;
-            $('myphotoimg1').src = sys_photoName; 
+            $('myphotoimg').src = sys_photoName+'?rand=' + Math.random();
+            $('myphotoimg1').src = sys_photoName+'?rand=' + Math.random();
             var sys_userAccount = storage.getItem('sys_userAccount');
 			
 			var sys_userName = storage.getItem('sys_userName');
@@ -837,6 +837,7 @@
 				tx.executeSql('select AppId,AppValue from myApp',[],
 						function(results){
 						  if(results.rows!=null && results.rows.length>0){
+						    $('personcenter_list').clear();
 						    for(var i=0; i<results.rows.length; i++){
 						      var AppId = results.rows.item(i).AppId;
 						      var AppValue = results.rows.item(i).AppValue;
@@ -1071,30 +1072,50 @@
             $page.open('index.xml', {target:'_self'});
            }
        }
-        function gologin() {
+       
+        function clearAttach() {
+           if(confirm('是否清除已下载的附件？')){
+              $page.clearAttachments();
+              hint("清理完毕");
+           }
+        }
+        function gologinMenu(){
+        	 var menu = $C('<actionmenu title="退出是否同时清除已下载的附件？" cancelTitle="取消">' +
+								 '<item style="text-decoration:underline;color:blue" label="是" onclick="gologin(\'yes\')"/>' +
+								 '<item style="text-decoration:underline;color:blue" label="否" onclick="gologin(\'no\')" />' +
+							'</actionmenu>');
+             menu.show();
+        }
+       
+        function gologin(isClearFile) {
+           if(isClearFile=='yes'){
+                $page.clearAttachments();
+           }
            var storage = $phone.localStorage();
-           if(confirm('确定要退出吗？')){
-              storage.setItem('sys_userAccount','');
-			  storage.setItem('sys_password','');
-			  storage.setItem('sys_sys_userId','');
-			  storage.setItem('sys_orgId','');
-			  storage.setItem('sys_domainId','');
-			  storage.setItem('sys_userName','');
-			  storage.setItem('sys_orgName','');
-			  storage.setItem('sys_orgShortName','');
-			  storage.setItem('sys_orgIdString','');
-			  storage.setItem('sys_orgSimpleName','');
-			  storage.setItem('sys_userSimpleName','');
-			  storage.setItem('sys_fileType','');
-			  storage.setItem('sys_fileserver','');
-			  storage.setItem('sys_httpserver','');
-			  storage.setItem('sys_server','');
-			  storage.setItem('sys_key','');
-			  storage.setItem('sys_phone','');
-			  storage.setItem('sys_empDuty','');
-			  
-              $page.open('index.xml', {target:'_self'});
-            }
+           storage.setItem('sys_userAccount','');
+		   storage.setItem('sys_password','');
+		   storage.setItem('sys_sys_userId','');
+		   storage.setItem('sys_orgId','');
+		   storage.setItem('sys_domainId','');
+		   storage.setItem('sys_userName','');
+		   storage.setItem('sys_orgName','');
+		   storage.setItem('sys_orgShortName','');
+		   storage.setItem('sys_orgIdString','');
+		   storage.setItem('sys_orgSimpleName','');
+		   storage.setItem('sys_userSimpleName','');
+		   storage.setItem('sys_fileType','');
+		   storage.setItem('sys_fileserver','');
+		   storage.setItem('sys_httpserver','');
+		   storage.setItem('sys_server','');
+		   storage.setItem('sys_key','');
+		   storage.setItem('sys_phone','');
+		   storage.setItem('sys_empDuty','');
+		   if(isClearFile=='yes'){
+              //  quit();
+                $page.open('index.xml', {target:'_self'});
+           }else{
+           		$page.open('index.xml', {target:'_self'});
+           }
         }
 		
 		function checkSignIn(){     //判断当前人员是否已经签到
@@ -1272,9 +1293,9 @@
        }
        
        function reflushPersonCenter(){
-          refushMyApp('');
-          if(sys_location=='1'){checkSignIn();}
-          $('content_per').hideTop();
+       	   $('content_per').hideTop();
+           refushMyApp('');
+           if(sys_location=='1'){checkSignIn();}
        }
 		    
     ]]>
@@ -1342,7 +1363,7 @@
 						</item>
 		            </list>
 		            <list id="personcenter_list" style="background:#ffffff">
-					   
+					    
 		            </list>
 		        </content>
              </tab>
@@ -1406,6 +1427,10 @@
 					      <col><row><label style="color:#555555;font-size:16;">推送开关</label>
 					      <icon style="align:right" src="desk_setting_n.png"/></row></col>
 						</item>
+						<item style="background:#ffffff;padding:16 10" icon="desk_setting_p.png" onclick="clearAttach();">
+					      <col><row><label style="color:#555555;font-size:16;">清理附件</label>
+					      <icon style="align:right" src="desk_setting_n.png"/></row></col>
+						</item>
 						<!-- item style="background:#ffffff;padding:16 10" icon="desk_setting_p.png">
 					      <col><row><label style="color:#555555;font-size:16;">帮助中心</label>
 					      <icon style="align:right" src="desk_setting_n.png"/></row></col>
@@ -1413,7 +1438,7 @@
 		            </list>
 		            <list style="background:#ffffff;margin:10 0">
 					    <item style="background:#ffffff;">
-					      <col><row><button style="width:1000;align:center;font-weight:bold;background:#ffffff;color:#999999;font-size:18;" onclick="gologin();">安全退出</button></row></col>
+					      <col><row><button style="width:1000;align:center;font-weight:bold;background:#ffffff;color:#999999;font-size:18;" onclick="gologinMenu();">安全退出</button></row></col>
 						</item>
 		            </list>
 		        </content>

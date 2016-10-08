@@ -7,85 +7,6 @@
 		     getMenuInfo();
 		}
 		
-		function CacheDataToPage(){
-			var storage = $phone.localStorage();
-            var custMenu_menuId = storage.getItem('custMenu_menuId');
-            var custMenu_menuName = storage.getItem('custMenu_menuName');
-            $('titleLabel1').text=custMenu_menuName;
-            $('content').clear();
-            var data = storage.getItem('custMenu_data'+custMenu_menuId);
-            if(data!=null && data!= ''){
-            	  var obj = JSON.parse(data);
-            	  if(obj.logonerror && obj.logonerror=='1'){
-         			alert("该账号已在设备"+obj.deviceId+"上登录");
-          			$page.open('../index.xml',{target:'_self'});
-                    return;
-                  } 
-			      if(obj.message.result=="1"){
-                    var groups = obj.data.menuList;
-			        for(var i=0;i<groups.length;i++){
-			           var menuId = groups[i].menuId;
-			           var menuName = groups[i].menuName;
-                       var acc = "";
-                       var hasacc="";
-                       if(groups[i].child.length>0){
-                          acc = "forum_opendown.png";
-                          hasacc= "opencloseMenu(this,'icon_"+menuId+"');";
-                       }
-                       var hasacc1="";
-                       if(groups[i].actionType =="1"){
-                         if(groups[i].isftp=="1"){
-                         }else{
-                           hasacc1 = "downloadFile('"+groups[i].downloadUrl+"','"+groups[i].filename+"');";
-                         }
-                       }else if(groups[i].actionType =="2"){
-                         hasacc1 = "goStartFlow('"+groups[i].menuStartFlow.type+"','"+groups[i].menuStartFlow.formId+"','"+groups[i].menuStartFlow.processId+"','"+groups[i].menuStartFlow.processName+"');";
-                       }else if(groups[i].actionType =="3"){
-                         hasacc1 = "goDataList('"+groups[i].menuId+"','"+groups[i].menuName+"');";
-                       }else if(groups[i].actionType =="4"){
-                         hasacc1 = "goSSOLink('"+encodeURIComponent(groups[i].menuAction)+"','"+menuName+"');";
-                       }
-                       
-                       var hasaccFuntion = '';
-                       if(hasacc!=null&&hasacc!=''){
-                       	   hasaccFuntion = hasacc;
-                       }else{
-                           hasaccFuntion = hasacc1;
-                       }
-                       $('content').add($C('<list>'+
-							'<item id="'+menuId+'" style="height:40;" collapsed="true" indent="30" onclick="'+hasaccFuntion+'">'+
-								'<row>'+
-									'<label style="align:left;margin:2;color:#555555;font-size:16;">'+menuName+'</label>'+
-									'<icon id="icon_'+menuId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/>'+
-								'</row>'+
-								createItem(groups[i].child)+
-							'</item>'+
-						'</list>'));
-			        }
-
-			     }else{
-			     	   $('content').add($C('<list>'+
-			     	   		'<item>'+
-				                    '<col>'+
-				                    	'<row>'+
-				                    		'<label style="align:center;">暂无相关记录</label>'+
-				                    	'</row>'+
-				                    '</col>'+
-				             '</item></list>'));
-			     }
-            }else{
-           			 $('content').add($C('<list>'+
-			     	   		'<item>'+
-				                    '<col>'+
-				                    	'<row>'+
-				                    		'<label style="align:center;">暂无相关记录</label>'+
-				                    	'</row>'+
-				                    '</col>'+
-				             '</item></list>'));
-            
-            }
-		}
-		
 		function getMenuInfo() {
             var storage = $phone.localStorage();
             var evoUrl = storage.getItem('evoUrl');
@@ -93,7 +14,7 @@
             var custMenu_menuId = storage.getItem('custMenu_menuId');
             var custMenu_menuName = storage.getItem('custMenu_menuName');
             $('titleLabel1').text=custMenu_menuName;
-		    $('content').clear();
+		  //  $('content').clear();
 		    $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/custmenu/getCustMenu.do','menuid='+custMenu_menuId, function(data) {
 		         if(data!=null && data!= ''){
 		            storage.setItem('custMenu_data'+custMenu_menuId,data);   //将返回数据放入缓存中。
@@ -128,7 +49,10 @@
                        }else if(groups[i].actionType =="4"){
                          hasacc1 = "goSSOLink('"+encodeURIComponent(groups[i].menuAction)+"','"+menuName+"');";
                        }
-                       
+                       if(groups[i].menuAction.indexOf('www')>-1){
+                       		$('forum_web').src=groups[i].menuAction;
+                            return;
+                       }
                        var hasaccFuntion = '';
                        if(hasacc!=null&&hasacc!=''){
                        	   hasaccFuntion = hasacc;
@@ -255,6 +179,8 @@
             </center>
         </title>
         <content id="content" draggable="true">
+        	<web src="" progress="true" id="forum_web">
+               </web>
         </content>
     </page>
 </imag>

@@ -23,7 +23,7 @@
         	
         	var itemContent = '';
         	$page.onload = function(){
-        		$http.post(
+        		$http.progress('正在加载，请稍后...').post(
         			evoUrl + '/ezOffice/dealfile/process.do',{workId : workId},
         			function(data){
         				if(!data){
@@ -50,7 +50,7 @@
         				var $contentFormList = $('content_form_list');
         				var selectContent = '';
         				//创建流程图
-       					createFlowImg(workInfo.flowgraphurl);
+       					createFlowImg(workInfo.flowgraphurl,jsonData.data_2.picRootPath);
        					$('headers').css('display','');
        					//初始化表单数据
         				if(fieldList instanceof Array){
@@ -105,10 +105,27 @@
 	        
 	        
 	        //播放语音
-			function playSound(path){
-				//path = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(path)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-				$phone.playSound(path); 
-				//$phone.playSound('http://192.168.0.197:7004/defaultroot/upload/workflow_acc/201603/2016030911411127139891375.3gpp'); 
+			function playSound(path,filename){
+			    commentYuyinUrl =  evoUrl+'/ezOffice/download/playSound.do?url='+path+'&filename='+filename;
+			    $http.post(evoUrl + '/ezOffice/download/playSound.do', {
+						url : path,
+						filename : filename
+					}, function(data) {
+					   // alert(data);
+						$phone.playSound(evoUrl+'/ezOffice/upload/'+filename); 
+					},function(error) {
+				    if (error == 'timeout') {
+						hint('连接服务器超时！');
+				    } else if (error == '404') {
+						hint('链接超时重新登录！');
+				    } else if (error == '500') {
+						hint('内部服务器错误！');
+				    } else {
+						hint('访问网络错误！错误代码:' + error);
+				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
+				  }
+				);
 			}
 	        
 	        
@@ -319,9 +336,10 @@
 	        }
 	        
 	        //创建流程图
-	        function createFlowImg(flowGraphUrl){
+	        function createFlowImg(flowGraphUrl,picRootPath){
 	        	if(!(flowGraphUrl instanceof Array)){
-	        		var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        	//	var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        		var imgPath = picRootPath+flowGraphUrl;
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);
@@ -381,7 +399,8 @@
 	        //全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
-				$page.open('dealfile_viewBigPic.xml?flowgraphurl='+encodeURIComponent(flowgraphurl),{target:'_blank'});
+				storage.setItem('flowgraphurl',flowgraphurl);
+				$page.open('dealfile_viewBigPic.xml',{target:'_blank'});
 	        }
 	             
 	        // 需要创建附件下载内容的数组
@@ -475,13 +494,13 @@
 								commentType = commentList[i].type;
 								if(commentType == '4'){
 									// 手写
-									commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
-									//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
+									commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
+									commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
 									itemContent += '<row><img src="'+commentShouxie+'"/></row>';
 								}else if(commentType == '5'){
 									// 语音
 									commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
-									itemContent += '<row onclick="playSound(\'' + commentYuyin + '\')"><label style="color:#330000;text-decoration:underline;align:right">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
+									itemContent += '<row onclick="playSound(\'' + commentYuyin + '\',\''+commentList[i].content+'\')"><label style="color:#330000;text-decoration:underline;align:right">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 								}else{
 									itemContent += '<row><label style="align:right;color:#555555;font-size:16;">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 								}
@@ -491,13 +510,13 @@
 							commentType = commentList.comment.type;
 							if(commentType == '4'){
 								// 手写
-								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-								//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
+								commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
+						    	commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
 								itemContent += '<row><img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
 								commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-								itemContent += '<row onclick="playSound(\'' + commentYuyin + '\')"><label style="color:#330000;text-decoration:underline;align:right">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
+								itemContent += '<row onclick="playSound(\'' + commentYuyin + '\',\''+ commentList.comment.content+'\')"><label style="color:#330000;text-decoration:underline;align:right">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 							}else{
 								itemContent += '<row><label style="align:right;color:#555555;font-size:16;">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 							}

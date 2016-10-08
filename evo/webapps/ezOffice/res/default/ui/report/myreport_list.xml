@@ -560,7 +560,7 @@
            </content>
            <content id="otherContent" ondragdown="upOther();">
             <list id="otherReportList" reuse="true">
-                <item style="col-width:18%,85%">
+                <item style="col-width:50,*">
                     <col>
                         <row><button style="background:#ee6241;width:40;height:40;align:left;font-size:16;color:#ffffff" onclick="" reusekey="btn">其</button></row>
                     </col>

@@ -131,7 +131,7 @@
 				  storage.setItem('ezMobile_dbName',dbName);
 				  var isCreateDB = storage.getItem('isCreateDB');
 				  //hint(isCreateDB);
-				  if(isCreateDB==null||isCreateDB==''){
+				  if(isCreateDB==null||isCreateDB==''||isCreateDB=='null'){
 				       //alert(isCreateDB);
 				       initDB();
 				  }

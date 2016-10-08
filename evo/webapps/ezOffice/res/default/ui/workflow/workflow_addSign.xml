@@ -13,7 +13,7 @@
         	function getAddSignInfo(){
         		var evoUrl = storage.getItem('evoUrl');
         		$('workId').value = $param['workId'];
-        		$http.post(evoUrl + '/ezOffice/workflow/addSign.do',{'workId':$param['workId']},
+        		$http.progress('正在加载，请稍后...').post(evoUrl + '/ezOffice/workflow/addSign.do',{'workId':$param['workId']},
 	        		function(data){
 	        			if(!data){
 	        				alert('获取加签信息失败！');
@@ -59,17 +59,17 @@
         		var scopeType = addSignInfo.scopeType;
         		var items = '';
 				if(scopeType == 'default_users'){
-					items += '<item onclick="selectUser(\'chooseUserId\',\'chooseUserName\',\''+addSignInfo.scopeId+'\',\'1\')" accessory="indicator" style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>选择办理人：</label></row></col><col style="padding:10;margin:10;">';
-					items += '<input type="hidden" id="chooseUserId" name="chooseUserId" value="" />'+
-           			'<input style="border:0 white;font-size:16;text-align:right;" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value=""/>';
+					items += '<item   style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>选择办理人：</label></row></col><col style="padding:10;margin:10;">';
+					items += '<input type="hidden" id="chooseUserId" name="chooseUserId" value="'+addSignInfo.scopeId+'" />'+
+           			'<input style="border:0 white;font-size:16;text-align:right;" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value="'+addSignInfo.scopeName+'" placeholder="请选择>"/>';
 				}else if(scopeType == 'scopes_user'){
 					items += '<item onclick="selectUser(\'chooseUserId\',\'chooseUserName\',\''+addSignInfo.scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>选择办理人：</label></row></col><col style="padding:10;margin:10;">';
 					items += '<input type="hidden" id="chooseUserId" name="chooseUserId" value="" />'+
-           			'<input style="border:0 white;font-size:16;text-align:right;" placeholder="请选择>" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value=""/>';
+           			'<input style="border:0 white;font-size:16;text-align:right;" placeholder="请选择>" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value="" onclick="selectUser(\'chooseUserId\',\'chooseUserName\',\''+addSignInfo.scopeId+'\',\'1\')"/>';
 				}else{
 					items += '<item onclick="selectUser(\'chooseUserId\',\'chooseUserName\',\''+addSignInfo.scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>选择办理人：</label></row></col><col style="padding:10;margin:10;">';
 					items += '<input type="hidden" id="chooseUserId" name="chooseUserId" value="" />'+
-           			'<input style="border:0 white;font-size:16;text-align:right;" placeholder="请选择>" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value=""/>';
+           			'<input style="border:0 white;font-size:16;text-align:right;" placeholder="请选择>" type="text" readonly="readonly" id="chooseUserName" name="chooseUserName" value="" onclick="selectUser(\'chooseUserId\',\'chooseUserName\',\''+addSignInfo.scopeId+'\',\'1\')"/>';
 				}
 				var workcurstep = decodeURIComponent($param["workcurstep"]);
 				items += '</col></item><item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>当前办理环节：</label></row></col><col style="padding:10;margin:10;"><row><label>'+workcurstep+'</label></row></col></item>';
@@ -163,7 +163,7 @@
             </left>
             <center><label id="centerTitle" onclick="">流程加签</label></center>
         </title>
-        <content id="content">
+        <content id="content" style="background:white;">
         	<form id="sendForm" multipart="true" prompt="请稍后...">
    		        <input type="hidden" value="" name="workId" id="workId"/>
 	            <list id="content_list">

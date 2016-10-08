@@ -89,7 +89,7 @@
                      handOutTime = handOutTime.substring(0,10);
                  }
                  $('handOutTime').text=handOutTime;
-                 var docUrl="$http.download('"+evoUrl+"/ezOffice/doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;id="+id+'&amp;viewName='+realname+wordType+"');";
+                 var docUrl="$http.download('"+evoUrl+"/ezOffice/doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;id="+id+'&amp;viewName='+realname+"');";
                  $('docLook').add($C('<label style="align:right;color:#38adff;text-decoration:underline;font-size:16;" onclick="'+docUrl+'">点击查看正文</label>'));
                  $('title').text=realname;
                  if(accessoryName!=null&&accessoryName!=""){    //当有附件时，显示附件真实名称,并提供下载方法。

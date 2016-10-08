@@ -250,7 +250,7 @@
 		               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 		                  for(var k=0;k<attList.length;k++){
 		                 // alert(attList[k].savename);
-		                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'\')">'+attList[k].realname+'</label></row>')
+		                      var files = $C('<row><icon src="mail_fujian.png" style="align:left;margin-right:5;"/><label style="color:#38adff;align:left;font-size:16;"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=govdocumentmanager'+'&amp;viewName=' + attList[k].realname +'\')">'+attList[k].realname+'</label></row>')
 		                      $(attId).add(files); 
 		                  }
 		               }else{     //无附件，或者后台处理异常

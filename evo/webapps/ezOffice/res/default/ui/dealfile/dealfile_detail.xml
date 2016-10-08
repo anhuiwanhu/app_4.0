@@ -34,7 +34,7 @@
         	
         	var itemContent = '';
         	$page.onload = function(){
-        		$http.post(
+        		$http.progress('正在加载，请稍后...').post(
         			evoUrl + '/ezOffice/dealfile/process.do',{workId : workId},
         			function(data){
         				if(!data){
@@ -65,7 +65,7 @@
         					passRoundCommFieldName = workInfo.passRoundCommField.replace(/,/g,'');; //批示意见字段名赋值
         				}
         				//创建流程图
-       					createFlowImg(workInfo.flowgraphurl);
+       					createFlowImg(workInfo.flowgraphurl,jsonData.data_2.picRootPath);
        					$('headers').css('display','');
        					//初始化表单数据
        					var officeList = jsonData.data_0.data.officelist;
@@ -188,9 +188,10 @@
 			}
 	        
 	        //创建流程图
-	        function createFlowImg(flowGraphUrl){
+	        function createFlowImg(flowGraphUrl,picRootPath){
 	        	if(!(flowGraphUrl instanceof Array)){
-	        		var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        	//	var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+		        	var imgPath = picRootPath+flowGraphUrl;
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);
@@ -385,8 +386,8 @@
 				var passRoundCommField = workInfo.passRoundCommField;   //待办文件使用passRoundCommField字段
 				var passRoundCommFieldType = workInfo.passRoundCommFieldType;
 				var commentList = detailData.commentList;
-				if(passRoundCommFieldType != '-1' && passRoundCommField != '-1' && passRoundCommField != 'nullCommentField' &&
-				   passRoundCommField != 'autoCommentField' && passRoundCommField != 'null'&&passRoundCommField!=null&&passRoundCommField!=''){   
+				if(passRoundCommFieldType != '-1' && (passRoundCommField == '-1' || passRoundCommField == 'nullCommentField' ||
+				   passRoundCommField == 'autoCommentField' || passRoundCommField == 'null'||passRoundCommField==null)){   
 				    if(commFieldExistIsTrue == true){
 				    	return;
 				    }
@@ -399,7 +400,7 @@
 				    	commentViewName = passRoundCommFieldName;
 				    }
 					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="padding:10;margin:10;"><row>'+
-								   '<textarea style="font-size:16;color:#555555" rows="5" name="comment_input" id="comment_input" maxrows="500"></textarea></row></col></item>'+
+								   '<textarea style="font-size:16;color:#555555" rows="5" name="comment_input" id="comment_input" maxrows="5"></textarea></row></col></item>'+
 								   '<item id="" style="col-width:*,40,40,50,40"><col><row></row></col>'+
 								   <!-- '<col><row><icon id="qianzhang" src="workflow_spread.png" style="display:none;width:30;height:30;"/></row></col>'+ -->
 								   '<col><row><icon id="shouxie" onclick="doDraft();" src="workflow_sx.png" style="display:none;width:30;height:30;"/></row></col>'+
@@ -416,14 +417,15 @@
 							commentType = commentList[i].type;
 							if(commentType == '4'){
 								// 手写
-								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 								//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
+								commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
+								commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
 								itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
 								commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
-								itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+								itemContent += '<item onclick="playSound(\'' + commentYuyin + '\',\''+commentList[i].content+'\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<label style="align:left;color:#555555;font-size:16;">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 							}else{
 								itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
@@ -435,14 +437,14 @@
 						commentType = commentList.comment.type;
 						if(commentType == '4'){
 							// 手写
-							commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-							//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
+							commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
+						    commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
 							itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');"  style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 									   	   '<img src="'+commentShouxie+'"/></row>';
 						}else if(commentType == '5'){
 							// 语音
 							commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-							itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+							itemContent += '<item onclick="playSound(\'' + commentYuyin + '\',\''+commentList.comment.content+'\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<label style="color:#330000;text-decoration:underline;align:right">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 						}else{
 							itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+
@@ -465,7 +467,8 @@
 	        //全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
-				$page.open('dealfile_viewBigPic.xml?flowgraphurl='+encodeURIComponent(flowgraphurl),{target:'_blank'});
+				storage.setItem('flowgraphurl',flowgraphurl);
+				$page.open('dealfile_viewBigPic.xml',{target:'_blank'});
 	        }
 	               
 	        // 需要创建附件下载内容的数组
@@ -567,7 +570,7 @@
 								}else if(commentType == '5'){
 									// 语音
 									commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
-									itemContent += '<row onclick="playSound(\'' + commentYuyin + '\')"><label style="align:left;font-size:16;color:#555555">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
+									itemContent += '<row onclick="playSound(\'' + commentYuyin + '\',\''+commentList[i].content+'\')"><label style="align:left;font-size:16;color:#555555">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 								}else{
 									itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 								}
@@ -583,7 +586,7 @@
 							}else if(commentType == '5'){
 								// 语音
 								commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-								itemContent += '<row onclick="playSound(\'' + commentYuyin + '\')"><label style="align:left;font-size:16;color:#555555">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
+								itemContent += '<row onclick="playSound(\'' + commentYuyin + '\',\''+commentList.comment.content+'\')"><label style="align:left;font-size:16;color:#555555">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 							}else{
 								itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 							}
@@ -868,10 +871,28 @@
 				$('comment_input_sxyy').css('display','none');
 			}
 			
-			//播放语音
-			function playSound(path){
-				path = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(path)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-				$phone.playSound(path); 
+		    //播放语音
+			function playSound(path,filename){
+			    commentYuyinUrl =  evoUrl+'/ezOffice/download/playSound.do?url='+path+'&filename='+filename;
+			    $http.post(evoUrl + '/ezOffice/download/playSound.do', {
+						url : path,
+						filename : filename
+					}, function(data) {
+					   // alert(data);
+						$phone.playSound(evoUrl+'/ezOffice/upload/'+filename); 
+					},function(error) {
+				    if (error == 'timeout') {
+						hint('连接服务器超时！');
+				    } else if (error == '404') {
+						hint('链接超时重新登录！');
+				    } else if (error == '500') {
+						hint('内部服务器错误！');
+				    } else {
+						hint('访问网络错误！错误代码:' + error);
+				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
+				  }
+				);
 			}
 			
 			function viewFiles(filetype,accessoryNameseries,accessorySaveNameseries,path,fileType){

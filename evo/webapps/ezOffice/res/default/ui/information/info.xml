@@ -122,14 +122,14 @@
 				           var content = obj.data.informationContent+'';
 				           var sys_server =obj.sys_server;
 				           var  filename = content.substring(content.indexOf(':')+1);
-				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+filename+'\')">'+
+				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+filename+'&amp;viewName='+content.substring(0,content.indexOf(':'))+'\')">'+
 								'<col>'+
 									'<row>'+
 										'<label>链接附件</label>'+
 									'</row>'+
 								'</col>'+
 								'<col>'+
-									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+filename+'\')">'+
+									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+filename+'&amp;viewName='+content.substring(0,content.indexOf(':'))+'\')">'+
 										'<label style="color:#330000;text-decoration:underline;">'+content.substring(0,content.indexOf(':'))+'</label>'+
 									'</row> '+
 								'</col>'+
@@ -140,15 +140,16 @@
 				           var attachurl = obj.attachurl;
 				           var content = obj.data.informationContent;
 				           var sys_server =obj.sys_server;
+				           var viewName = informationTitle;
 				       //    alert(httpserver); alert(attachurl); alert(content);
-				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/pdf.do?url='+attachurl+'&amp;filename='+content+'.doc\')">'+
+				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.doc&amp;viewName='+viewName+'.doc\')">'+
 								'<col>'+
 									'<row>'+
 										'<label>信息正文</label>'+
 									'</row>'+
 								'</col>'+
 								'<col>'+
-									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/pdf.do?url='+attachurl+'&amp;filename='+content+'.doc\')">'+
+									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.doc&amp;viewName='+viewName+'.doc\')">'+
 										'<label style="color:#330000;text-decoration:underline;">点击查看正文</label>'+
 									'</row> '+
 								'</col>'+
@@ -159,14 +160,15 @@
 				           var attachurl = obj.attachurl;
 				           var content = obj.data.informationContent;
 				           var sys_server =obj.sys_server;
-				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.xls\')">'+
+				           var viewName = informationTitle;
+				           var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.xls&amp;viewName='+viewName+'.xls\')">'+
 								'<col>'+
 									'<row>'+
 										'<label>信息正文</label>'+
 									'</row>'+
 								'</col>'+
 								'<col>'+
-									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.xls\')">'+
+									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.xls&amp;viewName='+viewName+'.xls\')">'+
 										'<label style="color:#330000;text-decoration:underline;">点击查看正文</label>'+
 									'</row> '+
 								'</col>'+
@@ -177,15 +179,15 @@
 				            var attachurl = obj.attachurl;
 				            var content = obj.data.informationContent;
 				            var sys_server =obj.sys_server;
-				            
-				            var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.ppt\')">'+
+				            var viewName = informationTitle;
+				            var content_label = $C('<list-item><item style="col-width:85,*;" onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.ppt&amp;viewName='+viewName+'.ppt\')">'+
 								'<col>'+
 									'<row>'+
 										'<label>信息正文</label>'+
 									'</row>'+
 								'</col>'+
 								'<col>'+
-									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.ppt\')">'+
+									'<row onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attachurl+'&amp;filename='+content+'.ppt&amp;viewName='+viewName+'.ppt\')">'+
 										'<label style="color:#330000;text-decoration:underline;">点击查看正文</label>'+
 									'</row> '+
 								'</col>'+
@@ -319,7 +321,7 @@
 	               var attList = obj.attList;
 	               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 	                  for(var k=0;k<attList.length;k++){
-	                      var files = $C('<list-item><item icon="mail_fujian.png"><label  style="text-decoration:underline;color:#38adff;"  onclick="$(\'popupmenu\').close();$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=information'+'\')">'+attList[k].realname+'</label></item></list-item>');
+	                      var files = $C('<list-item><item icon="mail_fujian.png"><label  style="text-decoration:underline;color:#38adff;"  onclick="$(\'popupmenu\').close();$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=information'+'&amp;viewName='+attList[k].realname+'\')">'+attList[k].realname+'</label></item></list-item>');
 	                      $('docFiles').add(files); 
 	                  }
 	                  $('popupmenu').open();

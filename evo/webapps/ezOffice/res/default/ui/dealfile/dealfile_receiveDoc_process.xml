@@ -22,7 +22,7 @@
 	        var isEdit = '';
 	        // 页面加载完后执行
         	$page.onload = function(){
-				$http.post(
+				$http.progress('正在加载，请稍后...').post(
         			evoUrl + '/ezOffice/dealfile/receiveGovProcess.do',{workId : workId},
         			function(data){
         				if(!data){
@@ -51,7 +51,7 @@
 						workName = workInfo.workcurstep;
 						var $contentFormList = $('content_form_list');
 						//创建流程图
-       					createFlowImg(workInfo.flowgraphurl);
+       					createFlowImg(workInfo.flowgraphurl,jsonData.data_2.picRootPath);
        					$('headers').css('display','');
        					// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(workInfo);
@@ -359,7 +359,8 @@
 	        //全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
-				$page.open('dealfile_viewBigPic.xml?flowgraphurl='+encodeURIComponent(flowgraphurl),{target:'_blank'});
+				storage.setItem('flowgraphurl',flowgraphurl);
+				$page.open('dealfile_viewBigPic.xml',{target:'_blank'});
 	        }
 	        
 			// 需要创建附件下载内容的数组
@@ -382,12 +383,11 @@
 			          			$page.open('../index.xml',{target:'_self'});
 			                    return;
 			                }
-							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName='+attList[k].realname+ '\')">' + attList[k].realname + '</label></row>')
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName='+attList[k].realname+ '\')">' + attList[k].realname + '</label></row>')
 									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
@@ -812,12 +812,6 @@
 				$('comment_input_sxyy').css('display','none');
 			}
 			
-			//播放语音
-			function playSound(path){
-				$phone.playSound(path); 
-				//$phone.playSound('http://192.168.0.197:7004/defaultroot/upload/workflow_acc/201603/2016030911411127139891375.3gpp'); 
-			}
-			
 	       // 构建批示意见内容
 	        function createCommentCon(comment){
 	        //	var isCurrent = comment.current;
@@ -842,9 +836,10 @@
 	        }
 	        
         	 //创建流程图
-	        function createFlowImg(flowGraphUrl){
+	        function createFlowImg(flowGraphUrl,picRootPath){
 	        	if(!(flowGraphUrl instanceof Array)){
-	        		var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        	//	var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        		var imgPath = picRootPath+flowGraphUrl;
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);

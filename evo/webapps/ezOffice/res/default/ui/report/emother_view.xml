@@ -103,7 +103,7 @@
 			               var attList = obj.attList;
 			               if(!attList==""){  //不为空，数据进行迭代,并为附件赋值
 			                  for(var k=0;k<attList.length;k++){
-			                      var files = $C('<row style="margin-bottom:5"><icon src="mail_fujian.png" style="align:left;width:16;height:16"></icon><label style="color:#38adff;text-decoration:underline;align:left;font-size:16;margin-left:5"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=workreport'+'\')">'+attList[k].realname+'</label></row>')
+			                      var files = $C('<row style="margin-bottom:5"><icon src="mail_fujian.png" style="align:left;width:16;height:16"></icon><label style="color:#38adff;text-decoration:underline;align:left;font-size:16;margin-left:5"  onclick="$http.download(\''+evoUrl+'/ezOffice/download/file.do?url='+attList[k].attachurlser+'&amp;filename='+attList[k].savename+'&amp;uploadPath=workreport'+'&amp;viewName='+attList[k].realname+'\')">'+attList[k].realname+'</label></row>')
 			                      $('docFiles').add(files); 
 			                  }
 			               }else{     //无附件，或者后台处理异常

@@ -27,7 +27,7 @@
         	var isEdit = '';
 	        // 页面加载完后执行
         	$page.onload = function(){
-				$http.post(
+				$http.progress('正在加载，请稍后...').post(
         			evoUrl + '/ezOffice/dealfile/sendGovProcess.do',{workId : workId},
         			function(data){
         				if(!data){
@@ -60,7 +60,7 @@
 						workName = workInfo.workcurstep;
 						var $contentFormList = $('content_form_list');
 						//创建流程图
-       					createFlowImg(workInfo.flowgraphurl);
+       					createFlowImg(workInfo.flowgraphurl,jsonData.data_2.picRootPath);
        					$('headers').css('display','');
        					// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(workInfo);
@@ -229,7 +229,7 @@
 				}else{  
 					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
 		                 var obj =eval('('+data+')');
-		                 var viewName = draftPerson +worksubmittime +worktitle+"的正文"+wordType;
+		                 var viewName = draftPerson +worksubmittime +worktitle+"的正文";
 		                 var docUrl="$http.download('"+evoUrl + "/ezOffice/doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"&amp;viewName="+viewName+"');";
 		                 $('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="'+docUrl+'">查看正文</label>'));
 		            },function(error) {
@@ -361,7 +361,8 @@
 	        //全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
-				$page.open('dealfile_viewBigPic.xml?flowgraphurl='+encodeURIComponent(flowgraphurl),{target:'_blank'});
+				storage.setItem('flowgraphurl',flowgraphurl);
+				$page.open('dealfile_viewBigPic.xml',{target:'_blank'});
 	        }
 	        
 	        // 需要创建附件下载内容的数组
@@ -870,9 +871,27 @@
 			}
 			
 			//播放语音
-			function playSound(path){
-				$phone.playSound(path); 
-				//$phone.playSound('http://192.168.0.197:7004/defaultroot/upload/workflow_acc/201603/2016030911411127139891375.3gpp'); 
+			function playSound(path,filename){
+			    commentYuyinUrl =  evoUrl+'/ezOffice/download/playSound.do?url='+path+'&filename='+filename;
+			    $http.post(evoUrl + '/ezOffice/download/playSound.do', {
+						url : path,
+						filename : filename
+					}, function(data) {
+					   // alert(data);
+						$phone.playSound(evoUrl+'/ezOffice/upload/'+filename); 
+					},function(error) {
+				    if (error == 'timeout') {
+						hint('连接服务器超时！');
+				    } else if (error == '404') {
+						hint('链接超时重新登录！');
+				    } else if (error == '500') {
+						hint('内部服务器错误！');
+				    } else {
+						hint('访问网络错误！错误代码:' + error);
+				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
+				  }
+				);
 			}
 	        
 	        // 构建批示意见内容
@@ -899,9 +918,10 @@
 	        }
 	        
         	 //创建流程图
-	        function createFlowImg(flowGraphUrl){
+	        function createFlowImg(flowGraphUrl,picRootPath){
 	        	if(!(flowGraphUrl instanceof Array)){
-	        		var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+	        	//	var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
+		        	var imgPath = picRootPath+flowGraphUrl;
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);

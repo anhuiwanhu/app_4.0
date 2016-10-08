@@ -16,11 +16,10 @@
         	
         	// 创建头部内容
         	function createHeaderContent(){
-				var serverUrl = storage.getItem('serverUrl');
         		var webServiceUrl = storage.getItem('webServiceUrl');
         		var workTitle = decodeURIComponent($param['worktitle']);
         		var workSubmitTime = decodeURIComponent($param['worksubmittime']).substring(0,16);
-        		var empLivingPhoto = serverUrl + 'download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
+        		var empLivingPhoto = evoUrl +'/ezOffice/download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
         		if($param['empLivingPhoto'] && $param['empLivingPhoto'] != 'null'){
 	        		$('empLivingPhoto').src = empLivingPhoto;
         		}        		

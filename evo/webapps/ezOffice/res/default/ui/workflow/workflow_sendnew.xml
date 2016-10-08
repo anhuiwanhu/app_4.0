@@ -12,6 +12,7 @@
 	        var activityList = new Array();
 	        //活动名称数组
 	        var activityNameList = new Array();
+	        var isDefault_Users = '';   //是否是默认选择人
 	        
           	//页面加载完成后执行
           	var flag = 0;
@@ -19,6 +20,7 @@
           	var g_gateType="";
           	var g_scopeId = '';  //用来选择人员信息使用，公共参数
           	var conActivityId = '' ;  //判断是否自动提交
+          	var g_nextActivityList = '';
         	$page.onload = function() {
         		getNextActivity();
         	}
@@ -36,7 +38,7 @@
         		var forkId = storage.getItem('workflow_forkId');
         		var workId = storage.getItem('workflow_workId');
         		var evoUrl = storage.getItem('evoUrl');
-        		$http.post(evoUrl + '/ezOffice/workflow/getNextActivity.do',
+        		$http.progress('正在加载，请稍后...').post(evoUrl + '/ezOffice/workflow/getNextActivity.do',
 	        		{'tableId' : tableId,'recordId' : recordId,'activityId' : activityId,'stepCount' : stepCount,
 	        		'isForkTask' : isForkTask,'forkStepCount' : forkStepCount,'forkId' : forkId,'workId' : workId,},
 	        		function(data){
@@ -56,6 +58,7 @@
 	        			}
 	        			var data = jsonData.data_0.data;
 	        			var nextActivityList = data.nextActivityList;
+	        			g_nextActivityList = data.nextActivityList;
 	        			// 节点类型
 	        			var gateType = data.gateType;
 	        			var beginForkActivityId = data.beginForkActivityId;
@@ -67,7 +70,6 @@
 						$('workId').value = workId;	
 						$('isForkTask').value = $param['isForkTask'];
 						$('comment').value = decodeURIComponent($param['comment']);
-						//alert($('comment').value);
 						// 手写审批、语言批示数据
 						$('commentShouxie_backName').value = $param['commentShouxie_backName'];
 						$('commentYuyin_backName').value =  $param['commentYuyin_backName'];
@@ -89,11 +91,10 @@
 	        			createActivityListContent($contentList,nextActivityList,gateType);
 	        			// 创建固定ITEM
 	        			createOtherItem($contentList,nextActivityList);
-	        			// 判断是否有发送短信权限
-	        			if($('msRemind_message') && smsRight == '1'){
-	        				$('msRemind_message').css('display','block');
-	        			}
+	        			//默认选择办理环节时的事件
+        		         selectActivity(gateType);
 	        			isCompleteFile(conActivityId);  //是否是多人办理后，自动提交直接返回的
+	        			createSmsTip(nextActivityList);
 	        	},function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -106,6 +107,27 @@
 				    }
 				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
+        	}
+        	
+        	function createSmsTip(nextActivityList){
+        		var isArray = nextActivityList instanceof Array;
+        		var smsRight = '';
+        		if(isArray){
+        			smsRight = nextActivityList[0].showSmsRemind;
+        		}else{
+        			smsRight = nextActivityList.showSmsRemind;
+        		}
+        		// 判断是否有发送短信权限
+       			if(smsRight&&smsRight == '1'){
+       				$('msRemind_message').checked = true;
+       				$('msRemind_message').css('display','block');
+       			}else  if(smsRight&&smsRight == '2'){
+       				$('msRemind_message').checked = false;
+       				$('msRemind_message').css('display','block');
+       			}else{
+       				$('msRemind_message').checked = false;
+       				$('msRemind_message').css('display','none');
+       			}
         	}
         	
         	function isCompleteFile(activityId){
@@ -121,11 +143,11 @@
         	
         	// 创建头部内容
         	function createHeaderContent(){
-        		var serverUrl = storage.getItem('serverUrl');
         		var webServiceUrl = storage.getItem('webServiceUrl');
         		var workTitle = decodeURIComponent($param['workTitle']);
         		var workSubmitTime = decodeURIComponent($param['workSubmitTime']).substring(0,16);
-        		var empLivingPhoto = serverUrl + 'download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
+        		var evoUrl = storage.getItem('evoUrl');
+        		var empLivingPhoto = evoUrl+'/ezOffice/download/resizeimg.do?url=' + webServiceUrl + "upload/peopleinfo/" + $param['empLivingPhoto'];
         		if($param['empLivingPhoto'] && $param['empLivingPhoto'] != 'null'){
 	        		$('empLivingPhoto').src = empLivingPhoto;
         		}
@@ -224,9 +246,13 @@
 		     				   userName=scopeName;
 		     			}
 	     			}
+	     			if(scopeType == 'default_users'){
+	     				userName = scopeName;
+	     				userId = scopeId;
+	     			}
 	     			g_scopeId = scopeId;   //全局参数赋值
         			items += '<item style="col-width: 90,*;padding:0;margin:0;' + isDisplay + '"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一活动：</label></row></col>'+
-		                     '<col style="padding:10;margin:10;"><row><select id="activity" name="activity" >'+option+'</select></row></col></item>'+
+		                     '<col style="padding:10;margin:10;"><row><select id="activity" name="activity" onchange="selectActivity(\''+gateType+'\')" >'+option+'</select></row></col></item>'+
 		                     '<item onclick="selectUserwithScop(\'1\')" id="personItem" style="col-width: 90,*;padding:0;margin:0;' + isDisplay + '"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>'+
 		                     '<col style="padding:10;margin:10;"><row><input onclick="selectUserwithScop(\'1\')" style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName" name="userName" readonly="true" value="' + userName + '"/>'+
 		                     '<input type="hidden" name="scopeId" id="scopeId" value="' + scopeId + '"/>'+
@@ -238,11 +264,10 @@
         		contentList.addMore('<imag><list>' + items + '</list></imag>');
         		
         		if($('activity')){
-	       			$('activity').onchange = "selectActivity('" + JSON.stringify(nextActivityList) + "','" + gateType + "')";
+	       			//$('activity').onchange = "selectActivity('" + JSON.stringify(nextActivityList) + "','" + gateType + "')";
         		}
-        		//选择办理环节时的事件
-        		selectActivity(JSON.stringify(nextActivityList),gateType);
         	}
+        	
         	function onchgRemind(id){
         	  if(id=='-2'){
         	     $('msRemind_item').css('display','none');
@@ -261,7 +286,8 @@
         	  }
         	}
         	// 选择办理环节时的事件
-        	function selectActivity(nextActivityList,gateType){
+        	function selectActivity(gateType){
+        	    var nextActivityList = JSON.stringify(g_nextActivityList);
         		var $activity = $('activity');
         		if(!$activity){
         		    if(isDossier == 'true'&&gateType!='XX'&&gateType!='XAND'){
@@ -305,12 +331,12 @@
         		var scopeNameArrayLen = 0;
        			for(var i = 0,length = jsonList.length;i < length;i++){
        				if(activity == jsonList[i].id){
+       				    isDefault_Users = jsonList[i].scopeType ;
        					if(jsonList[i].scopeType == 'default_users'){
 	       					$scopeId.value = jsonList[i].scopeId;
 	       					$scopeType.value = jsonList[i].scopeType;
 	       					$userId.value = jsonList[i].scopeId;
 	       					$userName.value = jsonList[i].scopeName;
-	       					
 	       					if(jsonList[i].scopeId == '*0*'){
 			        			$userId.value = '';
 			        		}
@@ -326,7 +352,6 @@
        							$scopeType.value = jsonList[i].scopeType;
 		       					$userId.value = jsonList[i].scopeId;
 		       					$userName.value = jsonList[i].scopeName;
-		       					
 		       					if(jsonList[i].scopeId == '*0*'){
 				        			$userId.value = '';
 				        		}
@@ -359,10 +384,12 @@
 		        				scopeId = jsonList[i].scopeId;
 		        				scopeName = jsonList[i].scopeName;
 	       					}
+	       					isDefault_Users = jsonList[i].scopeType ;
 		       			}
 	       			}else{
         				scopeId = jsonList.scopeId;
         				scopeName = jsonList.scopeName;
+        				isDefault_Users = jsonList.scopeType ;
 	       			}
        			    var userId = '';
 	        		var userName='';
@@ -404,13 +431,13 @@
 	                '<item style="col-width: 90,*;padding:0;margin:0;" id="emergency_item"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>缓急程度：</label></row></col><col style="padding:10;margin:10;">'+
 	                '<row><select id="emergency" name="emergency"><option value="0">一般</option><option value="1">加急</option><option value="2">急件</option><option value="3">特急</option><option value="4">特提</option></select></row></col></item>'+
 	                '<item style="col-width: 90,*;padding:0;margin:0;" id="smsContent_item"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提示：</label></row></col><col style="padding:10;margin:10;">'+
-	                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="500"></textarea></row></col></item>';
+	                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="5"></textarea></row></col></item>';
                 }else{
                 	var itemContent =  
 	                '<item style="col-width: 90,*;padding:0;margin:0;" id="emergency_item"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>缓急程度：</label></row></col><col style="padding:10;margin:10;">'+
 	                '<row><select id="emergency" name="emergency"><option value="10">一般</option><option value="20">加急</option><option value="30">急件</option><option value="40">特急</option><option value="50">特提</option></select></row></col></item>'+
 	                '<item style="col-width: 90,*;padding:0;margin:0;" id="smsContent_item"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提示：</label></row></col><col style="padding:10;margin:10;">'+
-	                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="500"></textarea></row></col></item>';
+	                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="5"></textarea></row></col></item>';
                 }
                 itemContent += '<item style="col-width: 90,*;padding:0;margin:0;" id="msRemind_item"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提醒：</label>'+
 	               '</row></col><col style="padding:10;margin:10;"><row><checkbox type="switch" style="align:right" name="needMailRemind" value="1" id="msRemind_mail" checked="false">内部邮件</checkbox>'+
@@ -465,15 +492,15 @@
      				   userId=scopeId;
      				   userName=scopeName;
      			}
-	        		
+	        	isDefault_Users = nextActivity.scopeType ;
        			var items = '';
 		       	if(nextActivity.scopeType == 'default_users'){
 	    			items += '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一活动：</label></row></col>'+
 		                     '<col style="padding:10;margin:10;"><row><checkbox ' + isDisabled + ' style="align:right" checked="true" id="activity'+nextActivity.id+'" name="activity" value="'+nextActivity.id+'">'+nextActivity.name+'</checkbox>'+
 		                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.id+'\',\'userName'+nextActivity.id+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
-		       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.id+'" name="userName'+nextActivity.id+'" readonly="true" value="' + userName + '" onclick="selectUser(\'userId'+nextActivity.id+'\',\'userName'+nextActivity.id+'\',\''+scopeId+'\',\'1\')"/>'+
+		       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.id+'" name="userName'+nextActivity.id+'" readonly="true" value="' + scopeName + '" onclick="selectUser(\'userId'+nextActivity.id+'\',\'userName'+nextActivity.id+'\',\''+scopeId+'\',\'1\')"/>'+
 		       				 '<input type="hidden" name="scopeId" value="' + scopeId + '"/>'+
-		       				 '<input type="hidden" name="userId'+nextActivity.id+'" id="userId'+nextActivity.id+'" value="' + userId + '"/>';
+		       				 '<input type="hidden" name="userId'+nextActivity.id+'" id="userId'+nextActivity.id+'" value="' + scopeId + '"/>';
 		       		pushMustFillArray('userId'+nextActivity.id);
 		       	}else if(nextActivity.scopeType == 'scopes_user'){
 		       		if(!nextActivity.scopeName){
@@ -514,6 +541,9 @@
 	        var userIdConIdVal;
 	        var userNameConIdVal;
 	        function selectUser(userIdConId,userNameConId,range,type){
+	            if(isDefault_Users == 'default_users'){  //默认办理人，不进行选择
+	            	return  false;
+	            }
 	            if(g_gateType != 'XX' && 
 	               g_gateType != 'XAND'){
 	               
@@ -552,6 +582,14 @@
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/updateprocess2.do';
         		if(checkForm()){
+        		     //办理提示不能超过100个字
+        		    if($('tips')){
+        		    	var tipVal = $('tips').value;
+						if(tipVal!=null && tipVal!=undefined&&tipVal.length>2){
+							alert('办理提示长度不能超过100个字');
+							return false;
+						}
+        		    }
 					$('sendForm').submit(function(data) {
 						if(!data){
 							alert('发送失败！');
@@ -602,13 +640,11 @@
 	        	activityNameList.push(val1);
 	        }
         	function checkForm(){
-
                 //没有下一办理环节 不需要校验
                 if(activityList.length==0&&
                    !$('activity')){
                    return true;
                 }
-
         	    if(g_gateType == 'XX'){
         	    
         	        if(flag == 1 || flag == 1.0){
@@ -666,7 +702,6 @@
 						}
 					}
 				}
-				
         	}
         	
         ]]>
@@ -697,7 +732,7 @@
 	        	</item>
         	</list>
         </header>
-        <content id="content">
+        <content id="content" style="background:white;">
         	<form id="sendForm" multipart="true" prompt="请稍后...">
    		        <input type="hidden" name="workId" id="workId" value="" />
    		        <input type="hidden" name="isForkTask" id="isForkTask" value="" />

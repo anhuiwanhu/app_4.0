@@ -130,3 +130,25 @@ c.£©ÊÚÈ¨£ºiappofficeµÄÊÚÈ¨Âë¹ºÂòºóÔÚÉêÇë¿Í»§¶ËµÄÊ±ºòÌîÐ´iappofficeID×Ö¶Î£¬WPSµÄÊ
 9¡¢¡¾ezFLOW¡¿ÅúÊ¾Òâ¼ûµÄÊÖÐ´Ç©ÅúÍ¼Æ¬·µ»ØOAÖÐ£¬°´ÕÕ30%µÄ±ÈÀýËõÐ¡ºóÏÔÊ¾ÔÚ±íµ¥ÖÐ
 10¡¢¡¾°²È«¡¿¿Í»§¶ËÖ§³Öhttps·ÃÎÊÄ£Ê½
 
+
+
+
+
+ÐÞ¸ÄÄÚÈÝ£º
+
+1¡¢¡¾https¡¿ÒÑÖªÎÊÌâ´¦Àí
+2¡¢¡¾ÎÄ¼þËÍÉóÇ©¡¿pc¶Ë·¢ÆðÊÇÀÏ¹¤×÷Á÷£¬evo´ý°ì±íµ¥ÊÇÐÂ¹¤×÷Á÷
+3¡¢¡¾ÎÄ¼þËÍÉóÇ©¡¿pc¶Ë·¢ÆðÉÏ´«¸½¼þ£¬evo¶Ë´ý°ì²»ÏÔÊ¾¸½¼þ
+4¡¢¡¾ÓÊ¼þ¡¿·¢ËÍ»òÕßÔÙ´Î·¢ËÍÊÕ²»µ½ÏûÏ¢ÍÆËÍ
+5¡¢¡¾ÎÄ¼þ°ìÀí¡¿¼ÓÇ©ºÍ×ª°ì¶¼²»ÄÜ·¢¸øµ±Ç°°ìÀíÈË
+6¡¢¡¾ÎÄ¼þ°ìÀí¡¿ÊÕ·¢ÎÄ£¨ezFLOW£©µÄÁ÷³ÌÍ¼¶àÁËÈýÌõÏß
+7¡¢¡¾¸½¼þ¡¿evo¿Í»§¶ËÒªÏÔÊ¾µÄÍ¼Æ¬¡¢¸½¼þÏÈÏÂÔØµ½evo·þÎñ¶Ë
+8¡¢¡¾¿Í»§¶Ë¡¿Æô¶¯¼ÓÔØÒ³Í¼Æ¬ÉèÖÃÎÞÐ§
+9¡¢¡¾ÌáÐÑÏî¡¿¶ÌÐÅÌáÐÑÓëPC¶Ë²»Ò»ÖÂ
+10¡¢¡¾¸öÈËÖÐÐÄ¡¿ÍøÂçÒì³£Ê±¶à´ÎË¢ÐÂ¸öÈËÖÐÐÄ£¬Ó¦ÓÃÀà±ð·µ»ØÖØ¸´½á¹û
+11¡¢¡¾ÎÄ¼þ°ìÀí¡¿ÎÄ¼þ°ìÀí/·¢ÆðÁ÷³ÌÔÚÌá½»°ìÀíÌí¼Ó¡°Loading¡±½ø¶È
+12¡¢¡¾¸½¼þ¡¿¸½¼þ×Ô¶¯×ª³ÉPDFºó×ºÃû»á×Ô¶¯±ä³É.doc.pdf£¬½«¡°.doc¡±È¥µô
+13¡¢¡¾¸½¼þ¡¿ÏÂÔØºóµÄ¸½¼þÎÄ¼þÃûÏÔÊ¾Ô­±êÌâ
+14¡¢¡¾ÎÄ¼þ°ìÀí¡¿×Ô¶¯·µ»Ø»î¶¯Í¬Ò»°ìÀíÈË¶à´Î°ìÀíÒâ¼û¶ªÊ§
+
+

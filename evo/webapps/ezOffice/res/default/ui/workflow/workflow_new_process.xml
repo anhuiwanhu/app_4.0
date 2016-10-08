@@ -1144,11 +1144,11 @@
 			          			$page.open('../index.xml',{target:'_self'});
 			                    return;
 			                }
-							var serverUrl = obj.serverUrl;
+						//	var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
-									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '&amp;viewName='+attList[k].realname+'\')">' + attList[k].realname + '</label></row>')
 									$(attachments[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常

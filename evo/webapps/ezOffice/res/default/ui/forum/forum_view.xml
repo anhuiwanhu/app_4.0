@@ -89,7 +89,7 @@
 									    if(file.length>0){
 									   	   html+='<div class="wh-article-atta">';
 									   	   for(var j=0;j<file.length;j++){
-										   	   html+='<p><i class="icon"></i><a href="#" onclick="down(\\\''+file[j].attachurlser+'\\\',\\\''+file[j].saveName+'\\\');">';
+										   	   html+='<p><i class="icon"></i><a href="#" onclick="down(\\\''+file[j].attachurlser+'\\\',\\\''+file[j].saveName+'\\\',\\\''+file[j].name+'\\\');">';
 											   html+='<strong class="atta-name">'+file[j].name+'</strong></a></p>';
 									   	   }
 									   	   html+='</div>';
@@ -118,8 +118,8 @@
 					});
 			}
 			
-			function downFile(attachurlser,savename){
-				$http.download(evoUrl+'/ezOffice/download/file.do?url='+attachurlser+'&filename='+savename+'&uploadPath=forum');
+			function downFile(attachurlser,savename,viewName){
+				$http.download(evoUrl+'/ezOffice/download/file.do?url='+attachurlser+'&filename='+savename+'&uploadPath=forum'+'&viewName='+viewName);
 			}
 			
 			function downfrsh(){
@@ -204,8 +204,8 @@
                					$imag.exec('cite(\''+id+'\',\''+cont+'\')');
                				}
                				
-               				function down(serverUrl,attachurlser,savename){
-               					$imag.exec('downFile(\''+serverUrl+'\',\''+attachurlser+'\',\''+savename+'\')');
+               				function down(attachurlser,savename,viewName){
+               					$imag.exec('downFile(\''+attachurlser+'\',\''+savename+'\',\''+viewName+'\')');
                				}
                			</script>
 					<body>

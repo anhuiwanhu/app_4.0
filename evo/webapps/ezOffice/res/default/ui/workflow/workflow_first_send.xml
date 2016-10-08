@@ -8,6 +8,9 @@
         	var fromXml = $param['fromXml'];
             var mainLinkFile = $param['mainLinkFile'];
             var isArray = false;  //老流程发起不支持多个下步活动
+            var isDefault_Users = '';   //是否是默认选择人
+            var g_scopeName = '';
+            var g_scopeId = '';
             if(mainLinkFile=='meet'){
         		mainLinkFile = 'boardRoom!selectBoardroomApplyView.action?type=modi';  //带？号传不过来，需要参数来标识判断
         	}
@@ -47,18 +50,32 @@
 	        			if(!nextActivityList){
 	        				nextActivityList = data;
 	        			}
-	        			var smsRight = $param['smsRight'];
+	        			//var smsRight = $param['smsRight'];
+	        			var smsRight = '';
+	        			if(!nextActivityList){
+	        				smsRight = nextActivityList.showSmsRemind;
+	        			}
 	        			var $contentList = $('content_list');
 	        			// 创建节点选择及办理人选择
 	        			createActivityListContent($contentList,nextActivityList);
 	        			// 创建固定ITEM
 	        			createOtherItem($contentList);
+	        			//选择办理环节时的事件
+        				selectActivity(JSON.stringify(nextActivityList));
 	        			// 判断是否有发送短信权限
-	        			if(smsRight == '1'){
+	        			if(smsRight&&smsRight == '1'){
+	        				$('msRemind_message').checked = true;
 	        				$('msRemind_message').css('display','block');
+	        			}else  if(smsRight&&smsRight == '2'){
+	        				$('msRemind_message').checked = false;
+	        				$('msRemind_message').css('display','block');
+	        			}else{
+	        				$('msRemind_message').checked = false;
+	        				$('msRemind_message').css('display','none');
 	        			}
 	        			$('businessId').value = $param['businessId'];
 	        			$('processId').value = $param['processId'];
+	        			autoSubmit();   //当下一办理人为指定办理人，直接提交。
 	        	},function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -72,6 +89,15 @@
 				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
         	}
+        	
+        	function autoSubmit(){
+        		if(isDefault_Users == 'default_users'){  //指定办理人。
+        			$('userId').value = g_scopeId;
+        			$('userName').value = g_scopeName;
+        			sendFlow();
+        		}
+        	}
+        	
         	
         	// 创建下一环节、下一办理人内容 
         	function createActivityListContent(contentList,nextActivityList){
@@ -122,9 +148,11 @@
        				   userId=scopeId;
        				   userName=scopeName;
        				}
-       				
+       				g_scopeName = scopeName;
+	        		g_scopeId = scopeId;
+	        		isDefault_Users = nextActivityList.scopeType ;
 	        		selectUser = '<item onclick="selectUser(\'userId\',\'userName\',\''+scopeId+'\',\'1\')" id="personItem" style="col-width: 90,*;padding:0;margin:0;' + isDisplay + '"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>'+
-		                     '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;padding-right:10;padding-right:10;" type="text" placeholder="请选择>" id="userName" name="userName" readonly="true" value="' + userName + '"/>'+
+		                     '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;padding-right:10;padding-right:10;" type="text" placeholder="请选择>" id="userName" name="userName" readonly="true" value="' + userName + '" onclick="selectUser(\'userId\',\'userName\',\''+scopeId+'\',\'1\')"/>'+
 		                     '<input type="hidden" name="scopeId" id="scopeId" value="' + scopeId + '"/>'+
 		                     '<input type="hidden" name="userId" id="userId" value="' + userId + '"/>'+
 		                     '</row></col></item>';
@@ -136,8 +164,6 @@
         		if($('activity')){
 	       			$('activity').onchange = "selectActivity('" + JSON.stringify(nextActivityList) + "')";
         		}
-        		//选择办理环节时的事件
-        		selectActivity(JSON.stringify(nextActivityList));
         	}
         	
         	// 选择用户
@@ -190,6 +216,7 @@
         		var scopeName = '';
         		var scopeNameArray;
         		var scopeNameArrayLen = 0;
+        		var jsonListIsArray = jsonList instanceof Array;
        			for(var i = 0,length = jsonList.length;i < length;i++){
        				if(activity == jsonList[i].id){
        					if(jsonList[i].scopeType == 'default_users'){
@@ -228,10 +255,12 @@
                	'<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>缓急程度：</label></row></col><col style="padding:10;margin:10;">'+
                 '<row><select id="emergency" name="emergency"><option value="0">一般</option><option value="1">加急</option><option value="2">急件</option><option value="3">特急</option><option value="4">特提</option></select></row></col></item>'+
                 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提示：</label></row></col><col style="padding:10;margin:10;">'+
-                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="500"></textarea></row></col></item>'+
+                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="5"></textarea></row></col></item>'+
                 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提醒：</label>'+
 	            '</row></col><col style="padding:10;margin:10;"><row><checkbox type="switch" style="align:right" name="needMailRemind" value="1" id="msRemind_mail" checked="false">内部邮件</checkbox>'+
                 '<checkbox type="switch" style="display:none;align:right" name="needSmsRemind" value="1" id="msRemind_message" checked="false">短信</checkbox></row></col></item>';
+        		 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提示：</label></row></col><col style="padding:10;margin:10;">'+
+                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="5"></textarea></row></col></item>';
         		contentList.addMore('<imag><list>' + itemContent + '</list></imag>');
         	}
         	
@@ -244,6 +273,14 @@
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/sendNewProcess.do';
         		if(checkForm()){
+        		     //办理提示不能超过100个字
+        		    if($('tips')){
+        		    	var tipVal = $('tips').value;
+						if(tipVal!=null && tipVal!=undefined&&tipVal.length>2){
+							alert('办理提示长度不能超过100个字');
+							return false;
+						}
+        		    }
 					$('sendForm').submit(function(data) {
 						if(!data){
 							alert('发送失败！');
@@ -313,7 +350,7 @@
             </left>
             <center><label id="centerTitle" onclick="">办件</label></center>
         </title>
-        <content id="content">
+        <content id="content" style="background:white;">
         	<form id="sendForm" multipart="true" prompt="请稍后...">
    		        <input type="hidden" name="businessId" id="businessId" value="" />
    		        <input type="hidden" name="processId" id="processId" value="" />

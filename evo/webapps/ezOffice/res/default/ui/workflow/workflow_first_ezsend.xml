@@ -52,7 +52,7 @@
 	        			// 节点类型
 	        			var gateType = data.gateType;
 	        			var gateNum = data.gateNum;
-	        			var smsRight = $param['smsRight'];
+	        		  //var smsRight = $param['smsRight'];
 	        			$('gateType').value = gateType;
 	        			g_gateType = gateType;
 	        			
@@ -64,10 +64,9 @@
 	        			createActivityListContent($contentList,nextActivityList,gateType);
 	        			// 创建固定ITEM
 	        			createOtherItem($contentList);
-	        			// 判断是否有发送短信权限
-	        			if(smsRight == '1'){
-	        				$('msRemind_message').css('display','block');
-	        			}
+	        			//选择办理环节时的事件
+        		        selectActivity(JSON.stringify(nextActivityList),gateType);
+	        			createSmsTip(nextActivityList);
 	        	},function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -82,6 +81,26 @@
 				  });
         	}
         	
+        	function createSmsTip(nextActivityList){
+        		var isArray = nextActivityList instanceof Array;
+        		var smsRight = '';
+        		if(isArray){
+        			smsRight = nextActivityList[0].showSmsRemind;
+        		}else{
+        			smsRight = nextActivityList.activity.showSmsRemind;
+        		}
+        		// 判断是否有发送短信权限
+       			if(smsRight&&smsRight == '1'){
+       				$('msRemind_message').checked = true;
+       				$('msRemind_message').css('display','block');
+       			}else  if(smsRight&&smsRight == '2'){
+       				$('msRemind_message').checked = false;
+       				$('msRemind_message').css('display','block');
+       			}else{
+       				$('msRemind_message').checked = false;
+       				$('msRemind_message').css('display','none');
+       			}
+        	}
         	// 创建下一环节、下一办理人内容 
         	function createActivityListContent(contentList,nextActivityList,gateType){
         		if(!nextActivityList){
@@ -115,7 +134,6 @@
         				items += twoGateTypeCon(nextActivityList.activity,scopeId,scopeName,items,scopeNameArrayLen,scopeNameArray,gateType);
         			}
         		}else{
-        		
 	       			var option = '<option value="-1">请选择</option>';
 	       			var activityId = '';
 	       			if(isArray){
@@ -137,7 +155,7 @@
 	       					}
 		       			}
 	       			}else{
-
+						
 	       				option += '<option value="'+ nextActivityList.activity.activityId +'" selected="true">'+ nextActivityList.activity.activityName +'</option>';
         				scopeId = nextActivityList.activity.scopeId;
         				if(scopeId==''||scopeId=='[]'){
@@ -163,14 +181,17 @@
        				   userId=scopeId;
        				   userName=scopeName;
        				}
-
+					if(scopeType == 'default_users'){
+	     				userName = scopeName;
+	     				userId = scopeId;
+	     			}
         			items += '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一活动：</label></row></col>'+
 		                     '<col style="padding:10;margin:10;"><row><select id="activity" name="activity">'+option+'</select>'+
 		                     '<input type="hidden" id="activityName" name="activityName" value=""/>'+
 				         	 '<input type="hidden" id="activityType" name="activityType" value=""/>'+
 		                     '</row></col></item>'+
 		                     '<item onclick="selectUser(\'userId\',\'userName\',\''+scopeId+'\',\'1\')" id="personItem" style="col-width: 90,*;padding:0;margin:0;' + isDisplay + '"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>'+
-		                     '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName" name="userName" readonly="true" value="' + userName + '"/>'+
+		                     '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName" name="userName" readonly="true" value="' + userName + '"  onclick="selectUser(\'userId\',\'userName\',\''+scopeId+'\',\'1\')" />'+
 		                     '<input type="hidden" name="scopeId" id="scopeId" value="' + scopeId + '"/>'+
 		                     '<input type="hidden" name="scopeType" id="scopeType" value="' + scopeType + '"/>'+
 		                     '<input type="hidden" name="userId" id="userId" value="' + userId + '"/>'+
@@ -181,8 +202,6 @@
         		if($('activity')){
 	       			$('activity').onchange = "selectActivity('" + JSON.stringify(nextActivityList) + "','" + gateType + "')";
         		}
-        		//选择办理环节时的事件
-        		selectActivity(JSON.stringify(nextActivityList),gateType);
         	}
         	
         	// 选择办理环节时的事件
@@ -263,7 +282,7 @@
                 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>缓急程度：</label></row></col><col style="padding:10;margin:10;">'+
                 '<row><select id="emergency" name="emergency"><option value="10">一般</option><option value="20">加急</option><option value="30">急件</option><option value="40">特急</option><option value="50">特提</option></select></row></col></item>'+
                 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提示：</label></row></col><col style="padding:10;margin:10;">'+
-                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="500"></textarea></row></col></item>'+
+                '<row><textarea rows="5" name="smsContent" id="tips" maxrows="5"></textarea></row></col></item>'+
                 '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>办理提醒：</label>'+
 	            '</row></col><col style="padding:10;margin:10;"><row><checkbox type="switch" style="align:right" name="needMailRemind" value="1" id="msRemind_mail" checked="false">内部邮件</checkbox>'+
                 '<checkbox type="switch" style="display:none;align:right" name="needSmsRemind" value="1" id="msRemind_message" checked="false">短信</checkbox></row></col></item>';
@@ -285,7 +304,6 @@
         			return false;
         		}
        			scopeName = nextActivity.scopeName;
-        		
        			var isDisabled = '';
        			if(gateType == 'XAND'){
        				isDisabled = 'disabled="true"';
@@ -308,10 +326,10 @@
 		                     '<col style="padding:10;margin:10;"><row><checkbox ' + isDisabled + ' style="align:right" checked="true" id="activity'+nextActivity.activityId+'" name="activity" value="'+nextActivity.activityId+'">'+nextActivity.activityName+'</checkbox>'+
 		                     '<input type="hidden" id="activityName'+nextActivity.activityId+'" name="activityName'+nextActivity.activityId+'" value="'+nextActivity.activityName+'"/>'+
 					         '<input type="hidden" id="activityType'+nextActivity.activityId+'" name="activityType'+nextActivity.activityId+'" value="'+nextActivity.activityType+'"/>'+
-		                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
-		       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="' + userName + '"/>'+
+		                     '</row></col></item><item style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
+		       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="' + scopeName + '"/>'+
 		       				 '<input type="hidden" name="scopeId" value="' + scopeId + '"/>'+
-		       				 '<input type="hidden" name="userId'+nextActivity.activityId+'" id="userId'+nextActivity.activityId+'" value="' + userId + '"/>';
+		       				 '<input type="hidden" name="userId'+nextActivity.activityId+'" id="userId'+nextActivity.activityId+'" value="' + scopeId + '"/>';
 		                     pushMustFillArray('userId'+nextActivity.activityId);
 		       	}else if(nextActivity.scopeType == 'scopes_user'){
 		       		if(!nextActivity.scopeName){
@@ -325,7 +343,7 @@
 			                     '<input type="hidden" id="activityName'+nextActivity.activityId+'" name="activityName'+nextActivity.activityId+'" value="'+nextActivity.activityName+'"/>'+
 						         '<input type="hidden" id="activityType'+nextActivity.activityId+'" name="activityType'+nextActivity.activityId+'" value="'+nextActivity.activityType+'"/>'+
 			                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
-			       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="' + userName + '"/>'+
+			       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="' + userName + '" onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')"/>'+
 			       				 '<input type="hidden" name="scopeId" value="' + scopeId + '"/>'+
 			       				 '<input type="hidden" name="userId'+nextActivity.activityId+'" id="userId'+nextActivity.activityId+'" value="' + userId + '"/>';
 		       		}else if(scopeNameArrayLen > 2){
@@ -334,7 +352,7 @@
 			                     '<input type="hidden" id="activityName'+nextActivity.activityId+'" name="activityName'+nextActivity.activityId+'" value="'+nextActivity.activityName+'"/>'+
 						         '<input type="hidden" id="activityType'+nextActivity.activityId+'" name="activityType'+nextActivity.activityId+'" value="'+nextActivity.activityType+'"/>'+
 			                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
-			       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value=""/>'+
+			       		items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="" onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')"/>'+
 			       				 '<input type="hidden" name="scopeId" value=""/>'+
 			       				 '<input type="hidden" name="userId'+nextActivity.activityId+'" id="userId'+nextActivity.activityId+'" value=""/>';
      						}
@@ -345,7 +363,7 @@
 		                     '<input type="hidden" id="activityName'+nextActivity.activityId+'" name="activityName'+nextActivity.activityId+'" value="'+nextActivity.activityName+'"/>'+
 					         '<input type="hidden" id="activityType'+nextActivity.activityId+'" name="activityType'+nextActivity.activityId+'" value="'+nextActivity.activityType+'"/>'+
 		                     '</row></col></item><item onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')" style="col-width: 90,*;padding:0;margin:0;'+isDisplay+'"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>下一办理人：</label></row></col>';
-        			items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value=""/>'+
+        			items += '<col style="padding:10;margin:10;"><row><input style="border:0 white;font-size:16;text-align:right;" type="text" placeholder="请选择>" id="userName'+nextActivity.activityId+'" name="userName'+nextActivity.activityId+'" readonly="true" value="" onclick="selectUser(\'userId'+nextActivity.activityId+'\',\'userName'+nextActivity.activityId+'\',\''+scopeId+'\',\'1\')"/>'+
 	       				 '<input type="hidden" name="scopeId" id="scopeId" value=""/>'+
 	       				 '<input type="hidden" name="userId'+nextActivity.activityId+'" id="userId'+nextActivity.activityId+'" value=""/>';
         				 pushMustFillArray('userId'+nextActivity.activityId);
@@ -393,6 +411,14 @@
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/sendNewEzflowProcess.do';
         		if(checkForm()){
+        			 //办理提示不能超过100个字
+        		    if($('tips')){
+        		    	var tipVal = $('tips').value;
+						if(tipVal!=null && tipVal!=undefined&&tipVal.length>2){
+							alert('办理提示长度不能超过100个字');
+							return false;
+						}
+        		    }
 					$('sendForm').submit(function(data) {
 						if(!data){
 							alert('发送失败！');
@@ -508,7 +534,7 @@
             </left>
             <center><label id="centerTitle" onclick="">办件</label></center>
         </title>
-        <content id="content">
+        <content id="content" style="background:white;">
         	<form id="sendForm" multipart="true" prompt="请稍后...">
 				<input type="hidden" id="gateType" name="gateType" value="" /> 
 				<input type="hidden" id="gateNum" name="gateNum" value="" /> 

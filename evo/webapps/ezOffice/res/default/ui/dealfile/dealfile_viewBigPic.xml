@@ -2,9 +2,9 @@
 <imag>
 	<script>
         <![CDATA[
+			var storage = $phone.localStorage();
 			$page.onload = function(){
-				//$('image').src = decodeURIComponent($param['flowgraphurl']);
-				var item = $C('<slideimage-item><item src="' + decodeURIComponent($param['flowgraphurl']) + '"/></slideimage-item>');
+				var item = $C('<slideimage-item><item src="' + storage.getItem('flowgraphurl') + '"/></slideimage-item>');
                 $('slideimage').add(item);   
 			}
         ]]>
