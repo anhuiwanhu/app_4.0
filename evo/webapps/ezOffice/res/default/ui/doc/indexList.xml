@@ -15,7 +15,7 @@
 	          //   updateCache2();  //非其他页面进入，需要判断本地数据库是否有数据
 	               CacheDataToPage();
 	               $page.setTimeout(function() {
-		        	   hint('列表自动刷新中...');
+		        	  // hint('列表自动刷新中...');
 		        	   updateCache();
                    }, 2000);
 	          }

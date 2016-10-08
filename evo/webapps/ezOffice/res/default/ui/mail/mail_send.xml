@@ -12,10 +12,8 @@
             var evoUrl = storage.getItem('evoUrl');
             var userId = storage.getItem('sys_sys_userId');
             $page.onload=function(){
-				//updateCache();
 				CacheDataToPage();
 				$page.setTimeout(function() {
-	        	   hint('列表自动刷新中...');
 	        	   updateCache2();
                 }, 2000);
             }

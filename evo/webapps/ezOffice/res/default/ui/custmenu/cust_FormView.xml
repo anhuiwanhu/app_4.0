@@ -59,7 +59,7 @@
 	        	readWrite = field.readwrite;
 	        	fieldType = field.fieldtype;
 	        	var attId = 'attachments_' + field.sysname;
-	        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>' + field.name + ':</label>'+
+	        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>' + field.name + ':</label>'+
 	        				   '</row></col><col style="padding:10;margin:10;" id="'+attId+'">';
 	        	if(showType == '101' && readWrite == '1'){
 	        		//单行文本

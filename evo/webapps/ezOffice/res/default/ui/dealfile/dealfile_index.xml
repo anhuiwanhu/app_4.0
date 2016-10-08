@@ -315,7 +315,7 @@
 	        	//loadList('update');
 	        	CacheDataToPage();
 	            $page.setTimeout(function() {
-	        	   hint('列表自动刷新中...');
+	        	   //hint('列表自动刷新中...');
 	        	   updateCache();
                 }, 2000);
 	        }
@@ -517,6 +517,11 @@
 		    		functionVal = 'openReceiveGovDetail';
 		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovDocSendCheckProcess!') > -1){
 		    		functionVal = 'openDocSendCheckDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/voitureApply!modi.action') > -1){
+		    		functionVal = 'openVoitureDetail';
+		    	//}else if(workMainLinkFile.indexOf('/defaultroot/boardRoom!selectBoardroomApplyView.action') > -1){
+		    	}else if(workMainLinkFile.indexOf('boardRoom!selectBoardroomApplyView.action') > -1){
+		    		functionVal = 'openMeetDetail';
 		    	}else{
 		    		functionVal = 'openDetail';
 		    	}
@@ -574,6 +579,24 @@
             	storage.setItem('workflow_workId',workId);
             	$page.open('dealfile_info_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
 	        }
+	        // 打开车辆流程详情页面
+	        function openVoitureDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_voiture_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        // 打开会议申请流程详情页面
+	        function openMeetDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_meet_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        // 打开会议转办流程详情页面
+	        function openConvertDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_Convert_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
 	        
 	        //选择头中部菜单事件
 	        function selectList(status){
@@ -622,7 +645,7 @@
 	        	//loadList('update');
 	        	CacheDataToPage();
 	        	$page.setTimeout(function() {
-	        	   hint('列表自动刷新中...');
+	        	   //hint('列表自动刷新中...');
 	        	   updateCache();
                 }, 2000);
 	        }

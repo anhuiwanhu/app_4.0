@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+            
+		$page.onload = function() {
+		     CacheDataToPage();
+             $page.setTimeout(function() {
+       	     getMenuInfo();
+                }, 2000);
+		}
+		
+		function CacheDataToPage(){
+			var storage = $phone.localStorage();
+            var custMenu_menuId = storage.getItem('custMenu_menuId');
+            var custMenu_menuName = storage.getItem('custMenu_menuName');
+            $('titleLabel1').text=custMenu_menuName;
+            $('content').clear();
+            var data = storage.getItem('custMenu_data'+custMenu_menuId);
+            if(data!=null && data!= ''){
+            	  var obj = JSON.parse(data);
+			     if(obj.message.result=="1"){
+                    var groups = obj.data.menuList;
+			        for(var i=0;i<groups.length;i++){
+			           var menuId = groups[i].menuId;
+			           var menuName = groups[i].menuName;
+                       var acc = "";
+                       var hasacc="";
+                       if(groups[i].child.length>0){
+                          acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+menuId+"');";
+                       }
+                       var hasacc1="";
+                       if(groups[i].actionType =="1"){
+                         if(groups[i].isftp=="1"){
+                         }else{
+                           hasacc1 = "downloadFile('"+groups[i].downloadUrl+"','"+groups[i].filename+"');";
+                         }
+                       }else if(groups[i].actionType =="2"){
+                         hasacc1 = "goStartFlow('"+groups[i].menuStartFlow.type+"','"+groups[i].menuStartFlow.formId+"','"+groups[i].menuStartFlow.processId+"','"+groups[i].menuStartFlow.processName+"');";
+                       }else if(groups[i].actionType =="3"){
+                         hasacc1 = "goDataList('"+groups[i].menuId+"','"+groups[i].menuName+"');";
+                       }else if(groups[i].actionType =="4"){
+                         hasacc1 = "goSSOLink('"+encodeURIComponent(groups[i].menuAction)+"','"+menuName+"');";
+                       }
+                       
+                       var hasaccFuntion = '';
+                       if(hasacc!=null&&hasacc!=''){
+                       	   hasaccFuntion = hasacc;
+                       }else{
+                           hasaccFuntion = hasacc1;
+                       }
+                       $('content').add($C('<list>'+
+							'<item id="'+menuId+'" style="height:40;" collapsed="true" indent="30" onclick="'+hasaccFuntion+'">'+
+								'<row>'+
+									'<label style="align:left;margin:2;color:#555555;font-size:16;">'+menuName+'</label>'+
+									'<icon id="icon_'+menuId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/>'+
+								'</row>'+
+								createItem(groups[i].child)+
+							'</item>'+
+						'</list>'));
+			        }
+
+			     }else{
+			     	   $('content').add($C('<list>'+
+			     	   		'<item>'+
+				                    '<col>'+
+				                    	'<row>'+
+				                    		'<label style="align:center;">暂无相关记录</label>'+
+				                    	'</row>'+
+				                    '</col>'+
+				             '</item></list>'));
+			     }
+            }else{
+           			 $('content').add($C('<list>'+
+			     	   		'<item>'+
+				                    '<col>'+
+				                    	'<row>'+
+				                    		'<label style="align:center;">暂无相关记录</label>'+
+				                    	'</row>'+
+				                    '</col>'+
+				             '</item></list>'));
+            
+            }
+		}
+		
+		function getMenuInfo() {
+            var storage = $phone.localStorage();
+            var evoUrl = storage.getItem('evoUrl');
+            var userAccount = storage.getItem('userAccount');
+            var custMenu_menuId = storage.getItem('custMenu_menuId');
+            var custMenu_menuName = storage.getItem('custMenu_menuName');
+            $('titleLabel1').text=custMenu_menuName;
+		    $('content').clear();
+		    $http.post(evoUrl+'/ezOffice/custmenu/getCustMenu.do','menuid='+custMenu_menuId, function(data) {
+		         if(data!=null && data!= ''){
+		            storage.setItem('custMenu_data'+custMenu_menuId,data);   //将返回数据放入缓存中。
+		         }
+			     var obj = JSON.parse(data);
+			     if(obj.message.result=="1"){
+                    var groups = obj.data.menuList;
+			        for(var i=0;i<groups.length;i++){
+			           var menuId = groups[i].menuId;
+			           var menuName = groups[i].menuName;
+                       var acc = "";
+                       var hasacc="";
+                       if(groups[i].child.length>0){
+                          acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+menuId+"');";
+                       }
+                       var hasacc1="";
+                       if(groups[i].actionType =="1"){
+                         if(groups[i].isftp=="1"){
+                         }else{
+                           hasacc1 = "downloadFile('"+groups[i].downloadUrl+"','"+groups[i].filename+"');";
+                         }
+                       }else if(groups[i].actionType =="2"){
+                         hasacc1 = "goStartFlow('"+groups[i].menuStartFlow.type+"','"+groups[i].menuStartFlow.formId+"','"+groups[i].menuStartFlow.processId+"','"+groups[i].menuStartFlow.processName+"');";
+                       }else if(groups[i].actionType =="3"){
+                         hasacc1 = "goDataList('"+groups[i].menuId+"','"+groups[i].menuName+"');";
+                       }else if(groups[i].actionType =="4"){
+                         hasacc1 = "goSSOLink('"+encodeURIComponent(groups[i].menuAction)+"','"+menuName+"');";
+                       }
+                       
+                       var hasaccFuntion = '';
+                       if(hasacc!=null&&hasacc!=''){
+                       	   hasaccFuntion = hasacc;
+                       }else{
+                           hasaccFuntion = hasacc1;
+                       }
+                       $('content').add($C('<list>'+
+							'<item id="'+menuId+'" style="height:40;" collapsed="true" indent="30" onclick="'+hasaccFuntion+'">'+
+								'<row>'+
+									'<label style="align:left;margin:2;color:#555555;font-size:16;">'+menuName+'</label>'+
+									'<icon id="icon_'+menuId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/>'+
+								'</row>'+
+								createItem(groups[i].child)+
+							'</item>'+
+						'</list>'));
+			        }
+
+			     }
+			 
+			},function(error) {
+			    if (error == 'timeout') {
+			        hint('连接服务器超时！');
+			    } else if (error == '404') {
+			        hint('链接超时重新登录！');
+			    } else if (error == '500') {
+			        hint('内部服务器错误！');
+			    } else {
+			        hint('访问网络错误！错误代码:' + error);
+			    }
+		    });
+		}
+
+	   function createItem(groups){
+
+			if(groups){
+				var itemStr = '';
+				for(var i =0;i<groups.length;i++){
+				
+				      var menuId = groups[i].menuId;
+			          var menuName = groups[i].menuName;
+                       var acc = "";
+                       var hasacc="";
+                       if(groups[i].child.length>0){
+                          acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+menuId+"');";
+                       }
+                       var hasacc1="";
+                       if(groups[i].actionType =="1"){
+                         if(groups[i].isftp=="1"){
+                         }else{
+                           hasacc1 = "downloadFile('"+groups[i].downloadUrl+"','"+groups[i].filename+"');";
+                         }
+                       }else if(groups[i].actionType =="2"){
+                         hasacc1 = "goStartFlow('"+groups[i].menuStartFlow.type+"','"+groups[i].menuStartFlow.formId+"','"+groups[i].menuStartFlow.processId+"','"+groups[i].menuStartFlow.processName+"');";
+                       }else if(groups[i].actionType =="3"){
+                         hasacc1 = "goDataList('"+groups[i].menuId+"','"+groups[i].menuName+"');";
+                       }else if(groups[i].actionType =="4"){
+                         hasacc1 = "goSSOLink('"+encodeURIComponent(groups[i].menuAction)+"','"+menuName+"');";
+                       }
+                       var hasaccFuntion = '';
+                       if(hasacc!=null&&hasacc!=''){
+                       	   hasaccFuntion = hasacc;
+                       }else{
+                           hasaccFuntion = hasacc1+hasacc;
+                       }
+			          
+					itemStr += '<item id="'+menuId+'" style="height:40;" collapsed="true" indent="30"  onclick="'+hasaccFuntion+'">';
+					itemStr += '<row>'+
+								'<label style="align:left;margin:2;color:#555555;font-size:16;">'+menuName+'</label>'+
+									'<icon id="icon_'+menuId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/>'+
+							   '</row>'+
+							createItem(groups[i].child)+
+                    '</item>';
+				}
+				return itemStr;
+			}
+	    }
+	    
+	    function opencloseMenu(obj,ic){
+	       if(obj.collapsed){
+	         $(ic).src="forum_opendown.png";
+	       }else{
+	         $(ic).src="forum_openup.png";
+	       }
+	    }
+	    function downloadFile(downloadUrl,filename){
+	      var storage = $phone.localStorage();
+		  var evoUrl = storage.getItem('evoUrl');
+	      $http.download(evoUrl+'/ezOffice/download/file.do?url='+downloadUrl+'&filename='+filename+'&amp;uploadPath=customize');
+	    }
+	    
+	    function goStartFlow(type,pageId,processId,processName){
+	      if(type=="cmdNewStartFlow"){
+	         $page.open('../workflow/workflow_new_ezprocess.xml?model=custmenulist&pageId='+pageId+'&processId='+encodeURIComponent(processId)+'&processName='+encodeURIComponent(processName),
+		       {animation:'down-to-up'});
+	      }else if(type=="cmdStartFlow"){
+	        $page.open('../workflow/workflow_new_process.xml?model=custmenulist&pageId='+pageId+'&processId='+encodeURIComponent(processId)+'&processName='+encodeURIComponent(processName),
+		      {animation:'down-to-up'});
+	      }
+	    }
+	    function goDataList(menuId,menuName){
+	      var storage = $phone.localStorage();
+		  storage.setItem('custdata_menuId',menuId);
+		  storage.setItem('custdata_menuName',menuName);
+		  storage.setItem('curpage',"1");
+		  
+		  storage.setItem('cust_queryField','');
+          storage.setItem('cust_queryText','');
+            
+		  $page.open('custdataList.xml', {animation:'down-to-up'});
+	    }
+	    function goSSOLink(menuAction,menuName){
+	      $page.open('cust_url.xml?menuAction='+encodeURIComponent(menuAction)+'&menuName='+encodeURIComponent(menuName), {animation:'down-to-up'});
+	    //  $page.open(decodeURIComponent(menuAction), {target:'_browser'});
+	    }
+		
+    ]]>
+    </script> 
+	<page>
+	    <title style="background:#3daffe;tint-color:white">
+            <left>
+				<button role="back" />
+			</left>
+            <center>
+                <label id="titleLabel1"></label>
+            </center>
+        </title>
+        <content id="content" draggable="true">
+        </content>
+
+    </page>
+</imag>

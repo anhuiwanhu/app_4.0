@@ -1,0 +1,852 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+        var curpage = "1";
+        var storage = $phone.localStorage();
+        var evoUrl = storage.getItem('evoUrl');
+        var searchOrgId = storage.getItem('inner_searchOrgId');
+        var lastOrgName = storage.getItem('inner_lastOrgName');
+        if(lastOrgName !='' && lastOrgName.length > 14){
+        	lastOrgName = lastOrgName.substring(0,14)+'...';
+        }
+        var userId = storage.getItem('sys_sys_userId');
+        var addMore='0';
+	    var disp='0';
+	    var flag='0';
+		$page.onload = function() {
+            $("lastOrgName").text=lastOrgName;
+            peoToPage();
+            orgToPage();
+            $page.setTimeout(function(){
+       	     	loadpersonList();
+       	     	loadorgList();
+            }, 2000);
+		}
+		
+		function orgToPage(){
+			var data = storage.getItem('innerOrgOr'+searchOrgId);
+	    	if(data!=null && data!= ''){
+	    		 var obj = JSON.parse(data);
+			     var result = obj.orgList.message.result;
+			     var allnum='0';
+			     if(result=="1"){
+			        var list = obj.orgList.data.org;
+			        if(list instanceof Array){
+			        	allnum='1';
+				        for(var i=0;i<list.length;i++){
+				           var orgId = list[i].orgId.length==0?"":list[i].orgId;
+				           var orgName = list[i].orgName+"";
+				           var firstname = "";
+				           if(orgName==null ||orgName==""){
+				           	   orgName="";
+				           }else{
+				               firstname = orgName.substring(0,1); 
+				           }
+				           var personCount = list[i].personCount.length==0?"0":list[i].personCount;
+				           var subOrgCount = list[i].subOrgCount.length==0?"0":list[i].subOrgCount;
+	                       var acc = "";
+	                       var hasacc="";
+	                       var orgNum="";
+	                       if(parseInt(personCount) >0){
+	                       	   orgNum = "人数"+parseInt(personCount);
+	                       }
+	                       if(parseInt(subOrgCount) >0){
+	                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+	                       }
+	                       if(orgNum != ""){
+	                       	  acc = "forum_opendown.png";
+                              hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+	                       }
+	                       var btncolor = "#40c5fd";
+	                       if((i%3)==0){
+				              var btncolor = "#ee6241";
+				           }else if((i%3)==1){
+				              var btncolor = "#ecbf0e";
+				           }
+				           $('list_org').add($C('<list-item>'+
+								'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+									'<col><button style="width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff" onclick=";">'+firstname+'</button></col>'+
+									'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label>'+
+										'<icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin-top:5;"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+			        }else if(list instanceof Object){
+			           allnum='1';
+			           var orgId = list.orgId.length==0?"":list.orgId;
+			           var orgName = list.orgName;
+			           var firstname = "";
+			           if(orgName.length==0){
+			           	   orgName="";
+			           }else{
+			               firstname = orgName.substring(0,1); 
+			           }
+			           var personCount = list.personCount.length==0?"0":list.personCount;
+			           var subOrgCount = list.subOrgCount.length==0?"0":list.subOrgCount;
+                       var acc = "";
+                       var hasacc="";
+                       var orgNum="";
+                       if(parseInt(personCount) >0){
+                       	   orgNum = "人数"+parseInt(personCount);
+                       }
+                       if(parseInt(subOrgCount) >0){
+                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+                       }
+                       if(orgNum != ""){
+                       	  acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+                       }
+                       var btncolor = "#40c5fd";
+			           $('list_org').add($C('<list-item>'+
+							'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+								'<col><button style="width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff">'+firstname+'</button></col>'+
+									'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label><icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+							'</item>'+
+						'</list-item>'));
+
+			        }
+			        
+			     }
+			     var result1 = obj.userList.message.result;
+			     if(result1=="1"){
+		     		var picRootPath = obj.picRootPath;
+		     		var userdata = obj.userList.data.person;
+		     		if(userdata instanceof Array){
+		     			allnum='1';
+		     			for(var i=0;i<userdata.length;i++){
+				           var userId = userdata[i].id.length==0?"":userdata[i].id;
+				           var userName = userdata[i].linkManName.length==0?"":userdata[i].linkManName;
+				           var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+					       if(userdata[i].empLivingPhoto != "" && userdata[i].empLivingPhoto != "null" 
+					            && userdata[i].empLivingPhoto != null && userdata[i].empLivingPhoto.length!=0){
+	        				  empLivingPhoto = picRootPath+userdata[i].empLivingPhoto;
+	        			   }
+				           $('list_org').add($C('<list-item>'+
+								'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+									'<row>'+
+										'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+										'<label style="align:left;margin:10">'+userName+'</label>'+
+									'</row>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+		     		}else if(userdata instanceof Object){
+		     			allnum='1';
+		     			var userId = userdata.id.length==0?"":userdata.id;
+				        var userName = userdata.linkManName.length==0?"":userdata.linkManName;
+				        var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+				        if(userdata.empLivingPhoto != "" && userdata.empLivingPhoto != "null" 
+				            && userdata.empLivingPhoto != null && userdata.empLivingPhoto.length !=0){
+        				   empLivingPhoto = picRootPath+userdata.empLivingPhoto;
+        			    }
+				        $('list_org').add($C('<list-item>'+
+							'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+								'<row>'+
+									'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+									'<label style="align:left;margin:10">'+userName+'</label>'+
+								'</row>'+
+							'</item>'+
+						'</list-item>'));
+		     		}
+			     }
+			     if(allnum == '0'){
+			     	hint("当前组织无人员信息");
+			     }
+			     $('content_org').hideTop();
+			     $('org_load').css('display','none');
+			     flag='0';
+	    	}
+		}
+		
+		
+		function loadorgList(){
+			$('content_org').showBottom();
+		    if(flag=='1'){
+			   return;
+			}
+			flag='1';
+		   $('list_org').clear();
+		   $http.post(evoUrl+'/ezOffice/contacts/innerOrg.do',
+		      {searchOrgId:searchOrgId}, function(data) {
+		      	 if(data!=null && data!= ''){
+		            storage.setItem('innerOrgOr'+searchOrgId,data);   //将返回数据放入缓存中。
+		         }
+		         var obj = JSON.parse(data);
+			     var result = obj.orgList.message.result;
+			     var allnum='0';
+			     if(result=="1"){
+			        var list = obj.orgList.data.org;
+			        if(list instanceof Array){
+			        	allnum='1';
+				        for(var i=0;i<list.length;i++){
+				           var orgId = list[i].orgId.length==0?"":list[i].orgId;
+				           var orgName = list[i].orgName+"";
+				           var firstname = "";
+				           if(orgName==null ||orgName==""){
+				           	   orgName="";
+				           }else{
+				               firstname = orgName.substring(0,1); 
+				           }
+				           var personCount = list[i].personCount.length==0?"0":list[i].personCount;
+				           var subOrgCount = list[i].subOrgCount.length==0?"0":list[i].subOrgCount;
+	                       var acc = "";
+	                       var hasacc="";
+	                       var orgNum="";
+	                       if(parseInt(personCount) >0){
+	                       	   orgNum = "人数"+parseInt(personCount);
+	                       }
+	                       if(parseInt(subOrgCount) >0){
+	                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+	                       }
+	                       if(orgNum != ""){
+	                       	  acc = "forum_opendown.png";
+                              hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+	                       }
+	                       var btncolor = "#40c5fd";
+	                       if((i%3)==0){
+				              var btncolor = "#ee6241";
+				           }else if((i%3)==1){
+				              var btncolor = "#ecbf0e";
+				           }
+				           $('list_org').add($C('<list-item>'+
+								'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+									'<col><button style="width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff" onclick=";">'+firstname+'</button></col>'+
+									'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label>'+
+										'<icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin-top:5;"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+			        }else if(list instanceof Object){
+			           allnum='1';
+			           var orgId = list.orgId.length==0?"":list.orgId;
+			           var orgName = list.orgName;
+			           var firstname = "";
+			           if(orgName.length==0){
+			           	   orgName="";
+			           }else{
+			               firstname = orgName.substring(0,1); 
+			           }
+			           var personCount = list.personCount.length==0?"0":list.personCount;
+			           var subOrgCount = list.subOrgCount.length==0?"0":list.subOrgCount;
+                       var acc = "";
+                       var hasacc="";
+                       var orgNum="";
+                       if(parseInt(personCount) >0){
+                       	   orgNum = "人数"+parseInt(personCount);
+                       }
+                       if(parseInt(subOrgCount) >0){
+                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+                       }
+                       if(orgNum != ""){
+                       	  acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+                       }
+                       var btncolor = "#40c5fd";
+			           $('list_org').add($C('<list-item>'+
+							'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+								'<col><button style="width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff">'+firstname+'</button></col>'+
+									'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label><icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+							'</item>'+
+						'</list-item>'));
+
+			        }
+			        
+			     }
+			     var result1 = obj.userList.message.result;
+			     if(result1=="1"){
+		     		var picRootPath = obj.picRootPath;
+		     		var userdata = obj.userList.data.person;
+		     		if(userdata instanceof Array){
+		     			allnum='1';
+		     			for(var i=0;i<userdata.length;i++){
+				           var userId = userdata[i].id.length==0?"":userdata[i].id;
+				           var userName = userdata[i].linkManName.length==0?"":userdata[i].linkManName;
+				           var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+					       if(userdata[i].empLivingPhoto != "" && userdata[i].empLivingPhoto != "null" 
+					            && userdata[i].empLivingPhoto != null && userdata[i].empLivingPhoto.length!=0){
+	        				  empLivingPhoto = picRootPath+userdata[i].empLivingPhoto;
+	        			   }
+				           $('list_org').add($C('<list-item>'+
+								'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+									'<row>'+
+										'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+										'<label style="align:left;margin:10">'+userName+'</label>'+
+									'</row>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+		     		}else if(userdata instanceof Object){
+		     			allnum='1';
+		     			var userId = userdata.id.length==0?"":userdata.id;
+				        var userName = userdata.linkManName.length==0?"":userdata.linkManName;
+				        var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+				        if(userdata.empLivingPhoto != "" && userdata.empLivingPhoto != "null" 
+				            && userdata.empLivingPhoto != null && userdata.empLivingPhoto.length !=0){
+        				   empLivingPhoto = picRootPath+userdata.empLivingPhoto;
+        			    }
+				        $('list_org').add($C('<list-item>'+
+							'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+								'<row>'+
+									'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+									'<label style="align:left;margin:10">'+userName+'</label>'+
+								'</row>'+
+							'</item>'+
+						'</list-item>'));
+		     		}
+			     }
+			     if(allnum == '0'){
+			     	hint("当前组织无人员信息");
+			     }
+			     $('content_org').hideTop();
+			     $('org_load').css('display','none');
+			     flag='0';
+			},function(error) {
+				toErro(error);
+			});
+		}
+		function createItem(parentObj,id){
+            if(parentObj.subItems().length>0){
+		        return;
+		    }
+		    if(flag=='1'){
+            	return;
+            }
+            flag='1';
+		    $http.post(evoUrl+'/ezOffice/contacts/innerOrg.do',
+		      {searchOrgId:id}, function(data) {
+		         var obj = JSON.parse(data);
+			     var result = obj.orgList.message.result;
+			     var allnum='0';
+			     if(result=="1"){
+			        var list = obj.orgList.data.org;
+			        if(list instanceof Array){
+				        allnum='1';
+				        for(var i=0;i<list.length;i++){
+				           var orgId = list[i].orgId.length==0?"":list[i].orgId;
+				           var orgName = list[i].orgName;
+				           var firstname = "";
+				           if(orgName.length==0){
+				           	   orgName="";
+				           }else{
+				               firstname = orgName.substring(0,1); 
+				           }
+				           var personCount = list[i].personCount.length==0?"0":list[i].personCount;
+				           var subOrgCount = list[i].subOrgCount.length==0?"0":list[i].subOrgCount;
+	                       var acc = "";
+	                       var hasacc="";
+	                       var orgNum="";
+	                       if(parseInt(personCount) >0){
+	                       	   orgNum = "人数"+parseInt(personCount);
+	                       }
+	                       if(parseInt(subOrgCount) >0){
+	                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+	                       }
+	                       if(orgNum != ""){
+	                       	  acc = "forum_opendown.png";
+                              hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+	                       }
+	                       if((i%3)==0){
+				            var btncolor = "#ee6241";
+				           }else if((i%3)==1){
+				            var btncolor = "#ecbf0e";
+				           }else{
+				            var btncolor = "#40c5fd";
+				           }
+				           parentObj.add($C('<list-item>'+
+								'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+									'<col><button style="width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff">'+firstname+'</button></col>'+
+										'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label><icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+			        }else if(list instanceof Object){
+			           allnum='1';
+			           var orgId = list.orgId.length==0?"":list.orgId;
+			           var orgName = list.orgName;
+			           var firstname = "";
+			           if(orgName.length==0){
+			           	   orgName="";
+			           }else{
+			               firstname = orgName.substring(0,1); 
+			           }
+			           var personCount = list.personCount.length==0?"0":list.personCount;
+			           var subOrgCount = list.subOrgCount.length==0?"0":list.subOrgCount;
+                       var acc = "";
+                       var hasacc="";
+                       var orgNum="";
+                       if(parseInt(personCount) >0){
+                       	   orgNum = "人数"+parseInt(personCount);
+                       }
+                       if(parseInt(subOrgCount) >0){
+                       	   orgNum = orgNum+" 下级组织"+parseInt(subOrgCount);
+                       }
+                       if(orgNum != ""){
+                       	  acc = "forum_opendown.png";
+                          hasacc= "opencloseMenu(this,'icon_"+orgId+"')";
+                       }
+                       var btncolor = "#40c5fd";
+			           parentObj.add($C('<list-item>'+
+							'<item id="org'+orgId+'" collapsed="true" indent="30" onclick="createItem(this,\''+orgId+'\');'+hasacc+';" style="col-width:40,*">'+
+								'<col><button style="width:120;width:40;height:40;align:left;background:'+btncolor+';font-size:16;color:#ffffff">'+firstname+'</button></col>'+
+									'<col>'+
+										'<row><label style="color:#555555;font-size:16;margin-left:5">'+orgName+'</label><icon id="icon_'+orgId+'" role="accessory" src="'+acc+'" style="align:right;margin:2"/></row>'+
+										'<label style="color:#b8b8b8;font-size:12">'+orgNum+'</label>'+
+									'</col>'+
+							'</item>'+
+						'</list-item>'));
+			        }
+			     }
+			     var result1 = obj.userList.message.result;
+			     if(result1=="1"){
+		     		var picRootPath = obj.picRootPath;
+		     		var userdata = obj.userList.data.person;
+		     		if(userdata instanceof Array){
+		     			allnum='1';
+		     			for(var i=0;i<userdata.length;i++){
+				           var userId = userdata[i].id.length==0?"":userdata[i].id;
+				           var userName = userdata[i].linkManName.length==0?"":userdata[i].linkManName;
+				           var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+				           if(userdata[i].empLivingPhoto != "" && userdata[i].empLivingPhoto != "null" 
+				              && userdata[i].empLivingPhoto != null &&userdata[i].empLivingPhoto.length !=0){
+	        				   empLivingPhoto = picRootPath+userdata[i].empLivingPhoto;
+	        			   }
+				           parentObj.add($C('<list-item>'+
+								'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+									'<row>'+
+										'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+										'<label style="align:left;margin:10">'+userName+'</label>'+
+									'</row>'+
+								'</item>'+
+							'</list-item>'));
+				        }
+		     		}else if(userdata instanceof Object){
+		     			allnum='1';
+		     			var userId = userdata.id.length==0?"":userdata.id;
+				        var userName = userdata.linkManName.length==0?"":userdata.linkManName;
+				        var empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+					    if(userdata.empLivingPhoto != "" && userdata.empLivingPhoto != "null" 
+					       && userdata.empLivingPhoto != null){
+	        				empLivingPhoto = picRootPath+userdata.empLivingPhoto;
+	        			}
+				        parentObj.add($C('<list-item>'+
+							'<item id="user'+userId+'" collapsed="true" indent="30" onclick="perView(\''+userId+'\');">'+
+								'<row>'+
+									'<img default="login_per.png" src="'+empLivingPhoto+'" style="width:40;height:40;margin-left:5;" effect="round"/>'+
+									'<label style="align:left;margin:10">'+userName+'</label>'+
+								'</row>'+
+							'</item>'+
+						'</list-item>'));
+		     		}
+			     }
+			     if(allnum == '0'){
+			     	hint("当前组织无人员信息");
+			     }
+			     flag='0';
+			},function(error) {
+				toErro(error);
+			});
+		}
+		
+		function opencloseMenu(obj,ic){
+	       if(obj.collapsed){
+	         $(ic).src="forum_opendown.png";
+	       }else{
+	         $(ic).src="forum_openup.png";
+	       }
+	       
+	    }
+	    
+	    function peoToPage(){
+	    	$('content_per').showBottom();
+			$('bottom_more').css('display','none');
+			$('bottom_load').css('display','block');
+	    	var data = storage.getItem('innerOrgPeo'+searchOrgId);
+	    	if(data!=null && data!= ''){
+	    		var obj = JSON.parse(data);
+				var result = obj.message.result;
+				var listJson = {items:[]};
+				if(result =="1"){
+					var pageCount = obj.data.pageCount;
+					var picRootPath = obj.picRootPath;
+	                var list = obj.data.person;
+	                if(list instanceof Array){
+                		for(var i=0;i<list.length;i++){
+                			var userId = list[i].id.length==0?"":list[i].id;
+					        var userName = list[i].linkManName.length==0?"":list[i].linkManName+".";
+					        var linkManDepart = list[i].linkManDepart.length==0?"":list[i].linkManDepart;
+					        userName = userName+linkManDepart;
+					        var mobilePhone = list[i].mobilePhone.length==0?"":list[i].mobilePhone;
+					        var empLivingPhoto=list[i].empLivingPhoto+"";
+					        if(empLivingPhoto!=null && empLivingPhoto.length!=""){
+	        					empLivingPhoto = picRootPath+empLivingPhoto;
+	        				}else{
+	        				    empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+	        				}
+					        var itemJson = {
+			                    template:0,
+			                    onclick:'perView("'+userId+'");',
+			                    widgets:{
+			                        photo:{src:empLivingPhoto},
+			                        lab1:{text:userName},
+			                        lab2:{text:mobilePhone}
+			                    }
+			                  }
+			                listJson.items.push(itemJson);
+                		}
+                	}else if(list instanceof Object){
+                		var userId = list.id.length==0?"":list.id;
+				        var userName = list.linkManName.length==0?"":list.linkManName+".";
+				        var linkManDepart = list.linkManDepart.length==0?"":list.linkManDepart;
+				        userName = userName+linkManDepart;
+				        var mobilePhone = list.mobilePhone.length==0?"":list.mobilePhone;
+				        var empLivingPhoto  = list.empLivingPhoto+"";
+					    if(empLivingPhoto != "" && empLivingPhoto != null){
+	        				empLivingPhoto = picRootPath+list.empLivingPhoto;
+	        			}else{
+	        				empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+	        			}
+				        var itemJson = {
+		                    template:0,
+		                    onclick:'perView("'+userId+'");',
+		                    widgets:{
+		                        photo:{src:empLivingPhoto},
+		                        lab1:{text:userName},
+		                        lab2:{text:mobilePhone}
+		                    }
+		                  }
+		                listJson.items.push(itemJson);
+                	}else{
+						var itemJson = {
+		                    template : 1,
+		                    onclick : '',
+		                    widgets : {
+		                        title : {text :'暂无相关记录'}
+		                    }
+		                }
+		                listJson.items.push(itemJson);
+					}
+	                $('resuelist').addMore(listJson);
+                	if(parseInt(curpage) < parseInt(pageCount)){
+               			$('bottom_more').css('display','block');
+               			$('bottom_load').css('display','none');
+               			disp='1';
+                	}else{
+                		$('content_per').hideBottom();
+                		disp='0';
+                	}
+					addMore='0';
+				}else{
+					var itemJson = {
+	                    template : 1,
+	                    onclick : '',
+	                    widgets : {
+	                        title : {text :'暂无相关记录'}
+	                    }
+	                }
+	                listJson.items.push(itemJson);
+					$('resuelist').update(listJson);
+					$('content_per').hideBottom();
+					addMore='0';
+				}
+				$('content_per').hideTop();
+	    	}
+	    }
+	    
+	    
+	    
+		function loadpersonList(){
+		  curpage=="1";
+		  $('resuelist').clear();
+		  if(addMore=='1'){
+			 return;
+		  }
+		  addMore='1';
+		  $http.post(evoUrl+'/ezOffice/contacts/innerUser.do', 
+				{curpage:curpage,searchuser:$('searchuser').value,searchOrgId:searchOrgId}, function(data) {
+				if(data!=null && data!= ''){
+		            storage.setItem('innerOrgPeo'+searchOrgId,data);   //将返回数据放入缓存中。
+		         }
+				var obj = JSON.parse(data);
+				var result = obj.message.result;
+				var listJson = {items:[]};
+				if(result =="1"){
+					var pageCount = obj.data.pageCount;
+					var picRootPath = obj.picRootPath;
+	                var list = obj.data.person;
+	                if(list instanceof Array){
+                		for(var i=0;i<list.length;i++){
+                			var userId = list[i].id.length==0?"":list[i].id;
+					        var userName = list[i].linkManName.length==0?"":list[i].linkManName+".";
+					        var linkManDepart = list[i].linkManDepart.length==0?"":list[i].linkManDepart;
+					        userName = userName+linkManDepart;
+					        var mobilePhone = list[i].mobilePhone.length==0?"":list[i].mobilePhone;
+					        var empLivingPhoto=list[i].empLivingPhoto+"";
+					        if(empLivingPhoto!=null && empLivingPhoto.length!=""){
+	        					empLivingPhoto = picRootPath+empLivingPhoto;
+	        				}else{
+	        				    empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+	        				}
+					        var itemJson = {
+			                    template:0,
+			                    onclick:'perView("'+userId+'");',
+			                    widgets:{
+			                        photo:{src:empLivingPhoto},
+			                        lab1:{text:userName},
+			                        lab2:{text:mobilePhone}
+			                    }
+			                  }
+			                listJson.items.push(itemJson);
+                		}
+                	}else if(list instanceof Object){
+                		var userId = list.id.length==0?"":list.id;
+				        var userName = list.linkManName.length==0?"":list.linkManName+".";
+				        var linkManDepart = list.linkManDepart.length==0?"":list.linkManDepart;
+				        userName = userName+linkManDepart;
+				        var mobilePhone = list.mobilePhone.length==0?"":list.mobilePhone;
+				        var empLivingPhoto  = list.empLivingPhoto+"";
+					    if(empLivingPhoto != "" && empLivingPhoto != null){
+	        				empLivingPhoto = picRootPath+list.empLivingPhoto;
+	        			}else{
+	        				empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+	        			}
+				        var itemJson = {
+		                    template:0,
+		                    onclick:'perView("'+userId+'");',
+		                    widgets:{
+		                        photo:{src:empLivingPhoto},
+		                        lab1:{text:userName},
+		                        lab2:{text:mobilePhone}
+		                    }
+		                  }
+		                listJson.items.push(itemJson);
+                	}else{
+						var itemJson = {
+		                    template : 1,
+		                    onclick : '',
+		                    widgets : {
+		                        title : {text :'暂无相关记录'}
+		                    }
+		                }
+		                listJson.items.push(itemJson);
+					}
+	                $('resuelist').addMore(listJson);
+                	if(parseInt(curpage) < parseInt(pageCount)){
+               			$('bottom_more').css('display','block');
+               			$('bottom_load').css('display','none');
+               			disp='1';
+                	}else{
+                		$('content_per').hideBottom();
+                		disp='0';
+                	}
+					addMore='0';
+				}else{
+					var itemJson = {
+	                    template : 1,
+	                    onclick : '',
+	                    widgets : {
+	                        title : {text :'暂无相关记录'}
+	                    }
+	                }
+	                listJson.items.push(itemJson);
+					$('resuelist').update(listJson);
+					$('content_per').hideBottom();
+					addMore='0';
+				}
+				$('content_per').hideTop();
+	   		},function(error) {
+				toErro(error);
+			});
+		}
+		
+		function addpersonList(){
+          curpage = parseInt(curpage)+1+"";
+          $('bottom_more').css('display','none');
+          $('bottom_load').css('display','block');
+		  if(addMore=='1'){
+			 return;
+		  }
+		  addMore='1';
+		  $http.post(evoUrl+'/ezOffice/contacts/innerUser.do', 
+				{curpage:curpage,searchuser:$('searchuser').value,searchOrgId:searchOrgId}, function(data) {
+				var obj = JSON.parse(data);
+				var result = obj.message.result;
+				var listJson = {items:[]};
+				if(result =="1"){
+					var pageCount = obj.data.pageCount;
+					var picRootPath = obj.picRootPath;
+	                var list = obj.data.person;
+	                if(list instanceof Array){
+                		for(var i=0;i<list.length;i++){
+                			var userId = list[i].id.length==0?"":list[i].id;
+					        var userName = list[i].linkManName.length==0?"":list[i].linkManName+".";
+					        var linkManDepart = list[i].linkManDepart.length==0?"":list[i].linkManDepart;
+					        userName = userName+linkManDepart;
+					        var mobilePhone = list[i].mobilePhone.length==0?"":list[i].mobilePhone;
+					         var empLivingPhoto  = list[i].empLivingPhoto+"";
+						    if(empLivingPhoto != "" && empLivingPhoto != null){
+		        				empLivingPhoto = picRootPath+list.empLivingPhoto;
+		        			}else{
+		        				empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+		        			}
+					        var itemJson = {
+			                    template:0,
+			                    onclick:'perView("'+userId+'");',
+			                    widgets:{
+			                        photo:{src:empLivingPhoto},
+			                        lab1:{text:userName},
+			                        lab2:{text:mobilePhone}
+			                    }
+			                  }
+			                listJson.items.push(itemJson);
+                		}
+                	}else if(list instanceof Object){
+                		var userId = list.id;
+				        var userName = list.linkManName+"."+list.linkManDepart;
+				        var mobilePhone = list.mobilePhone;
+				        var empLivingPhoto  = list.empLivingPhoto+"";
+					    if(empLivingPhoto != "" && empLivingPhoto != null){
+	        				empLivingPhoto = picRootPath+list.empLivingPhoto;
+	        			}else{
+	        				empLivingPhoto=evoUrl+"/ezOffice/imges/forum_def.png";
+	        			}
+				        var itemJson = {
+		                    template:0,
+		                    onclick:'perView("'+userId+'");',
+		                    widgets:{
+		                        photo:{src:empLivingPhoto},
+		                        lab1:{text:userName},
+		                        lab2:{text:mobilePhone}
+		                    }
+		                  }
+		                listJson.items.push(itemJson);
+                	}
+	                $('resuelist').addMore(listJson);
+                	if(parseInt(curpage) < parseInt(pageCount)){
+               			$('bottom_more').css('display','block');
+               			$('bottom_load').css('display','none');
+               			disp='1';
+                	}else{
+                		$('content_per').hideBottom();
+                		disp='0';
+                	}
+					addMore='0';
+				}
+	   		},function(error) {
+				toErro(error);
+			});
+		}
+		
+		function perView(userId){
+			storage.setItem('inner_userId',userId);
+			$page.open('showInner.xml',{animation:'down-to-up'});
+		}
+		
+		function upfrsh(code){
+	   		if(code=='1'){
+	   			$('contents').showContent(0);
+	   		}
+	   		$('bottom_more').css('display','none');
+            $('bottom_load').css('display','block');
+            $('content_per').showBottom();
+			loadpersonList();
+	   }
+	   
+	   function toErro(error){
+			if (error == 'timeout') {
+				hint('连接服务器超时！');
+			} else if (error == '404') {
+				hint('链接超时重新登录！');
+			} else if (error == '500') {
+				hint('内部服务器错误！');
+			} else {
+				hint('访问网络错误！错误代码:' + error);
+			}
+		}
+    ]]>
+    </script> 
+	<page>
+		<title style="background:#3daffe;tint-color:white">
+            <left>
+                <button role="back"></button>
+            </left>
+            <center>
+                <label id="lastOrgName"></label>
+            </center>
+        </title>
+	    <header>
+            <tabbar style="background:#f9f9f9;label-color:#b8b8b8,#38adff;indicator-color:#38adff;">
+                <item label="全部人员"></item>
+                <item label="组织视图"></item>
+            </tabbar>
+            <row style="text-align:center;">
+			   <input type="search" id="searchuser" name="searchuser" placeholder="请输入姓名查询" onclick="upfrsh('1');" value=""/>
+		    </row>
+        </header>
+        <contents id="contents">
+            <content id="content_per" draggable="true" ondragdown="upfrsh('2');">
+                
+	            <list id="resuelist" reuse="true">
+              
+	                <item style="background:#ffffff;margin:1;col-width:18%,*;">
+	                    <col>
+	                       <img reusekey="photo" style="width:40;height:40" default="login_per.png" effect="round"/>
+	                    </col>
+	                    <col>
+	                      <row><label reusekey="lab1" style="color:#555555;font-size:16"></label></row>
+	                      <row><label reusekey="lab2" style="color:#b8b8b8;font-size:12"></label></row>
+	                    </col>
+	                </item>
+	                <item>
+	                   <col><row><label reusekey="title" style="align:center;"></label></row></col>
+	                </item>
+	            </list>
+                <bottom id="bottom">
+		            <list>
+		                <item onclick="addpersonList();" style="background:null,#DEE3E7">
+		                    <row id="bottom_load">
+			                    <label style="align:center;">正在加载...</label>
+			                    <progress style="align:center"/>
+		                    </row>
+		                    <row id="bottom_more" style="display:none">
+		                        <label style="align:center;">点击加载更多...</label>
+		                        <progress id="globalProgress" style="display:hidden;align:center;"/>
+		                    </row>
+		                </item>
+		            </list>
+	        	</bottom>
+
+	        </content>
+            <content id="content_org" draggable="true" ondragdown="loadorgList();">
+	            <list id="list_org" style="background:#ffffff">
+	            </list>
+	            <bottom id="org_bot">
+		            <list>
+		                <item style="background:null,#DEE3E7">
+		                    <row id="org_load">
+			                    <label style="align:center;">正在加载...</label>
+			                    <progress style="align:center"/>
+		                    </row>
+		                </item>
+		            </list>
+	        	</bottom>
+            </content>
+        </contents>
+	</page>
+	
+</imag>

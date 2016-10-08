@@ -5,6 +5,15 @@
             var formOK = 'true';
         	var storage = $phone.localStorage();
         	var model = $param['model'];
+        	var fromXml = $param['fromXml'];
+            var mainLinkFile = $param['mainLinkFile'];
+            if(mainLinkFile=='meet'){
+        		mainLinkFile = 'boardRoom!selectBoardroomApplyView.action?type=modi';  //带？号传不过来，需要参数来标识判断
+        	}
+        	if(mainLinkFile!=null){
+        	   $('mainLinkFile').value = mainLinkFile;
+        	}
+            
         	var flag = 0;
           	//页面加载完成后执行
         	$page.onload = function() {
@@ -221,9 +230,9 @@
         	
         	// 发送流程
         	function sendFlow(){
-        		if(!confirm('确定发送？')){
-        			return false;
-        		}
+        		//if(!confirm('确定发送？')){
+        		//	return false;
+        		//}
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/sendNewProcess.do';
         		if(checkForm()){
@@ -246,6 +255,10 @@
 					        $page.close(-2);
 						    $page.close(-1);
 							$page.open('../custmenu/custmenulist.xml',{target:'_self'});
+						}else if(fromXml=='quickadd'){
+						  $page.close(-2);
+						  $page.close(-1);
+						  $page.open('../desktop.xml?showTab=persontab&reflush=1',{target:'_self'});
 						}else{
 						    $page.close(-3);
 						    $page.close(-2);
@@ -291,6 +304,7 @@
         	<form id="sendForm" multipart="true" prompt="请稍后...">
    		        <input type="hidden" name="businessId" id="businessId" value="" />
    		        <input type="hidden" name="processId" id="processId" value="" />
+   		        <input type="hidden" id="mainLinkFile" name="mainLinkFile" value="" /> 
 	            <list id="content_list">
 	            </list>
             </form>

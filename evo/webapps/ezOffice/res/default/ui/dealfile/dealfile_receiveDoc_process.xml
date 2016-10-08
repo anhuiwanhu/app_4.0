@@ -3,6 +3,7 @@
 	<script>
         <![CDATA[
             var fromXml = $param['fromXml'];
+            var model = $param['model'];
         	var storage = $phone.localStorage();
         	var evoUrl = storage.getItem('evoUrl');
         	var	workStatus = storage.getItem('workflow_workStatus');
@@ -241,7 +242,7 @@
 	            var commentList = workInfoData.commentList;   //已办审批意见列表
 	            var workcurstep = workInfoData.workInfo.workcurstep;    //当前审批意见名称
 	       	 	if(govDocDetail.title){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.title.text == undefined ? '' : govDocDetail.title.text)+'</label></row></col></item>';
 	        	}
 	        	/*if(detailData.docSaveFile.file){
@@ -253,60 +254,60 @@
 	        	if(detailData.realFile){
 	        		realFiles = detailData.docRealFile;
 	        		saveFiles = detailData.docSaveFile;
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
 	        				   '</row></col><col id="attachments" style="margin:10;padding:10;"></col></item>';
 	        	}
 	        	if(govDocDetail.zjkySeq){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkySeq.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkySeq.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkySeq.text == undefined ? '' : govDocDetail.zjkySeq.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.fileUnit){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileUnit.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileUnit.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.fileUnit.text == undefined ? '' : govDocDetail.fileUnit.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.fileNumber){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileNumber.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileNumber.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.fileNumber.text == undefined ? '' : govDocDetail.fileNumber.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.safetyGrade){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.safetyGrade.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.safetyGrade.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.safetyGrade.text == undefined ? '' : govDocDetail.safetyGrade.text)+'</label></row></col></item>';
 	        	}
 				if(govDocDetail.quantity){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.quantity.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.quantity.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.quantity.text == undefined ? '' : govDocDetail.quantity.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.field4){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.field4.text == undefined ? '' : govDocDetail.field4.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.receiveDate){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.receiveDate.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.receiveDate.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.receiveDate.text == undefined ? '' : govDocDetail.receiveDate.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.fileType){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileType.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.fileType.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.fileType.text == undefined ? '' : govDocDetail.fileType.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.zjkyType){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkyType.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkyType.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkyType.text == undefined ? '' : govDocDetail.zjkyType.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.zjkykeepTerm){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkykeepTerm.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkykeepTerm.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.zjkykeepTerm.text == undefined ? '' : govDocDetail.zjkykeepTerm.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.doComment){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col  style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.doComment.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col  style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.doComment.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.doComment.text == undefined ? '' : govDocDetail.doComment.text)+'</label></row></col></item>';
 	        	}
 	        	if(govDocDetail.createdTime){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.createdTime.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.createdTime.name+':</label>'+
 	        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.createdTime.text == undefined ? '' : govDocDetail.createdTime.text)+'</label></row></col></item>';
 	        	}
 	        	// 备用字段
 	        	if(govDocDetail.field1){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field1.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field1.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -320,7 +321,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field2){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field2.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field2.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -334,7 +335,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field3){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field3.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field3.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -348,7 +349,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field4){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field4.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field4.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -362,7 +363,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field5){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field5.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field5.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -376,7 +377,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field6){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field6.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field6.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -390,7 +391,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field7){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field7.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field7.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -404,7 +405,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field8){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field8.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field8.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -418,7 +419,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field9){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field9.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field9.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -432,7 +433,7 @@
 	        		}
 	        	}
 	        	if(govDocDetail.field10){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.field10.name+':</label>'+
 	        				   '</row></col>';
 	        		var fieldDisplayType = govDocDetail.field10.fieldDisplayType;
 	        		if(fieldDisplayType == '13' || fieldDisplayType == '14' || fieldDisplayType == '17'){
@@ -481,7 +482,7 @@
 	        		var workcurstep = workInfoData.workInfo.workcurstep;
 	        	//	alert(workcurstep);
 		        	var commentField = workInfoData.workInfo.commentField;
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
 		        	itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+workcurstep+':</label></row></col><col style="margin:10;padding:10;">';
 		      		if(commentField && '-1' != commentField && 'nullCommentField' != commentField && workStatus != '102' && workStatus != '101'){
 		        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
@@ -505,14 +506,14 @@
 	        	}*/
 	        	// 退回意见
 	        	if(detailData.backComment){
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">退回意见:</label></row></col>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">退回意见:</label></row></col>'+
 	        					   '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+detailData.backComment+'</label></row></col></item>';
 	        	}
 	        }
 	        
 	        // 构建自定义字段内容
 			function createCustemFieldCon(custemField){
-				var custemCon = '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+				var custemCon = '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
 				custemCon += '<row><label style="align:left;font-size:16;color:#555555">'+custemField.name+':</label></row></col><col style="margin:10;padding:10;">';
 				var content = custemField.content;
 				var fieldDisplayType = custemField.fieldDisplayType;
@@ -619,7 +620,7 @@
 	       // 构建批示意见内容
 	        function createCommentCon(comment){
 	        //	var isCurrent = comment.current;
-	        	var commentCon = '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+	        	var commentCon = '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
 	        	commentCon += '<row><label style="align:left;font-size:16;color:#555555">'+comment.step+':</label></row></col><col style="margin:10;padding:10;">';
 	        //	if(commentField && '-1' != commentField && 'nullCommentField' != commentField && workStatus != '102' && workStatus != '101'){
 	        //		commentCon += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
@@ -682,7 +683,7 @@
 						        	'<item style="col-width: 80%,20%">'+
 										'<col>'+
 											'<row style="height:50;">'+
-												'<button onclick="sendFlow(' + workInfo.smsRight + ',' + workInfo.worktitle + ',' + workInfo.worksubmittime + ',' + empLivingPhoto + ');" '+
+												'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" '+
 												'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:200;height:38;font-size:14">发送</button>'+
 											'</row>'+
 										'</col>'+
@@ -911,9 +912,6 @@
 			    	 	return;
 			    	 }
 			    }
-				if(!confirm('确定发送？')){
-					return false;
-				}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -931,7 +929,7 @@
 							commentCon = '&comment=' + $comment.value;
 						}
 						$page.open(
-						'../workflow/workflow_sendnew.xml?fromXml='+fromXml+'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
+						'../workflow/workflow_sendnew.xml?fromXml='+fromXml+'&model='+model+'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
 						'&workSubmitTime='+encodeURIComponent(workSubmitTime)+'&empLivingPhoto='+empLivingPhoto+
 						'&isForkTask='+isForkTask+'&commentType='+commentType+encodeURIComponent(commentCon),
 						{animation:'down-to-up'});*/
@@ -967,17 +965,12 @@
 				        
 	        // 退回流程
 	        function backFlow(){
-	        	if(confirm('确定退回？')){
 					var urlParam = $('backForm').serialize()+'&empLivingPhoto=' + $param['empLivingPhoto'];
 					$page.open('../workflow/workflow_back.xml?'+urlParam,{animation:'down-to-up'});
-	        	}
 	        }
 	        
 	        // 待阅发送  
 			function sendFlowed(){
-				if(!confirm('确定发送？')){
-					return false;
-				}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/readOver.do?workId='+workId;
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -1004,9 +997,9 @@
 			
 			// 流程撤办
 			function workfolwUndo(){
-		        if(!confirm('是否撤回该流程到您的待办文件中重新办理？')){
+		 /*       if(!confirm('是否撤回该流程到您的待办文件中重新办理？')){
 		            return false;
-		        }
+		        }  */
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/workfolwUndo.do?workId='+workId;
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -1029,9 +1022,6 @@
 			// 转办发送
 			function tranInfo(){
 				$('main_popupmenu').close();
-				if(!confirm('确定转办？')){
-					return false;
-				}
 				$page.open('../workflow/workflow_tranInfo.xml?workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
 				{animation:'down-to-up'});
 			}
@@ -1039,9 +1029,6 @@
 			// 加签发送
 			function addSign(){
 				$('main_popupmenu').close();
-				if(!confirm('确定加签？')){
-					return false;
-				}
 				$page.open('../workflow/workflow_addSign.xml?workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
 				{animation:'down-to-up'});
 			}    

@@ -89,10 +89,10 @@
 	        
 	        // 退回流程
 	        function backFlow(){
-	        	if(confirm('确定退回？')){
+	        	//if(confirm('确定退回？')){
 					var urlParam = $('backForm').serialize()+'&empLivingPhoto=' + $param['empLivingPhoto'];
 					$page.open('../workflow/workflow_back.xml?'+urlParam,{target:'_self'});
-	        	}
+	        	//}
 	        }
 	        
 	        // 创建底部内容
@@ -184,7 +184,7 @@
 						}else{
 							fieldCount = 0;
 						}
-						itemContent = '<item id="sub_' + i + '" style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList[i].name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+						itemContent = '<item id="sub_' + i + '" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList[i].name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" placeholder="" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
 						$('sub_' + i).onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
@@ -202,7 +202,7 @@
 							    fieldCount = 0;
 							}
 						}
-						itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+						itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
 						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
 						$('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
@@ -245,7 +245,7 @@
 			function getFieldCon(field){
 				attachmentArray = new Array();
 				if(field.showtype == '115'){
-	        		subTabelItemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>';
+	        		subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>';
 	        		//附件上传
 					attIndex = attIndex++;
 	        		var attId = 'attachments_' + attIndex;
@@ -255,21 +255,21 @@
 	        		subTabelItemContent += '</row></col><col id="' + attId + '" style="padding:10;margin:10;"></col></item>';
 				}else if(field.showtype == '116'){
 					// word
-					subTabelItemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
+					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles"></col></item>';
 	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
 				}else if(field.showtype == '117'){
 					// excel
-					subTabelItemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
+					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles"></col></item>';
 	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
 				}else if(field.showtype == '118'){
 				    // wps
-					subTabelItemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
+					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles"></col></item>';
 	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
 				}else{
-					subTabelItemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
+					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 					subTabelItemContent += '<row><label style="align:right">' + (field.value == "undefined" ? "" : field.value) + '</label></row></col></item>';
 				}
 				// 创建附件内容
@@ -307,7 +307,7 @@
 				var commentList = detailData.commentList;
 				if(passRoundCommFieldType != '-1' && (passRoundCommField == '-1' || passRoundCommField == 'nullCommentField' ||
 				   passRoundCommField == 'autoCommentField' || passRoundCommField == 'null')){
-					itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">审批意见:</label></row></col><col style="padding:10;margin:10;"><row>'+
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">审批意见:</label></row></col><col style="padding:10;margin:10;"><row>'+
 								   '<textarea style="font-size:16;color:#555555" rows="5" name="comment_input" id="comment_input" maxrows="500"></textarea></row></col></item>'+
 								   '<item id="" style="col-width:*,40,40,50,40"><col><row></row></col>'+
 								   <!-- '<col><row><icon id="qianzhang" src="workflow_spread.png" style="display:none;width:30;height:30;"/></row></col>'+ -->
@@ -316,7 +316,7 @@
 								   '<col><row>'+
 								   '<icon id="commentAdd" src="deskperson_add.png" style="width:30;height:30;align:right;" onclick="openCommentMenu();"/>'+
 								   '</row></col></item>'+
-								   '<item onclick="openUseComment(\'' + officeList + '\');" accessory="indicator"><row><label style="align:right;color:#C9C9C9;">选择常用语</label></row></item>'+
+								   '<item onclick="openUseComment(\'' + officeList + '\');"><row><label style="align:right;color:#C9C9C9;">选择常用语></label></row></item>'+
 								   '<item id="comment_input_sxyy" style="display:none;col-width:40,*,40"></item>';
 				}
 				if(commentList){
@@ -327,15 +327,15 @@
 								// 手写
 								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 								//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-								itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+								itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
 								commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
-								itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+								itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<label style="align:left;color:#555555;font-size:16;">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 							}else{
-								itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+								itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<label style="align:left;color:#555555;font-size:16;">'+(commentList[i].content ? commentList[i].content : "")+'</label></row>';
 							}
 							itemContent += '<row><label style="align:right;color:#555555;font-size:16;">'+commentList[i].person+'('+commentList[i].date+')</label></row></col></item>';
@@ -346,15 +346,15 @@
 							// 手写
 							commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 							//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-							itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+							itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 									   	   '<img src="'+commentShouxie+'"/></row>';
 						}else if(commentType == '5'){
 							// 语音
 							commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
-							itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+							itemContent += '<item onclick="playSound(\'' + commentYuyin + '\')" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<label style="color:#330000;text-decoration:underline;align:right">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 						}else{
-							itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+
+							itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+
 										   '<label style="align:right;color:#555555;font-size:16;">'+(commentList.comment.content ? commentList.comment.content : "")+'</label></row>';
 						}
 						itemContent += '<row><label style="align:right;color:#555555;font-size:16;">'+commentList.comment.person+'('+commentList.comment.date+')</label></row></col></item>';
@@ -431,25 +431,25 @@
 	        		if(field.value && field.value.length > 0){
 		        		attachmentArray.push(field.value + ';attachments_' + attIndex);
 	        		}
-	        		itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'<input type="hidden" value="' + field.value + '"/></row></col><col id="' + attId + '" style="padding:10;margin:10;"></col></item>';
 	        	}else if(showType == '116'){
 	        		// Word编辑
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="docFiles"></col></item>';
 	        		viewFiles('docFiles',"正文",field.value+".doc","information");   //显示名不能为空
 	        	}else if(showType == '117'){
 	        		// Excel编辑
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="xlsFiles"></col></item>';
 	        		viewFiles('xlsFiles',"正文",field.value+".xls","information");   //显示名不能为空
 	        	}else if(showType == '118'){
 	        		// WPS编辑
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'</row></col><col style="padding:10;margin:10;" id="wpsFiles"></col></item>';
 	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
 	        	}else if(showType == '401'){
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 		        				   '</row></col><col style="padding:10;margin:10;">';
         			//批示意见
 	        		var commentList = field.dataList;
@@ -500,14 +500,14 @@
 									   '<col><row>'+
 									   '<icon id="commentAdd" src="deskperson_add.png" style="width:30;height:30;align:right;" onclick="openCommentMenu();"/>'+
 									   '</row></col></item>'+
-									   '<item onclick="openUseComment(\'' + officeList + '\');" accessory="indicator"><row><label style="align:right;color:#C9C9C9;">选择常用语</label></row></item>'+
+									   '<item onclick="openUseComment(\'' + officeList + '\');" ><row><label style="align:right;color:#C9C9C9;">选择常用语></label></row></item>'+
 									   '<item id="comment_input_sxyy" style="display:none;col-width:40,*,40"></item>';
 
 	        		}else{
 		        		itemContent += '</col></item>';
 	        		}
 	        	}else{
-		        	itemContent += '<item style="col-width:90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
+		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 		        				   '</row></col><col style="padding:10;margin:10;">';
 		        	// 只读数据
 	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.value + '</label></row></col></item>';
@@ -615,9 +615,9 @@
 				if(!checkForm()){
 					return false;
 				}
-				if(!confirm('确定发送？')){
-					return false;
-				}
+				//if(!confirm('确定发送？')){
+				//	return false;
+				//}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/readOver.do?workId='+workId;
 				$('sendForm').submit(function(data) {
 					if(!data){

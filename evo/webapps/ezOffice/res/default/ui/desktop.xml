@@ -8,9 +8,11 @@
         var isSign ="no";           //当前是否签到，默认未签到。yes，no
         var evoUrl = "";
         var userId = "";
+        var custMentIdStr = '';   //自定义模块id拼接串，以','号分割。
         
         var custMenuStr="";
         var linkBookStr="";
+        var sys_location = "";
         
 		$page.onload = function() {
 		    
@@ -18,6 +20,7 @@
             evoUrl = storage.getItem('evoUrl');
             userId = storage.getItem('sys_sys_userId');
             var sys_photoName = storage.getItem('sys_photoName');
+            sys_location = storage.getItem('sys_location');
 
             $('myphotoimg').src = sys_photoName;
             $('myphotoimg1').src = sys_photoName; 
@@ -48,10 +51,14 @@
 		    }
 		    
 		    addItemToQuickAdd();
-		    checkSignIn();
+		    if(sys_location=='1'){
+		       checkSignIn();
+		       $('item_register').css('display', 'block');
+		    }
 		    getLinkbook();
 		    getRemindNum();
 		}
+	   
        function getRemindNum(){
          
             var storage = $phone.localStorage();
@@ -237,6 +244,7 @@
          }else{
            var storage = $phone.localStorage();
            storage.setItem('custMenu_menuId',id);
+           custMentIdStr += (id+',');
            storage.setItem('custMenu_menuName',name);
            $page.open('custmenu/custmenulist.xml', {animation:'down-to-up'});
          }
@@ -1099,6 +1107,14 @@
 			  storage.setItem('sys_empDuty','');
 			  storage.setItem('ezMobile_dbName','');
 			  storage.setItem('workflow_classlist','');
+			  if(custMentIdStr!=null && custMentIdStr!=''){
+			      var custMentIdStrArr = custMentIdStr.split('\,');
+			      for(var i=0;i<custMentIdStrArr.length-1;i++){
+			      	   storage.setItem('custMenu_data'+custMentIdStrArr[i],'');
+			      }
+			  }
+			  storage.setItem('workflow_list_topflow','');
+			  storage.setItem('sys_location','');
               hint("清理完毕");
               $page.open('index.xml', {target:'_self'});
               
@@ -1256,7 +1272,7 @@
 	           $page.open('information/new.xml', {animation:'down-to-up'});
 	           $('quickAdd_popupmenu').close();
 	         }else if(id=='workflow'){
-	           $page.open('workflow/workflow_list.xml', {animation:'down-to-up'});
+	           $page.open('workflow/workflow_list.xml?fromXml=quickadd', {animation:'down-to-up'});
 	           $('quickAdd_popupmenu').close();
 	         }else if(id=='workmanager_calendar'){
 	         
@@ -1279,6 +1295,13 @@
             var storage = $phone.localStorage();
             storage.setItem('inner_searchUser',searchUser);
 			$page.open('person/searchUser.xml',{animation:'down-to-up'});
+       }
+       
+       function reflushPersonCenter(){
+       
+          refushMyApp('');
+          if(sys_location=='1'){checkSignIn();}
+          $('content_per').hideTop();
        }
 		    
     ]]>
@@ -1308,14 +1331,14 @@
 		              <icon src="logo.png" style="align:center;"/>
 				    </center>
 		            <right>
-		                <button icon="desk_personcenter_add.png" onclick="go_quickadd()"/>
+		                <button icon="desk_personcenter_add.png" onclick="go_quickadd();"/>
 		            </right>
 		        </title>
 		        <dropmenu id="quickAdd_popupmenu"  position="top">
 			            <grid id="quickAdd_gridcust" cols="3" style="vertical-spacing:0">
 			               </grid>
 			    </dropmenu>
-		        <content id="content_per" style="background:#ffffff" ondragdown="refushMyApp('');checkSignIn();$('content_per').hideTop();" draggable="true">
+		        <content id="content_per" style="background:#ffffff" ondragdown="reflushPersonCenter();" draggable="true">
 		            <list id="myphotoimg_list" type="transparent" style="height:200;background:desk_percenter_bg.png">
 					  <item>
 						<col><row><img effect="round" id="myphotoimg" style="align:center;width:90;height:90" default="login_per.png" src=""/></row></col>
@@ -1323,7 +1346,7 @@
 					  <item>
 						<col><row><label id="desk_personcenter_label" style="align:center;color:#ffffff;font-size:18;"></label></row></col>
 					  </item>
-					  <item>
+					  <item id="item_register" style="display:none;">
 						<col>
 						  <row>
 						    <button id="register" style="margin-right:10;align:center;background:desk_percenter_bg_btn3.png,desk_percenter_bg_btn3_g.png" 

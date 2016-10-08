@@ -11,6 +11,13 @@
 	        //活动名称数组
 	        var activityNameList = new Array();
         	var model = $param['model'];
+        	var fromXml = $param['fromXml'];
+        	var mainLinkFile = $param['mainLinkFile'];
+        	if(mainLinkFile!=null){
+        	   $('mainLinkFile').value = mainLinkFile;
+        	}
+        	
+        	
         	var g_gateType="";
           	//页面加载完成后执行
         	$page.onload = function() {
@@ -402,6 +409,10 @@
 					        $page.close(-2);
 						    $page.close(-1);
 							$page.open('../custmenu/custmenulist.xml',{target:'_self'});
+						}else if(fromXml=='quickadd'){
+						  $page.close(-2);
+						  $page.close(-1);
+						  $page.open('../desktop.xml?showTab=persontab&reflush=1',{target:'_self'});
 						}else{
 						    $page.close(-3);
 						    $page.close(-2);
@@ -497,7 +508,8 @@
 				<input type="hidden" id="gateType" name="gateType" value="" /> 
 				<input type="hidden" id="gateNum" name="gateNum" value="" /> 
 				<input type="hidden" id="businessId" name="businessId" value="" /> 
-				<input type="hidden" id="processId" name="processId" value="" /> 
+				<input type="hidden" id="processId" name="processId" value="" />
+				<input type="hidden" id="mainLinkFile" name="mainLinkFile" value="" /> 
 	            <list id="content_list">
 	            </list>
             </form>

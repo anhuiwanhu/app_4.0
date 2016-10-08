@@ -3,6 +3,7 @@
 	<script>
         <![CDATA[
             var fromXml = $param['fromXml'];
+            var model = $param['model'];
             var info = $phone.info();
             var fujianwidth='';
             if(info['platform']=='android'){
@@ -40,6 +41,7 @@
 						var $contentFormList = $('content_form_list');
 						//创建流程图
        					createFlowImg(workInfo.flowgraphurl);
+       					$('headers').css('display','');
        					// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(workInfo);
        					// 初始化信息表单数据
@@ -49,7 +51,7 @@
        						createCommList(commentList);
        					}
        					//如果存在办理意见则创建办理意见
-       					if(workStatus=='0'){
+       					if(workStatus=='0' || workStatus=='2'){
        						var officeList = jsonData.data_0.data.officelist;
        					    createCommentCon(workInfo,officeList);
        					}
@@ -196,37 +198,37 @@
 	        	if(time!=null&&time.length>20){
                     time = time.substring(0,16);
                 }
-	        	itemContent += '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">信息标题：</label>'+
+	        	itemContent += '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">信息标题：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.informationTitle+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">信息内容：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">信息内容：</label>'+
 	        				   '</row></col><col id="infoContent"></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">所属栏目：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">所属栏目：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.userChannelName+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">图片附件：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">图片附件：</label>'+
 		        			   '</row></col><col id="picCol"></col></item>'+
-		        			   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">附件：</label>'+
+		        			   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">附件：</label>'+
 		        			   '</row></col><col id="appCol"></col></item>'+  
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">副标题：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">副标题：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.informationSubTitle+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">文档编号：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">文档编号：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.documentNo+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">同时发布：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">同时发布：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.otherChannel+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">关键字：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">关键字：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.informationKey+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">作者：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">作者：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.informationAuthor+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">作者单位：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">作者单位：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.documentEditor+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">文章类型：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">文章类型：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.documentType+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">来源：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">来源：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.comeFrom+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">可查看人：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">可查看人：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.Can_readers+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">摘要：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">摘要：</label>'+
 	        				   '</row></col><col><row><label>'+detailData.informationSummary+'</label></row></col></item>'+
-	        				   '<item style="col-width:90,*"><col><row><label style="font-size:16;color:#555555;">发布时间：</label>'+
+	        				   '<item style="col-width:100,*"><col><row><label style="background:#f9f9f9;margin:10;padding:10;">发布时间：</label>'+
 	        				   '</row></col><col><row><label>'+time+'</label></row></col></item>';
 	        	
 	        	// 图片附件
@@ -482,12 +484,25 @@
 			
         	 //创建流程图
 	        function createFlowImg(flowGraphUrl){
-	        	if(flowGraphUrl){
+	        	if(!(flowGraphUrl instanceof Array)){
 	        		var imgPath = webServiceUrl + 'upload/workflow_acc/' + flowGraphUrl + '?rand=' + Math.random();
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);
+	        	}else{
+	        		$('tabbar').remove($('imgItem'));
+	        		$('contents').remove($('content_flow_pic'));
 	        	}
+	        }
+	        
+	        // 打开转办 加签
+	        function openPopMenu(modiButton){
+	        	if(modiButton.indexOf('Tran') < 0){
+		        	$('popupmenu_list').remove($('tranInfoItem'));
+	        	}else if(modiButton.indexOf('AddSign') < 0){
+		        	$('popupmenu_list').remove($('addSignItem'));
+	        	}
+	       		$('main_popupmenu').open();
 	        }
 	        
 	         // 创建底部内容
@@ -514,29 +529,67 @@
 					// 待办
 					case '0' : {
 			        	if(haveBackButton != 'true'){
-							itemContent = 			
-					        	'<item style="col-width: 100%">'+
-									'<col>'+
-										'<row style="height:50;">'+
-											'<button onclick="sendFlow(' + workInfo.smsRight + ',' + workInfo.worktitle + ',' + workInfo.worksubmittime + ',' + empLivingPhoto + ');" '+
-											'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:200;height:40;font-size:14">发送</button>'+
-										'</row>'+
-									'</col>'+
-								'</item>';
+							if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+									itemContent = 			
+							        	'<item style="col-width: 80%,20%">'+
+											'<col>'+
+												'<row style="height:50;">'+
+													'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" '+
+													'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:200;height:38;font-size:14">发送</button>'+
+												'</row>'+
+											'</col>'+
+											'<col>'+
+									            '<row style="height:50;">'+
+													'<button onclick="openPopMenu(\'' + modiButton + '\')" style="align:center;background:workflow_footer_menu.png;width:20;height:20"/>'+
+									            '</row>'+
+											'</col>'+
+										'</item>';
+				        		}else{
+				        			itemContent = 			
+							        	'<item style="">'+
+											'<col>'+
+												'<row style="height:50;">'+
+													'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" '+
+													'style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">发送</button>'+
+												'</row>'+
+											'</col>'+
+										'</item>';
+				        		}
 			        	}else{
-				        	itemContent = 			
-					        	'<item style="col-width: 50%,50%">'+
-									'<col>'+
-							            '<row style="height:50;">'+
-							            	'<button onclick="backFlow();" style="align:center;background:null,#90D0FD;color:#90D0FD,white;border:1 #90D0FD;corner-radius:3;width:100;height:40;font-size:14">退回</button>'+
-							            '</row>'+
-									'</col>'+
-									'<col>'+
-										'<row style="height:50;">'+
-											'<button onclick="sendFlow(' + workInfo.smsRight + ',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:40;font-size:14">发送</button>'+
-										'</row>'+
-									'</col>'+
-								'</item>';
+				        	if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+						        	itemContent = 			
+							        	'<item style="col-width: 40%,40%,20%">'+
+											'<col>'+
+									            '<row style="height:50;">'+
+									            	'<button onclick="backFlow();" style="align:center;background:null,#90D0FD;color:#90D0FD,white;border:1 #90D0FD;corner-radius:3;width:100;height:38;font-size:14">退回</button>'+
+									            '</row>'+
+											'</col>'+
+											'<col>'+
+												'<row style="height:50;">'+
+													'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:100;height:38;font-size:14">发送</button>'+
+												'</row>'+
+											'</col>'+
+											'<col onclick="openPopMenu(\'' + modiButton + '\')">'+
+									            '<row style="height:50;">'+
+													'<button onclick="openPopMenu(\'' + modiButton + '\')" style="align:center;background:workflow_footer_menu.png;width:20;height:20"/>'+
+									            '</row>'+
+											'</col>'+
+										'</item>';
+				        		}else{
+						        	itemContent = 			
+							        	'<item style="">'+
+											'<col>'+
+									            '<row style="height:50;">'+
+									            	'<button onclick="backFlow();" style="align:center;background:null,#90D0FD;color:#90D0FD,white;border:1 #90D0FD;corner-radius:3;width:125;height:38;font-size:14">退回</button>'+
+									            '</row>'+
+											'</col>'+
+											'<col>'+
+												'<row style="height:50;">'+
+													'<button onclick="sendFlow(\'' + workInfo.smsRight + '\',\'' + workInfo.worktitle + '\',\'' + workInfo.worksubmittime + '\',\'' + empLivingPhoto + '\');" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:125;height:38;font-size:14">发送</button>'+
+												'</row>'+
+											'</col>'+
+										'</item>';
+				        		}
 			        	}
 			        	break;
 					}
@@ -593,14 +646,16 @@
 					}
 					// 我的文件
 					case '1100' : {
-						itemContent = 			
-				        	'<item>'+
-								'<col>'+
-									'<row style="height:50;">'+
-										'<button onclick="sendFlowAgain();" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:40;font-size:14">催办</button>'+
-									'</row>'+
-								'</col>'+
-							'</item>';
+						if(workInfo.workcurstep.indexOf('办理完毕') < 0){
+							itemContent = 			
+					        	'<item>'+
+									'<col>'+
+										'<row style="height:50;">'+
+											'<button onclick="sendFlowAgain();" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">催办</button>'+
+										'</row>'+
+									'</col>'+
+								'</item>';
+						}
 						break;
 					}
 				}
@@ -660,7 +715,7 @@
 			                    listJson.items.push(itemJson);
         					}
         				}else if(recordArray instanceof Object){
-        					logReceive = recordArray.logReceive;
+        					logReceive = recordArray.log.logReceive;
        						if(logReceive instanceof Array){
        							logReceive = '';
        						}else{
@@ -669,9 +724,9 @@
 							itemJson = {
 		                        template : 0,
 		                        widgets : {
-		                            logUserName : {text : recordArray.logUserName},
-		                            logTime : {text : recordArray.logTime.substring(0,16)},
-		                            logAction : {text : recordArray.logAction},
+		                            logUserName : {text : recordArray.log.logUserName},
+		                            logTime : {text : recordArray.log.logTime.substring(0,16)},
+		                            logAction : {text : recordArray.log.logAction},
 		                            logReceive : {text : logReceive}
 		                        }
 		                    }
@@ -694,9 +749,25 @@
 	        
 	        // 发送流程 
 			function sendFlow(smsRight,workTitle,workSubmitTime,empLivingPhoto){
-				if(!confirm('确定发送？')){
-					return false;
+				var commentType = $('commentType').value;
+				var $comment = $('comment_input');
+				var commentCon = '';
+				if(commentType == '4'){
+					commentCon = $('comment_input_shouxie').value;
+				}else if(commentType == '5'){
+					commentCon = $('comment_input_yuyin').value;
+				}else{
+					if($comment){
+						commentCon = $comment.value;
+					}
 				}
+				var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
+			    if(commentIsNone == 'true'){
+			    	 if(commentCon == ''){
+			    	 	alert('批示意见不能为空！');
+			    	 	return;
+			    	 }
+			    }
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -707,23 +778,12 @@
 					var result = dataJson.result;
 					if(result == 'success'){
 						var isForkTask = $('isForkTask').value;
-						var commentType = $('commentType').value;
-						var $comment = $('comment_input');
-						var commentCon = '';
-						if(commentType == '4'){
-							commentCon = $('comment_input_shouxie').value;
-						}else if(commentType == '5'){
-							commentCon = $('comment_input_yuyin').value;
-						}else{
-							if($comment){
-								commentCon = $comment.value;
-							}
-						}
 						// 手写审批、语言批示数据
 						var commentShouxie_backName = dataJson.data_1;
 						var commentYuyin_backName =  dataJson.data_2;
 						$page.open(
-						'../workflow/workflow_sendnew.xml?fromXml='+fromXml+'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
+						'../workflow/workflow_sendnew.xml?fromXml='+fromXml+'&model='+model
+						+'&smsRight='+smsRight+'&workTitle='+encodeURIComponent(workTitle)+
 						'&workSubmitTime='+encodeURIComponent(workSubmitTime)+'&empLivingPhoto='+empLivingPhoto+
 						'&isForkTask='+isForkTask+'&commentType='+commentType+'&comment='+encodeURIComponent(commentCon)+
 						'&commentShouxie_backName='+commentShouxie_backName+'&commentYuyin_backName='+commentYuyin_backName,
@@ -738,17 +798,12 @@
 				        
 	        // 退回流程
 	        function backFlow(){
-	        	if(confirm('确定退回？')){
-					var urlParam = $('backForm').serialize()+'&empLivingPhoto=' + $param['empLivingPhoto'];
-					$page.open('../workflow/workflow_back.xml?'+urlParam,{animation:'down-to-up'});
-	        	}
+	        	var urlParam = $('backForm').serialize()+'&empLivingPhoto=' + $param['empLivingPhoto'];
+				$page.open('../workflow/workflow_back.xml?'+urlParam,{animation:'down-to-up'});
 	        }
 	        
 	        // 待阅发送  
 			function sendFlowed(){
-				if(!confirm('确定发送？')){
-					return false;
-				}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/readOver.do?workId='+workId;
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -775,9 +830,6 @@
 			
 			// 流程撤办
 			function workfolwUndo(){
-		        if(!confirm('是否撤回该流程到您的待办文件中重新办理？')){
-		            return false;
-		        }
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/workfolwUndo.do?workId='+workId;
 				$('sendForm').submit(function(data) {
 					if(!data){
@@ -797,6 +849,20 @@
 	            });
 			}
 			
+			// 转办发送
+			function tranInfo(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_tranInfo.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			}
+			
+			// 加签发送
+			function addSign(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_addSign.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			}
+			
 			//全屏查看
 	        function fullScreenBrowse(){
 				var flowgraphurl =$('flowgraphurl').value;
@@ -813,13 +879,23 @@
             	<label>信息流程</label>
             </center>
         </title>
-        <header>
-        	<tabbar style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;">
+        <header id="headers" style="display:none">
+        	<tabbar id="tabbar" style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;">
                 <item label="流程表单"></item>
-                <item label="流程图"></item>
+                <item id="imgItem" label="流程图"></item>
                 <item label="流程记录" onclick="loadFlowRecord();"></item>
             </tabbar>
         </header>
+        <popupmenu id="main_popupmenu" position="bottomright" style="offset-x:5;offset-y:-55">
+			<list id="popupmenu_list">
+				<item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;">
+	         		<col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col>
+	         	</item>            
+	         	<item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;">
+	         		<col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col>
+	         	</item>
+		    </list>
+		</popupmenu>
 		<contents id="contents">
             <content style="background:white" id="content_form">
 				<form id="sendForm" multipart="true" prompt="请稍后...">
@@ -883,6 +959,21 @@
 					<input type="hidden" name="workcurstep" id="again_workcurstep" value=""/>
 					<input type="hidden" name="worksubmittime" id="again_worksubmittime" value=""/>
 					<input type="hidden" name="workStatus" id="again_workStatus" value="1100"/>
+				</form>
+				
+				<form id="tranInfoForm">
+					<input type="hidden" name="empLivingPhoto" id="tran_empLivingPhoto" value=""/>
+					<input type="hidden" name="worktitle" id="tran_worktitle" value=""/>
+					<input type="hidden" name="workcurstep" id="tran_workcurstep" value=""/>
+					<input type="hidden" name="worksubmittime" id="tran_worksubmittime" value=""/>
+					<input type="hidden" name="workStatus" id="tran_workStatus" value="0"/>
+				</form>
+				<form id="addSignForm">
+					<input type="hidden" name="empLivingPhoto" id="addSign_empLivingPhoto" value=""/>
+					<input type="hidden" name="worktitle" id="addSign_worktitle" value=""/>
+					<input type="hidden" name="workcurstep" id="addSign_workcurstep" value=""/>
+					<input type="hidden" name="worksubmittime" id="addSign_worksubmittime" value=""/>
+					<input type="hidden" name="workStatus" id="addSign_workStatus" value="0"/>
 				</form>
             </content>
             <content style="background:white" id="content_flow_pic">

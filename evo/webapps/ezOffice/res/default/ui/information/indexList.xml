@@ -161,7 +161,7 @@
 		        //	initList("update","",contentId,"1","0");  //加载全部列表
 		            CacheDataToPage("",contentIdIndex,"1","0");
 	                $page.setTimeout(function() {
-		        	   hint('列表自动刷新中...');
+		        	 //  hint('列表自动刷新中...');
 		        	  // updateCache2();
 		        	   updateCache("",contentIdIndex,"1","0");
 		        	 //  isNeedupdateListCache("update","",contentIdIndex,"1","0");

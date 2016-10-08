@@ -15,7 +15,6 @@
             	pageMonth();
             	pageOther();
 				$page.setTimeout(function() {
-	        	   hint('列表自动刷新中...');
 	        	   updateWeek2();
 	        	   updateMonth2();
 	        	   updateOther2();
