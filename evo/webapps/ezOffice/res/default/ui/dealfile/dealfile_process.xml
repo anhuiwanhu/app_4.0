@@ -341,7 +341,6 @@
 	        function openPopMenu(modiButton){
 	            $('main_popupmenu').position='bottomright';
 	            $('main_popupmenu').style='offset-x:5;offset-y:-55';
-	            
 	            $('popupmenu_list').style='';
 	            $('popupmenu_list').clear();
 	            var itemvar = '';
@@ -1494,11 +1493,12 @@
 			          			$page.open('../index.xml',{target:'_self'});
 			                    return;
 			                }
+			                var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
 									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' +  evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName='+attList[k].realname+ '\')">' + attList[k].realname + '</label></row>');
-									$(attachments[2]).add(files);
+									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
 								alert('附件下载失败！');
@@ -1717,7 +1717,6 @@
 	        		itemContent += '<row><textarea style="color:#555555;font-size:16;" rows="5" maxrows="5" id="_main_' + field.sysname + '" name="_main_' + field.sysname + '">' + field.value + '</textarea></row>';
 	        		pushMustFillArray(mustfilled,field.name,'_main_' + field.sysname);
 	        	}else if(showType == '115'){
-	        		fileindex = fileindex++;
 	        		var attId = 'attachments_' + fileindex;
 	        		//附件上传
 	        		if(field.value && field.value.length > 0){
@@ -1728,6 +1727,7 @@
 	        		if(readWrite == '1'){
 	        		    itemContent += '<row id="fileRow" onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"><icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"/></row>';
 	        		}
+	        		fileindex++;
 	        	}else if(showType == '116'){
 	        		//Word编辑
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+

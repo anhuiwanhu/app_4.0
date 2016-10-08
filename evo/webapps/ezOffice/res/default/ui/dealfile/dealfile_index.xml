@@ -347,6 +347,10 @@
 		    	}else if(workMainLinkFile.indexOf('/defaultroot/voitureApply!modi.action') > -1){
 		    		functionVal = 'openVoitureDetail';
 		    	//}else if(workMainLinkFile.indexOf('/defaultroot/boardRoom!selectBoardroomApplyView.action') > -1){
+		    	}else if(workMainLinkFile.indexOf('defaultroot/intoStockAction!modifyFlow.action') > -1){
+		    		functionVal = 'openIntoStockDetail';
+		    	}else if(workMainLinkFile.indexOf('defaultroot/outStockAction!modifyFlow.action') > -1){
+		    		functionVal = 'openOutStockDetail';
 		    	}else if(workMainLinkFile.indexOf('boardRoom!selectBoardroomApplyView.action') > -1){
 		    		functionVal = 'openMeetDetail';
 		    	}else{
@@ -411,6 +415,18 @@
 	        	storage.setItem('workflow_workStatus',workStatus);
             	storage.setItem('workflow_workId',workId);
             	$page.open('dealfile_voiture_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        // 打开物品(采购进货/物品退货)流程详情页面
+	        function openIntoStockDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_IntoStock_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        // 打开物品(领用出库/领用退库)流程详情页面
+	        function openOutStockDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_OutStock_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
 	        }
 	        // 打开会议申请流程详情页面
 	        function openMeetDetail(workStatus,workId,empLivingPhoto){

@@ -241,12 +241,12 @@
 			          			$page.open('../index.xml',{target:'_self'});
 			                    return;
 			                }
-							var serverUrl = obj.serverUrl;
+			                var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							var attList = obj.attList;
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
 									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName=' + attList[k].realname + '\')">' + attList[k].realname + '</label></row>')
-									$(attachments[2]).add(files);
+									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
 								alert('附件下载失败！');

@@ -31,8 +31,7 @@
 	            commChannelType = channelType;
 	            pagerOffset = 0;
 	            $('search').value = "";
-	          //  initList("update",userChannelId,contentIdIndex,userDefine,channelType);  //加载 所选频道列表
-	          isNeedupdateListCache("update",userChannelId,contentIdIndex,userDefine,channelType);  //加载 所选频道列表
+	            initList("update",userChannelId,contentIdIndex,userDefine,channelType);  //加载 所选频道列表
 	        }
 	        
             function openPopupMenu() {
@@ -52,7 +51,6 @@
 				var evoUrl = storage.getItem('evoUrl');
 	            $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/information/index.do',function(data) {
 	                if(data){
-	                   // alert(data);
 		                var obj = JSON.parse(data);
 		                if(obj.logonerror &&obj.logonerror=='1'){
 		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
@@ -178,197 +176,6 @@
 				    }
 		         );
         	}
-        	
-        	
-              //标签缓存无数据则更新
-	       function isNeedupdateListCache(loadType,userChannelId,contentIdIndex,userDefine,channelType){
-	             updateCache(userChannelId,contentIdIndex,userDefine,channelType);
-	       /*      var storage = $phone.localStorage();
-	       	 	 var dbName = storage.getItem('ezMobile_dbName');
-	       	  	 var db = $phone.openDatabase(dbName);
-		     	 db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			     function queryHasDataDB(tx) {
-					tx.executeSql('select userId from information_list where id="'+contentIdIndex+userDefine+userDefine+'"',[],    //id根据频道id，userDefine，channelType,来唯一控制
-							function(results){
-							//  alert(results.rows.length);
-							  if(results.rows!=null && results.rows.length>0){   //缓存中有数据
-							     var userId = storage.getItem('sys_sys_userId');  //判断登录人与缓存中的登录人是否是同一人
-							     var localUserId = results.rows.item(0).userId; 
-							     if(userId == localUserId ){
-							     	 CacheDataToPage(userChannelId,contentIdIndex,userDefine,channelType);
-							     }else{
-							         updateCache(userChannelId,contentIdIndex,userDefine,channelType);
-							     }
-							  }else{                         //缓存中无数据          
-							     updateCache(userChannelId,contentIdIndex,userDefine,channelType);
-							  }
-							} , function(err){alert(err);}); 
-			      }  */
-	        }
-        
-           //更新标签缓存数据并刷新页面
-	     function updateCache(userChannelId,contentIdIndex,userDefine,channelType){   //列表页缓存机制
-	       		var storage = $phone.localStorage();
-			    var evoUrl = storage.getItem('evoUrl');	
-	            $http.post(evoUrl+'/ezOffice/information/listAll.do',{pagerOffset:'0',userChannelId:userChannelId,userDefine:userDefine,channelType:channelType},function(data) {
-			            var obj = eval('('+data+')');
-			            if(obj.logonerror &&obj.logonerror=='1'){
-		         		    alert("该账号已在设备"+obj.deviceId+"上登录");
-		         		    $page.open('../index.xml',{target:'_self'});
-		                    return;
-		                }
-			            if(obj){
-			        	  DbToCacheData(obj,userChannelId,contentIdIndex,userDefine,channelType);
-			        	  CacheDataToPage(userChannelId,contentIdIndex,userDefine,channelType);
-			        	}
-			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-				  }
-			   );
-	         }
-        
-              //将获取到的数据存入缓存
-	      function DbToCacheData(obj,userChannelId,contentIdIndex,userDefine,channelType) {
-	              var storage = $phone.localStorage();
-	           	  var dbName = storage.getItem('ezMobile_dbName');
-	              var db = $phone.openDatabase(dbName);
-		          db.transaction(DbToCacheData_1);
-		          function DbToCacheData_1(tx) {
-	                   if(obj){
-	                        tx.executeSql('delete from information_list where id= "'+contentIdIndex+userDefine+userDefine+'"');
-		                    var result = obj.message.result;
-			        		if(result == '1'){
-			        		    pagerOffset = obj.data.pager_offset;
-					        	var recordCount = obj.data.recordCount;
-					        	var objArr = obj.data.infoList; //返回列表数组
-			        			if(objArr instanceof Array){
-			        			    for (var i = 0; i < objArr.length; i++) { 
-			        			        //显示阅读数和评论数
-					                    var informationKits = objArr[i].informationKits;
-					                    var informationCommonNum = objArr[i].informationCommonNum;
-					                    var readAndComment = "阅读 （"+informationKits+"） 评论（"+informationCommonNum+"）";
-					                    //时间显示，年月日时分秒
-					                    var informationIssueTime = objArr[i].informationIssueTime;
-					                    if(informationIssueTime!=null&&informationIssueTime.length>20){
-					                        informationIssueTime =informationIssueTime.substring(0,19);
-					                    }
-					                    //标题样式（普通的或者红色的）
-					                    var style = 'color:#555555;font-size:16;';
-					                    if(objArr[i].titleColor == '1'){
-					                    	style = 'color:red;font-size:16;' ;
-					                    }
-				        				var infor_sql = 'insert into information_list(informationKits,informationCommonNum,informationIssueTime,style,informationTitle,informationId,informationType,channelId,userId,pagerOffset,recordCount,id) '+
-							        	' values("'+informationKits+'","'+informationCommonNum+'","'+informationIssueTime+'","'+style+'","'+objArr[i].informationTitle+'","'+objArr[i].informationId+'","'+objArr[i].informationType+'","'+objArr[i].channelId+'","'+storage.getItem('sys_sys_userId')+'","'+pagerOffset+'","'+recordCount+'","'+contentIdIndex+userDefine+userDefine+'")';
-							        	tx.executeSql(infor_sql);
-				        			}
-			        			}else if(objArr instanceof Object){
-				        				var informationKits = objArr.informationKits;
-					                    var informationCommonNum = objArr.informationCommonNum;
-					                    var readAndComment = "阅读 （"+informationKits+"） 评论（"+informationCommonNum+"）";
-					                    
-					                    //时间显示，年月日时分秒
-					                    var informationIssueTime = objArr.informationIssueTime;
-					                    if(informationIssueTime!=null&&informationIssueTime.length>20){
-					                        informationIssueTime =informationIssueTime.substring(0,19);
-					                    }
-					                    //标题样式（普通的或者红色的）
-					                    var style = 'color:#555555;font-size:16;';
-					                    if(objArr.titleColor == '1'){
-					                    	style = 'color:red;font-size:16;' ;
-					                    }
-				        				var infor_sql = 'insert into information_list(informationKits,informationCommonNum,informationIssueTime,style,informationTitle,informationId,informationType,channelId,userId,pagerOffset,recordCount,id) '+
-							        	' values("'+informationKits+'","'+informationCommonNum+'","'+informationIssueTime+'","'+style+'","'+objArr.informationTitle+'","'+objArr.informationId+'","'+objArr.informationType+'","'+objArr.channelId+'","'+storage.getItem('sys_sys_userId')+'","'+pagerOffset+'","'+recordCount+'","'+contentIdIndex+userDefine+userDefine+'")';
-							        	tx.executeSql(infor_sql);
-			        			}
-			        		}else{
-			        			        //查询数据异常
-			        		}
-			        }
-			   }
-		 }
-		
- 		function CacheDataToPage(userChannelId,contentIdIndex,userDefine,channelType){  //用与区分哪个content
-		        var storage = $phone.localStorage();
-			    var dbName = storage.getItem('ezMobile_dbName');
-			    var db = $phone.openDatabase(dbName);
-			    cunrrentContentIdIndex = contentIdIndex;       //公共序列赋值,标识哪个content
-			    //alert(contentIdIndex);
-		        $('bottom_hasmore'+contentIdIndex).css('display','hidden');
-		     //   $('bottom_load'+contentIdIndex).css('display','');
-		        $('indexContent'+contentIdIndex).showBottom();
-		        db.transaction(queryinformationListDB, function(err){alert(err);}, function(){});
-		        function queryinformationListDB(tx) {
-						tx.executeSql('select informationKits,informationCommonNum,informationIssueTime,style,informationTitle,informationId,informationType,channelId,userId,pagerOffset,recordCount from information_list where id = "'+contentIdIndex+userDefine+userDefine+'"',[],
-						function(results){
-						     var listJson = {items:[]};   //存储返回数据列表信息
-			            	 var itemJson;
-			            	 var recordCount = '';
-							 if(results.rows!=null && results.rows.length>0){
-								    for(var i=0; i<results.rows.length; i++){
-								    	 var informationKits = results.rows.item(i).informationKits;
-								    	 var informationCommonNum = results.rows.item(i).informationCommonNum;
-								    	 var informationIssueTime = results.rows.item(i).informationIssueTime;
-								    	 var style = results.rows.item(i).style;
-								    	 var informationTitle = results.rows.item(i).informationTitle
-								    	 var informationId = results.rows.item(i).informationId;
-								    	 var informationType = results.rows.item(i).informationType;
-								    	 var channelId = results.rows.item(i).channelId;
-								    	 pagerOffset = results.rows.item(i).pagerOffset;
-								    	 recordCount = results.rows.item(i).recordCount;
-								    	 
-								    	 itemJson = {
-						                        template :1,
-						                        onclick : 'openDetail("'+informationId+'","'+informationType+'","'+channelId+'")',
-						                        widgets : {
-						                            title : {text :informationTitle,style:style },
-						                            informationKits : {text :"阅"+informationKits},
-				                                    informationCommonNum : {text :"评论"+informationCommonNum},
-						                            date : {text :informationIssueTime}
-						                        }
-						                 };
-						                 listJson.items.push(itemJson);
-						                 if(i <(results.rows.length-1)){
-							                  var  itemJson_null = {   
-									                        template : 0,
-									                        onclick : '',
-									                        widgets : {
-									                        }
-									                  };
-									         listJson.items.push(itemJson_null);
-									      }
-								    }
-							 }else{   //没有返回数据
-				               	   itemJson = {
-					                    template : 2,
-					                    onclick : '',
-		                                widgets : {
-					                             title : {text :'暂无相关记录' },
-					                         }
-					                }
-					                listJson.items.push(itemJson); 
-					         }
-							 pagerOffset = parseInt(pagerOffset)+15;
-			                 if(parseInt(recordCount) > parseInt(pagerOffset)){
-		        				$('bottom_hasmore'+contentIdIndex).css('display','');
-		        			 }else{
-		        				$('bottom_hasmore'+contentIdIndex).css('display','none');
-		        				$('indexContent'+contentIdIndex).hideBottom();
-		        			 }
-			        		 $('docList'+contentIdIndex).update(listJson);
-			        		 $('bottom_load'+contentIdIndex).css('display','none');
-						} , function(err){alert(err);});
-				  }
-	     }   
-	     
 	     
         function initList(loadType,userChannelId,contentIdIndex,userDefine,channelType){
             if(loadFlag == '1'){
@@ -383,7 +190,6 @@
 			var evoUrl = storage.getItem('evoUrl');
             $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/information/listAll.do',{title : $('search').value,pagerOffset:pagerOffset,userChannelId:userChannelId,userDefine:userDefine,channelType:channelType},function(data){
                 if(data){
-                 //  alert(data);
 	                var obj = JSON.parse(data);
 	                if(obj.logonerror &&obj.logonerror=='1'){
 	         		    alert("该账号已在设备"+obj.deviceId+"上登录");
@@ -404,7 +210,6 @@
 				                    var informationKits = objArr[i].informationKits;
 				                    var informationCommonNum = objArr[i].informationCommonNum;
 				                    var readAndComment = "阅读 （"+informationKits+"） 评论（"+informationCommonNum+"）";
-				                    
 				                    //时间显示，年月日时分秒
 				                    var informationIssueTime = objArr[i].informationIssueTime;
 				                    if(informationIssueTime!=null&&informationIssueTime.length>20){
@@ -489,14 +294,13 @@
         				$('bottom_hasmore'+contentIdIndex).css('display','none');
         				$('indexContent'+contentIdIndex).hideBottom();
         			}
-        			
         			if(loadType == 'add'){
 	        			$('docList'+contentIdIndex).addMore(listJson);
         			}else if(loadType == 'update'){
 	        			$('docList'+contentIdIndex).update(listJson);
         			}
 	            }
-	        //    $('bottom_load'+contentIdIndex).css('display','none');
+	            $('bottom_load'+contentIdIndex).css('display','none');
 	        	loadFlag = '0';
 	         },function(error) {
 				    if (error == 'timeout') {
@@ -518,12 +322,6 @@
             $('docList'+cunrrentContentIdIndex).clear();   //清理上一个content内容
 	        pagerOffset = 0;
 	        initList("update",commUserChannelId,contentIdIndex,commUserDefine,commChannelType);  //加载 所选频道列表
-	      /*  if($('search').value == null||$('search').value ==''){  //检索内容为空时，需要刷新缓存列表
-	        	updateCache(commUserChannelId,contentIdIndex,commUserDefine,commChannelType);
-	        }else{
-	        	initList("update",commUserChannelId,contentIdIndex,commUserDefine,commChannelType);  //加载 所选频道列表
-	        } */
-	        
         }
         
         ]]>

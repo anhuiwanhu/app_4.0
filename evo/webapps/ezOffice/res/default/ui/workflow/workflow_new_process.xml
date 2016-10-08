@@ -120,7 +120,6 @@
 						'<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
 						'<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
 						$(appendId).add(row);
-						//$('input_file'+fileindex).value = path;
 						$('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
 						fileindex++;
 						fileTotle++;
@@ -135,7 +134,6 @@
 					fileTotle--;
 				}
 			}
-		
     ]]>
     </script> 
     <script>
@@ -154,7 +152,6 @@
         	var orgId = storage.getItem('sys_orgId');
         	var model = $param['model'];
         	var fromXml = $param['fromXml'];
-
         	var itemContent = '';
         	$page.onload = function(){
         	    centerTitle_str =  decodeURIComponent($param['processName']);
@@ -174,13 +171,10 @@
 		          			$page.open('../index.xml',{target:'_self'});
 		                    return;
 		                }
-        				//var workInfoResult = jsonData.data_0.message.result;
         				var detailResult = jsonData.data_0.message.result;
-        				//var personResult = jsonData.data_2.message.result;  || personResult != '1'
         				if(detailResult != '1'){
         					alert('数据获取失败！');
         				}
-        				//var workInfo = jsonData.data_0.data.workInfo;
 						var detailData = jsonData.data_0.data;
         				var fieldList = detailData.fieldList.field;
         				var showType;
@@ -188,8 +182,6 @@
         				var fieldType;
         				var $contentFormList = $('content_form_list');
         				var selectContent = '';
-        				//创建流程图
-       					//createFlowImg(workInfo.flowgraphurl);
        					//初始化表单数据
         				if(fieldList instanceof Array){
         					for(var i=0,length=fieldList.length;i<length;i++){
@@ -197,20 +189,12 @@
         					}
         				}else if(fieldList instanceof Object){
        						createFormData(fieldList,showType,readWrite,fieldType,selectContent);
-        				}else{
-        					
         				}
-        				//alert(itemContent);
        					$contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
-       					// 创建子表节点
-       					createSubTableCon($contentFormList,detailData);
+       					createSubTableCon($contentFormList,detailData);  // 创建子表节点
        					openAllSubTabel($contentFormList,detailData);   //进入页面执行一次打开子表
-						// 创建批示意见、退回意见
-						//createCommentCon($contentFormList,workInfo,detailData);
-						// 创建工作流程信息隐藏域
-						createWorkInfoHiddenArea(detailData);
-       					// 创建底部内容
-       					createFootContent();
+						createWorkInfoHiddenArea(detailData);           // 创建工作流程信息隐藏域
+       					createFootContent();							// 创建底部内容
         			},function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -327,13 +311,13 @@
 					    var subdataId = subFieldList[i].dataId;
 					    subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" onclick="deleteIteminList(\''+i+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+i+'" name="sub_dataId'+i+'" style="display:none;" value=""/></row></col></item>';
 						createSubTableField(subFieldList[i].field,i);
-						global_subDatalen = length;
+						global_subDatalen = length;    //当前子表共有几条
 					}
 				}else if(subFieldList instanceof Object){
 				    var subdataId = subFieldList.dataId;
 				    subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><label style="align:left;font-size:14;">表1</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value=""/></row></col></item>';
 					createSubTableField(subFieldList.field,0);
-					global_subDatalen = 1;
+					global_subDatalen = 1;   //当前子表共有1条
 				}
 				$('subTabel_form_list').update('<imag><list>' + subTabelItemContent + '</list></imag>');
 				default_goBackSaveSubForm();
@@ -374,7 +358,6 @@
 						_subfieldjson = _subfieldjson.substr(0,_subfieldjson.length-1);
 					}
 					_subfieldjson += ']';
-					//alert(_subfieldjson);
 					subFormxml += '</table>';
 				}
 
@@ -397,12 +380,10 @@
         	      subTableTitle = subTableTitle.substring(0,15)+'...';
         	    }
         		$('centerTitle').text = subTableTitle;
-			    
 			    //有临时存储的数据就取临时数据
 			    if($('json_'+tableName).value!=''&&$('json_'+tableName).value!='[]'){
 			       subFieldList = $('json_'+tableName).value;
 			    }
-			    //alert(subFieldList);
 				$('subTabel_form_list').clear();
 				subTabelItemContent = '';
 				global_subFieldList = subFieldList;
@@ -493,13 +474,11 @@
 			}
 			//新增子表数据
 			function addIteminList(subFieldList){
-
                 var subFieldList = JSON.parse(subFieldList);
                 var subTabelItemContentAdd = '';
 				if(subFieldList instanceof Array){
 				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
 				    subTabelItemContentAdd += createSubTableField_add(subFieldList[0].field,global_subDatalen);
-
 				}else if(subFieldList instanceof Object){
 				
 				    subTabelItemContentAdd += '<item id="item_subbutton_'+global_subTableName+global_subDatalen+'" onclick="deleteIteminList(\''+global_subDatalen+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(global_subDatalen+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+global_subDatalen+'" name="sub_dataId'+global_subDatalen+'" style="display:none;" value=""/></row></col></item>';
@@ -629,7 +608,7 @@
 	        			labelVal = '';
 	        		}
 				//登录人信息
-	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
+	        		itemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
 	        	}else if(showType == '301' && readWrite == '1'){
 	        		itemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//金额
@@ -710,7 +689,6 @@
 			}
 			// 创建子表字段数据 传入的k 是标识数据下标
 			function createSubTableField(fields,k){
-           
 				if(fields instanceof Array){
 					for(var i=0,length=fields.length;i<length;i++){
 						getFieldCon2(fields[i],k,i);
@@ -725,22 +703,19 @@
 			}
 			// 具体子表字段展示函数  i：数据条数 j：字段条数
 			function getFieldCon2(field,i,j){
-			   var showType = field.showtype;
-			   var fieldType = field.fieldtype;
-			   var readWrite = field.readwrite;
-			   var mustfilled = field.mustfilled;
-
+				var showType = field.showtype;
+			    var fieldType = field.fieldtype;
+			    var readWrite = field.readwrite;
+			    var mustfilled = field.mustfilled;
 	        	var mustfilled_view = '';
         	    if(mustfilled && mustfilled=='1'){
         	       mustfilled_view = '<label style="align:left;font-size:12;color:#FF4617">*</label>';
         	    }
-        	    
         	    //设置合计字段
         	    var totfield = field.totfield;
 		        if(totfield=='0'){
         	       pushTotalFieldcon('_sub_' + field.sysname,field.name);
         	    }
-
 			   if(showType == '101' && readWrite == '1'){
         			subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//单行文本
@@ -782,7 +757,6 @@
 	        		selectContent = '';
 	        		for(var index=0,size=field.dataList.length;index<size;index++){
 	        		    selectContent += '<row>';
-	        		    //alert(field.dataList[index].showval);
 		        		if(field.hiddenval){
 							if((field.hiddenval + ',').indexOf(field.dataList[index].hiddenval + ',') > -1){
 			        			selectContent += '<checkbox style="align:left;font-size:16;" checked="true" id="_sub_' + field.sysname +i+index+ '" name="_sub_' + field.sysname +i+ '" value="'+field.dataList[index].hiddenval+',">'+field.dataList[index].showval+'</checkbox>';
@@ -847,7 +821,7 @@
 	        			labelVal = '';
 	        		}
 				//登录人信息
-	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
+	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
 	        	}else if(showType == '301' && readWrite == '1'){
 	        		subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//金额
@@ -998,7 +972,6 @@
 						_subfieldjson = _subfieldjson.substr(0,_subfieldjson.length-1);
 					}
 					_subfieldjson += ']';
-					//alert(_subfieldjson);
 					subFormxml += '</table>';
 				}
 
@@ -1027,7 +1000,6 @@
 			}
 			function getSubTableFieldValue(fields,k){
                 var _subfieldxml='';
-                
                 _subfieldjson += '"field":[';
 				if(fields instanceof Array){
 					for(var i=0;i<fields.length;i++){
@@ -1043,28 +1015,24 @@
 					            chkstr += $('_sub_' + fields[i].sysname +k+index).value;
 					         }
 					      }
-					       _subfieldxml += '<field>';
-						   _subfieldxml += '<fieldName>'+fields[i].sysname+'</fieldName>';
-						   _subfieldxml += '<value>'+chkstr+'</value>';
-						   _subfieldxml += '</field>';
+					      _subfieldxml += '<field>';
+						  _subfieldxml += '<fieldName>'+fields[i].sysname+'</fieldName>';
+						  _subfieldxml += '<value>'+chkstr+'</value>';
+						  _subfieldxml += '</field>';
 						   
 						   _subfieldjson += '{"id":"'+fields[i].id+'","sysname":"'+fields[i].sysname+'","name":"'+fields[i].name+'","showtype":"'+fields[i].showtype+'","value":"'+chkstr+'","hiddenval":"'+chkstr+'","expressionval":"'+fields[i].expressionval+'","readwrite":"'+fields[i].readwrite+'","fieldtype":"'+fields[i].fieldtype+'","mustfilled":"'+fields[i].mustfilled+'"'+dataListJson+'},';
 					   }else if(fields[i].showtype=='210'||fields[i].showtype=='211'||fields[i].showtype=='212'||fields[i].showtype=='214'||fields[i].showtype=='704'||fields[i].showtype=='705'){  //都是选人框
-
-					      var dataListJson = '';
-					      if(fields[i].dataList){
-					         dataListJson = ',"dataList":'+JSON.stringify(fields[i].dataList);
-					      }
-					      var hidevalue = $('_sub_'+fields[i].sysname+k).value;
-					      var showvalue = $('_subShow_'+fields[i].sysname+k).value;
-					      
+					       var dataListJson = '';
+					       if(fields[i].dataList){
+					          dataListJson = ',"dataList":'+JSON.stringify(fields[i].dataList);
+					       }
+					       var hidevalue = $('_sub_'+fields[i].sysname+k).value;
+					       var showvalue = $('_subShow_'+fields[i].sysname+k).value;
 					       _subfieldxml += '<field>';
 						   _subfieldxml += '<fieldName>'+fields[i].sysname+'</fieldName>';
 						   _subfieldxml += '<value>'+hidevalue+'</value>';
 						   _subfieldxml += '</field>';
-						   
 						   _subfieldjson += '{"id":"'+fields[i].id+'","sysname":"'+fields[i].sysname+'","name":"'+fields[i].name+'","showtype":"'+fields[i].showtype+'","value":"'+showvalue+'","hiddenval":"'+hidevalue+'","expressionval":"'+fields[i].expressionval+'","readwrite":"'+fields[i].readwrite+'","fieldtype":"'+fields[i].fieldtype+'","mustfilled":"'+fields[i].mustfilled+'"'+dataListJson+'},';
-						   
 					   }else{
 					       var dataListJson = '';
 					       if(fields[i].dataList){
@@ -1074,7 +1042,6 @@
 						   _subfieldxml += '<fieldName>'+fields[i].sysname+'</fieldName>';
 						   _subfieldxml += '<value>'+$('_sub_'+fields[i].sysname+k).value+'</value>';
 						   _subfieldxml += '</field>';
-						   
 						   _subfieldjson += '{"id":"'+fields[i].id+'","sysname":"'+fields[i].sysname+'","name":"'+fields[i].name+'","showtype":"'+fields[i].showtype+'","value":"'+$('_sub_'+fields[i].sysname+k).value+'","hiddenval":"'+fields[i].hiddenval+'","expressionval":"'+fields[i].expressionval+'","readwrite":"'+fields[i].readwrite+'","fieldtype":"'+fields[i].fieldtype+'","mustfilled":"'+fields[i].mustfilled+'"'+dataListJson+'},';
 					    }
 					}
@@ -1084,19 +1051,18 @@
 						_subfieldjson = _subfieldjson.substr(0,_subfieldjson.length-1);
 					}
 				}else if(fields instanceof Object){
-				       
 				       //多选字段单独处理
 					   if(fields.showtype=='104'){
-					      var chkstr = '';
-					      var dataListJson = '';
-					      if(fields.dataList){
-					         dataListJson = ',"dataList":'+JSON.stringify(fields.dataList);
-					      }
-					      for(var index=0;index<fields.dataList.length;index++){
-					         if($('_sub_' + fields.sysname +k+index).checked){
-					            chkstr += $('_sub_' + fields.sysname +k+index).value;
-					         }
-					      }
+					       var chkstr = '';
+					       var dataListJson = '';
+					       if(fields.dataList){
+					          dataListJson = ',"dataList":'+JSON.stringify(fields.dataList);
+					       }
+					       for(var index=0;index<fields.dataList.length;index++){
+					          if($('_sub_' + fields.sysname +k+index).checked){
+					             chkstr += $('_sub_' + fields.sysname +k+index).value;
+					          }
+					       }
 					       _subfieldxml += '<field>';
 						   _subfieldxml += '<fieldName>'+fields.sysname+'</fieldName>';
 						   _subfieldxml += '<value>'+chkstr+'</value>';
@@ -1129,7 +1095,6 @@
 						    _subfieldxml += '<fieldName>'+fields.sysname+'</fieldName>';
 						    _subfieldxml += '<value>'+$('_sub_'+fields.sysname+k).value+'</value>';
 							_subfieldxml += '</field>';
-							
 							_subfieldjson += '{"id":"'+fields.id+'","sysname":"'+fields.sysname+'","name":"'+fields.name+'","showtype":"'+fields.showtype+'","value":"'+$('_sub_'+fields.sysname+k).value+'","hiddenval":"'+fields.hiddenval+'","expressionval":"'+fields.expressionval+'","readwrite":"'+fields.readwrite+'","fieldtype":"'+fields.fieldtype+'","mustfilled":"'+fields.mustfilled+'"'+dataListJson+'}';
 						}
 				}
@@ -1162,7 +1127,6 @@
 
 	        // 需要创建附件下载内容的数组
 	        var attachmentArray = new Array();
-	        
 	        // 创建附件下载内容
 	        function createAttachCon(){
 	        	var attachments;
@@ -1269,12 +1233,10 @@
 	        		if(!mustFillCheckbox[i]){
 	        			return false;
 	        		}
-
 	        		var chefieldInfoArray = mustFillCheckbox[i].split(';');
 	        		var fname = chefieldInfoArray[0];
 	        		var conId = chefieldInfoArray[1];
 	        		var len = eval(chefieldInfoArray[2]);
-	        		
 	        		flag = false;
 	        		for(var j=0;j<len;j++){
 	        		    if(($(conId+j).checked)){
@@ -1285,7 +1247,6 @@
 	        		   alert(fname + ' 不能为空！');
 	        		   return false;
 	        		}
-	        		
 	        	}
 	        	for(var i=0,length=mustFillWord.length;i<length;i++){
 	        		if(!mustFillWord[i]){
@@ -1308,7 +1269,6 @@
         	    if(mustfilled && mustfilled=='1'){
         	       mustfilled_view = '<label style="align:left;font-size:12;color:#FF4617">*</label>';
         	    }
-
 	        	if(showType == '101' && readWrite == '1'){
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//单行文本
@@ -1603,9 +1563,6 @@
 				if(!checkForm()){
 					return false;
 				}
-				//if(!confirm('确定发送？')){
-				//	return false;
-				//}
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
 					if(!data){

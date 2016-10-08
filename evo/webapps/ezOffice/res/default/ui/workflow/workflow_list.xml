@@ -9,11 +9,8 @@
         	var fromXml = $param['fromXml'];
         	
 			$page.onload = function(){
-				CacheDataToPage();
-	            $page.setTimeout(function() {
-	        	   //hint('列表自动刷新中...');
-	        	   updateCache();
-                }, 2000); 
+				//CacheDataToPage();
+				updateCache();
 			}
 			
 			//更新缓存数据并刷新页面
@@ -32,22 +29,24 @@
 			            }else{
 			              storage.setItem('workflow_list_topflow',''); 
 			            }
-			        	
+			        	getAllFlow();   //获取所有流程信息
 			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-				  }
-				    
-			   );
-	           $http.post(
+					    if (error == 'timeout') {
+							hint('连接服务器超时！');
+					    } else if (error == '404') {
+							hint('链接超时重新登录！');
+					    } else if (error == '500') {
+							hint('内部服务器错误！');
+					    } else {
+							hint('访问网络错误！错误代码:' + error);
+					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
+					  }
+				   );
+	        }
+	        
+	        function getAllFlow(){
+	        	$http.post(
 	       			evoUrl + '/ezOffice/workflow/getFlowList.do',{processName : ''}, 
 			        function(data) {
 			            if(!data){
@@ -78,23 +77,20 @@
 			            if(resultData){
 			        	  DbToCacheData(resultData);
 			        	  CacheDataToPage();
-			        	  
 			        	}
-			        	
 			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				    $page.open('../index.xml',{animation:'down-to-up'});
-				  }
-				    
-			  );
+					    if (error == 'timeout') {
+							hint('连接服务器超时！');
+					    } else if (error == '404') {
+							hint('链接超时重新登录！');
+					    } else if (error == '500') {
+							hint('内部服务器错误！');
+					    } else {
+							hint('访问网络错误！错误代码:' + error);
+					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
+					  }
+				  );
 	        }
 	        
 	        //将获取到的数据存入缓存

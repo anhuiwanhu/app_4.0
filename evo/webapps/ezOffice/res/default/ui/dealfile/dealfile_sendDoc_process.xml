@@ -24,6 +24,7 @@
         	var worktitle = '';  //流程标题
         	var worksubmittime = '';;   //发起时间
         	var isDossier = '';  //是否归档标识
+        	var isEdit = '';
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -48,6 +49,9 @@
         				var dealTipsContent = workInfo.dealTipsContent;
         				if(dealTipsContent!=null&&dealTipsContent!=''&&dealTipsContent!='[]'){
         				   alert(dealTipsContent.replace(/(<[^>]+>)|(&nbsp;)/g,""));
+        				}
+        				if(workInfo.modibutton.indexOf('cmdReadtext')  > 0 ){
+        					isEdit = '1';
         				}
         				passRoundCommField = workInfo.passRoundCommField;
         				isDossier = workInfo.isDossier == null? '' : workInfo.isDossier;
@@ -217,10 +221,10 @@
         	var wordType;
         	var docTitle = '';
         	function createDocView(){
-				if(oaPDF =='1' && (workStatus=='0' || workStatus=='2')){
+				if(oaPDF =='1' && isEdit =='1' && (workStatus=='0' || workStatus=='2')){
 					$('oaPdf').value = '1';
 					$('docContent').add($C('<row><label style="align:right;color:blue;text-decoration:underline;" onclick="doPdf();">PDF批注</label></row>'));
-				}else if(evoword =='1' && (workStatus=='0' || workStatus=='2')){
+				}else if(evoword =='1' && isEdit =='1' && (workStatus=='0' || workStatus=='2')){
 					$('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="doWps();">编辑正文</label>'));
 				}else{  
 					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
@@ -381,10 +385,11 @@
 			                    return;
 			                }
 							var attList = obj.attList;
+							var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
 									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '&amp;viewName='+attList[k].realname+'\')">' + attList[k].realname + '</label></row>')
-									$(attachments[2]).add(files);
+									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
 								alert('附件下载失败！');

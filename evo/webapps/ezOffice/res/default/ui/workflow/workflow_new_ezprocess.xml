@@ -836,7 +836,7 @@
 	        			labelVal = '';
 	        		}
 				//登录人信息
-	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
+	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + labelVal + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + labelVal + '"/></row>';
 	        	}else if(showType == '301' && readWrite == '1'){
 	        		subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
 	        		//金额

@@ -7,6 +7,7 @@
         	var model = $param['model'];
         	var fromXml = $param['fromXml'];
             var mainLinkFile = $param['mainLinkFile'];
+            var isArray = false;  //老流程发起不支持多个下步活动
             if(mainLinkFile=='meet'){
         		mainLinkFile = 'boardRoom!selectBoardroomApplyView.action?type=modi';  //带？号传不过来，需要参数来标识判断
         	}
@@ -78,7 +79,7 @@
         			alert('下一办理环节为空！');
         			return false;
         		}
-        		var isArray = nextActivityList instanceof Array;
+        		isArray = nextActivityList instanceof Array;
         		var scopeId = '';
         		var scopeName = '';
        			var activityRow = $('activityRow');
@@ -236,9 +237,10 @@
         	
         	// 发送流程
         	function sendFlow(){
-        		//if(!confirm('确定发送？')){
-        		//	return false;
-        		//}
+        	    if(isArray){
+        	    	alert('该活动节点不支持，请与PC端处理');
+        	    	return;
+        	    }
         		evoUrl = storage.getItem('evoUrl');
         		$('sendForm').action = evoUrl + '/ezOffice/workflow/sendNewProcess.do';
         		if(checkForm()){

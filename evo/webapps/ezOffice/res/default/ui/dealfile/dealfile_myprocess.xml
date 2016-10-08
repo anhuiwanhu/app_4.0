@@ -232,10 +232,11 @@
 			                    return;
 			                }
 							var attList = obj.attList;
+							var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
 									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl+'/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName=' + attList[k].realname + '\')">' + attList[k].realname + '</label></row>');
-									$(attachments[2]).add(files);
+									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
 								alert('附件下载失败！');
@@ -264,14 +265,15 @@
 	        	readWrite = field.readwrite;
 	        	fieldType = field.fieldtype;
 	        	if(showType == '115'){
-	        		attIndex = attIndex++;
 	        		var attId = 'attachments_' + attIndex;
 	        		//附件上传
 	        		if(field.value && field.value.length > 0){
+	        		    alert(attId);
 		        		attachmentArray.push(field.value + ';attachments_' + attIndex);
 	        		}
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'<input type="hidden" value="' + field.value + '"/></row></col><col id="' + attId + '" style="padding:10;margin:10;">';
+	        		attIndex++;
 	        	}else if(showType == '116'){
 	        		//Word编辑
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+

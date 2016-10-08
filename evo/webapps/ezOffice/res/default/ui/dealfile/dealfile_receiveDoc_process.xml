@@ -19,6 +19,7 @@
 	        var workName='';
 	        var pdflist='';
 	        var isDossier = '';  //是否归档标识
+	        var isEdit = '';
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -198,7 +199,7 @@
         	var docTitle = '';
         	function createDocView(){
         		if(filename){
-					if(oaPDF =='1' && (workStatus=='0' || workStatus=='2')){
+					if(oaPDF =='1' && isEdit =='1' && (workStatus=='0' || workStatus=='2')){
 						$('oaPdf').value = '1';
 						$('docContent').add($C('<row><label style="align:right;color:blue;text-decoration:underline;" onclick="doPdf();">PDF批注</label></row>'));
 					}else{
@@ -330,7 +331,16 @@
 			               }
 		               }
 		            },function(error) {
-						toErro(error);
+						if (error == 'timeout') {
+							hint('连接服务器超时！');
+					    } else if (error == '404') {
+							hint('链接超时重新登录！');
+					    } else if (error == '500') {
+							hint('内部服务器错误！');
+					    } else {
+							hint('访问网络错误！错误代码:' + error);
+					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 					});
 					pdfStatue='0';
         	}
@@ -374,10 +384,11 @@
 			                }
 							var serverUrl = obj.serverUrl;
 							var attList = obj.attList;
+							var attachIdArr = attachmentInfo.split(';');  //解决异步提交时，会造成获取的attachIdArr不是请求的那个。后面的数组元素会覆盖前面的数组元素。
 							if (!attList == '') { //不为空，遍历,并为附件赋值
 								for (var k = 0; k < attList.length; k++) {
 									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + serverUrl + 'download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename +'&amp;viewName='+attList[k].realname+ '\')">' + attList[k].realname + '</label></row>')
-									$(attachments[2]).add(files);
+									$(attachIdArr[2]).add(files);
 								}
 							} else { //无附件，或者后台处理异常
 								alert('附件下载失败！');
@@ -597,24 +608,29 @@
 		        		}	
 		        	}
 	        	}
-	        	
-	        	if(detailData.docSaveFile){   //正文
+	        	var saveFileIsExitst = detailData.docSaveFile+"";
+	        	if(saveFileIsExitst!=""){   //正文
 	        	        var docSaveFileArr = detailData.docSaveFile;
 	        	        var docRealFileArr = detailData.docRealFile;
 	        	        if(docSaveFileArr instanceof Array){
 	        	            for(var j=0;j<docSaveFileArr.length;j++){
 	        	            	if(j<docSaveFileArr.length-1){
 			        	            filename += docSaveFileArr[j]+"|";
-				        		    displayName += docRealFileArr[j]+"|";
+				        		    displayName += docRealFileArr[j].text+"|";
 			        	        }else if(j==docSaveFileArr.length-1){
 			        	            filename += docSaveFileArr[j];
-				        		    displayName += docRealFileArr[j];
+				        		    displayName += docRealFileArr[j].text;
 			        	        }
 				        	}
-				        		
+				        	if(detailData.docRealFile[0].canEdit=='true'){
+			        			isEdit = '1';
+			        		}	
 	        	        }else{
 			        		filename = detailData.docSaveFile.file;
-			        		displayName = detailData.docRealFile.file;
+			        		displayName = detailData.docRealFile.file.text;
+			        		if(detailData.docRealFile.file.canEdit=='true'){
+			        			isEdit = '1';
+			        		}
 			        	}
 			        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">正文:</label>'+
 			        				   '</row></col><col style="margin:10;padding:10;" id="docContent"></col></item>';
