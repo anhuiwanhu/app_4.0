@@ -23,6 +23,7 @@
         					alert('数据获取失败！');
         					return;
         				}
+        				data = data.replace(/\&/g,'＆');
         				var obj = JSON.parse(data);
         				if(obj.logonerror &&obj.logonerror=='1'){
 			         		alert("该账号已在设备"+obj.deviceId+"上登录");

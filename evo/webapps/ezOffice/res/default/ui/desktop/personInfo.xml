@@ -69,7 +69,7 @@
 						    if(empenglishname == null||empenglishname== ''){
 						        empenglishname = "";
 						    }
-						    $('empenglishname').text=empenglishname;
+						    $('empenglishname').text="   "+empenglishname;
 						    
 						    var useraccounts = dataJson.useraccounts;         //账号
 						    $('useraccounts').text=useraccounts;

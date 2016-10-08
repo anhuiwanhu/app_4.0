@@ -56,11 +56,10 @@
 	                 return;
 				}
 	   			var cont = $('forumContent').value.trim();
-	   			if(cont.length == 0){
-	       			hint('发帖正文不能为空！');
-	       			return false;
+	   			var newCont="";
+	   			if(cont.length != 0){
+	       			newCont = chanCont(cont);
 	   			}
-	   			var newCont = chanCont(cont);
 	   			$('newCont').value=newCont;
 	   			$('forumForm').submit(function(data) {
 					var obj = JSON.parse(data);
