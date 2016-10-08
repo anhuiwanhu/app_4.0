@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+        <![CDATA[
+            var fromXml = $param['fromXml'];
+        	var storage = $phone.localStorage();
+ 			var evoUrl = storage.getItem('evoUrl');
+        	//打开菜单
+            function openPopupMenu(type) {
+
+            	var $mainPopupmenu = $('main_popupmenu');
+            	if($('wait_process_file')){
+            		$mainPopupmenu.open();
+            		return;
+            	}
+            	var items = '';
+            	if('main' == type){
+            		$mainPopupmenu.position = 'topcenter';
+            		$mainPopupmenu.css('width','150');
+            		$mainPopupmenu.onclose = "$('upOrDownIcon').src = 'mail_down.png'";
+            		$('upOrDownIcon').src = 'mail_up.png';
+            		var seeProcess0 = 'display:hidden';
+            		var seeProcess2 = 'display:hidden';
+            		var seeProcess101 = 'display:hidden';
+            		var seeProcess1100 = 'display:hidden';
+
+            		if(workStatus=='0'){
+            		  seeProcess0 = '';
+            		}else if(workStatus=='2'){
+            		  seeProcess2 = '';
+            		}else if(workStatus=='101'){
+            		  seeProcess101 = '';
+            		}else if(workStatus=='1100'){
+            		  seeProcess1100 = '';
+            		}
+            		 
+            		items = 
+	            	 '<item onclick="selectList(\'0\');" id="" style="background:#3daffe,#474747"><row>'+
+					 	'<label style="margin-left:15;font-size:18;color:white;">待办文件</label>'+
+						'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess0+'" id="wait_process_file"/></row>'+
+					 '</item>'+
+				     '<item onclick="selectList(\'2\');" id="" style="background:#3daffe,#474747"><row>'+
+				      	'<label style="margin-left:15;font-size:18;color:white;">待阅文件</label>'+
+				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess2+'" id="wait_read_file"/></row>'+
+				     '</item>'+
+				     '<item onclick="selectList(\'101\');" id="" style="background:#3daffe,#474747"><row>'+
+				      	'<label style="margin-left:15;font-size:18;color:white;">已办文件</label>'+
+				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess101+'" id="processed_file"/></row>'+
+				     '</item>'+
+				     '<item onclick="selectList(\'1100\');" id="" style="background:#3daffe,#474747"><row>'+
+				      	'<label style="margin-left:15;font-size:18;color:white;">我的文件</label>'+
+				      	'<icon src="top_updown.png" style="align:right;width:15;'+seeProcess1100+'" id="my_file"/></row>'+
+				     '</item>';
+            	}else if('sort' == type){
+            		$mainPopupmenu.position = 'topright';
+            		$mainPopupmenu.css('width','100');
+            		$mainPopupmenu.css('offset-x','10');
+            		$mainPopupmenu.onclose = '';
+            		items = 
+            		    '<item onclick="$(\'main_popupmenu\').close();sortEvent();">'+
+		                    '<label style="color:black;">最新待办</label>'+
+		                '</item>'+
+		                '<item onclick="$(\'main_popupmenu\').close();">'+
+		                    '<label style="color:black">流程分类</label>'+
+		                '</item>'+
+		                '<item onclick="$(\'main_popupmenu\').close();">'+
+		                    '<label style="color:black">缓急程度</label>'+
+		                '</item>';
+            	}
+                $('popupmenu_list').update('<imag><list>' + items + '</list></imag>');
+                $mainPopupmenu.open();
+            }
+	        
+	        // 各种排序
+	        function sortEvent(type){
+	        	switch(type){
+	        		case '0' : {
+	        			alert('最新待办 排序');
+	        			break;
+	        		}	
+	        		case '1' : {
+	        			alert('流程分类 排序');
+	        			break;
+	        		}
+	        		case '2' : {
+	        			alert('缓急程度 排序');
+	        			break;
+	        		}
+	        		default : {
+	        			alert('网络异常！');
+	        			break;
+	        		}
+	        	}
+	        }
+	        
+	        var currPage = '0';
+	        var offset = '0';
+	        var loadFlag = '0';
+	        var hasMore;
+	        var workStatus = '0';
+	        var titleText = '';
+	        
+	        //缓存无数据则更新
+	        function updateCache2(){
+	        
+	              var storage = $phone.localStorage();
+	        	  var dbName = storage.getItem('ezMobile_dbName');
+	        	  var userId = storage.getItem('sys_sys_userId');
+	        	  var db = $phone.openDatabase(dbName);
+			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
+			      function queryHasDataDB(tx) {
+					tx.executeSql('select workId from dealfile_list where workStatus="'+workStatus+'" and  userId = "'+userId+'"',[],
+							function(results){
+							  if(results.rows!=null && results.rows.length>0){
+							     CacheDataToPage();
+							  }else{
+							     updateCache();
+							  }
+							  
+							} , function(err){alert(err);}); 
+			      }
+	        }
+	        //更新缓存数据并刷新页面
+	        function updateCache(){
+	           $http.post(
+	       			evoUrl + '/ezOffice/dealfile/list.do',
+			        {workStatus : workStatus, currPage : '0', offset : '0',title : ''}, 
+			        function(data) {
+			            var jsonData = eval('('+data+')');
+			            if(jsonData){
+			        	  DbToCacheData(jsonData);
+			        	  CacheDataToPage();
+			        	}
+			        	
+			        },function(error) {
+				    if (error == 'timeout') {
+						hint('连接服务器超时！');
+				    } else if (error == '404') {
+						hint('链接超时重新登录！');
+				    } else if (error == '500') {
+						hint('内部服务器错误！');
+				    } else {
+						hint('访问网络错误！错误代码:' + error);
+				    }
+				  }
+				    
+			  );
+	        }
+	        //将获取到的数据存入缓存
+	        function DbToCacheData(jsonData) {
+               var storage = $phone.localStorage();
+	           var dbName = storage.getItem('ezMobile_dbName');
+	           var userId = storage.getItem('sys_sys_userId');
+               var db = $phone.openDatabase(dbName);
+		       db.transaction(DbToCacheData_1);
+		       function DbToCacheData_1(tx) {
+			        
+                    if(jsonData){
+			   
+				        tx.executeSql('delete from dealfile_list where workStatus="'+workStatus+'"');
+				        currPage = jsonData.data_2;
+		        		offset = jsonData.data_1;
+		        		var picRootPath = jsonData.data_3;
+		        		var message = jsonData.data_0.message;
+		        		var realData = jsonData.data_0.data;
+		        		var resultType = message.result;
+
+		        		if(resultType == '1'){
+
+		        			var dealedWorkFlowArray = realData.dealedWorkFlow;
+		        			var pageCount = realData.pageCount;
+		        			var recordcount = realData.recordcount;
+		        			var empLivingPhoto;
+		        			// 打开文件办理详情url
+		        			var dealFileDatailUrl;
+		        			var workId;
+		        			var funcitonVal = '';
+		        			var empPhotoUrl = '';
+		        			if(dealedWorkFlowArray instanceof Array){
+			        			for(var i = 0,length = dealedWorkFlowArray.length;i < length; i++){
+			        				empLivingPhoto = dealedWorkFlowArray[i].empLivingPhoto;
+			        				if(empLivingPhoto==null || empLivingPhoto == 'null' || empLivingPhoto == ' ' 
+			        				   || empLivingPhoto == '' || empLivingPhoto == '[]' || !empLivingPhoto){
+			        					empLivingPhoto = '';
+			        				}
+			        				dealFileDatailUrl = dealedWorkFlowArray[i].workMainLinkFile;
+
+			        				workId = dealedWorkFlowArray[i].workId;
+			        				var workTitle = dealedWorkFlowArray[i].workTitle;
+			        				var workSubmitTime = dealedWorkFlowArray[i].workSubmitTime;
+			        				var workCurStep = dealedWorkFlowArray[i].workCurStep;
+			        				
+			        				var dealfile_sql = 'insert into dealfile_list(workStatus,currPage,offset,resultType,empLivingPhoto,workMainLinkFile,workId,workTitle,workSubmitTime,workCurStep,pageCount,recordcount,userId) '+
+			        				' values("'+workStatus+'","'+currPage+'","'+offset+'","'+resultType+'","'+empLivingPhoto+'","'+dealFileDatailUrl+'","'+workId+'","'+workTitle+'","'+workSubmitTime+'","'+workCurStep+'","'+pageCount+'","'+recordcount+'","'+userId+'")';
+			        				tx.executeSql(dealfile_sql);
+			        			}
+		        			}else if(dealedWorkFlowArray instanceof Object){
+								empLivingPhoto = dealedWorkFlowArray.empLivingPhoto;
+		        				if(empLivingPhoto==null || empLivingPhoto == 'null' || !empLivingPhoto){
+		        					empLivingPhoto = '';
+		        				}
+		        				dealFileDatailUrl = dealedWorkFlowArray.workMainLinkFile;
+
+		        				workId = dealedWorkFlowArray.workId;
+		        				var workTitle = dealedWorkFlowArray.workTitle;
+		        				var workSubmitTime = dealedWorkFlowArray.workSubmitTime;
+		        				var workCurStep = dealedWorkFlowArray.workCurStep;
+	
+		        				var dealfile_sql = 'insert into dealfile_list(workStatus,currPage,offset,resultType,empLivingPhoto,workMainLinkFile,workId,workTitle,workSubmitTime,workCurStep,pageCount,recordcount,userId) '+
+			        				' values("'+workStatus+'","'+currPage+'","'+offset+'","'+resultType+'","'+empLivingPhoto+'","'+dealFileDatailUrl+'","'+workId+'","'+workTitle+'","'+workSubmitTime+'","'+workCurStep+'","'+pageCount+'","'+recordcount+'","'+userId+'")';
+			        			tx.executeSql(dealfile_sql);
+		        			}
+		        			
+		        		}else{
+		        			//查询数据异常
+		        			noDataContent(listJson,itemJson);
+		        		}
+	
+			        }
+		        
+			   }
+		    
+		    }
+		    //将缓存数据更新到页面
+		    function CacheDataToPage(){
+
+	        	currPage = '0';
+	        	offset = '0';
+	        	hasMore ='';
+	        	loadFlag == '1';
+	        	$('content_list').clear();
+	        	$('content').showBottom();
+	        	$('bottom_hasmore').css('display','hidden');
+	        	$('bottom_load').css('display','');
+		        			
+	        	  var storage = $phone.localStorage();
+	        	  var dbName = storage.getItem('ezMobile_dbName');
+	        	  var userId = storage.getItem('sys_sys_userId');
+	        	  var webserviceUrl = storage.getItem('webServiceUrl');
+	        	  var picRootPath = webserviceUrl +'upload/peopleinfo/';
+	        	  
+	        	  var listJson = {items:[]};
+		          var itemJson;
+	        	  var db = $phone.openDatabase(dbName);
+			      db.transaction(queryDealfileListDB, function(err){alert(err);}, function(){});
+			      function queryDealfileListDB(tx) {
+					tx.executeSql('select currPage,offset,resultType,empLivingPhoto,workMainLinkFile,workId,workTitle,workSubmitTime,workCurStep,pageCount,recordcount from dealfile_list where workStatus = "'+workStatus+'" and userId = "'+userId+'"',[],
+							function(results){
+					          var pageCount = '0';
+					          var recordcount = '0';
+							  if(results.rows!=null && results.rows.length>0){
+							    for(var i=0; i<results.rows.length; i++){
+							      var currPage = results.rows.item(i).currPage;
+							      var offset = results.rows.item(i).offset;
+							      var resultType = results.rows.item(i).resultType;
+							      var empLivingPhoto = results.rows.item(i).empLivingPhoto;
+							      var workMainLinkFile = results.rows.item(i).workMainLinkFile;
+							      var workId = results.rows.item(i).workId;
+							      var workTitle = results.rows.item(i).workTitle;
+							      var workSubmitTime = results.rows.item(i).workSubmitTime;
+							      var workCurStep = results.rows.item(i).workCurStep;
+							      pageCount = results.rows.item(i).pageCount;
+							      recordcount = results.rows.item(i).recordcount;
+							      
+			        			  funcitonVal = getOpenDetailUrl(workMainLinkFile);
+			        			  
+			        			  var empPhotoUrl = '';
+			        			  if(empLivingPhoto!=''){
+		        				     empPhotoUrl = picRootPath + empLivingPhoto;
+		        				  }else{
+		        				     empPhotoUrl='';
+		        				  }
+		     
+		        				    itemJson = {
+				                        template : 0,
+				                        onclick : funcitonVal + '("'+workStatus+'","'+workId+'","'+empLivingPhoto+'")',
+				                        widgets : {
+				                            empLivingPhoto : {src : empPhotoUrl},
+				                            title : {text : workTitle},
+				                            submitTime : {text : workSubmitTime},
+				                            workCurStep : {text : workCurStep}
+				                        }
+				                    }
+				                    listJson.items.push(itemJson);
+							    }
+							    
+							    if(parseInt(pageCount) > parseInt(currPage)){
+			        				$('bottom_hasmore').css('display','');
+			        			}else{
+			        				$('bottom_hasmore').css('display','none');
+			        				$('content').hideBottom();
+			        				hasMore = 'false';
+			        			}  
+							    
+							  }
+							  if(!titleText){
+		        				titleText = '待办文件';
+		        			  }
+		        			  $('centerTitle').text = titleText + '(' + recordcount + ')';
+							  
+							  $('content_list').addMore(listJson);
+							  
+							} , function(err){alert(err);}); 
+			      }
+			      $('bottom_load').css('display','none');
+
+	        }
+	        
+	        //刷新列表数据   
+	        function onloadList() {
+	        	updateCache();
+	        }
+	        //初始化列表数据   
+	        function initList() {
+	        	//loadList('update');
+	        	CacheDataToPage();
+	            $page.setTimeout(function() {
+	        	   hint('列表自动刷新中...');
+	        	   updateCache();
+                }, 2000);
+	        }
+
+	        //分页加载列表数据
+	        function loadList(loadType){
+	        	if(loadFlag == '1' || hasMore == 'false'){
+	        		return false;
+	        	}
+	        	loadFlag == '1';
+	        	$('content').showBottom();
+	        	$('bottom_hasmore').css('display','hidden');
+	        	$('bottom_load').css('display','');
+
+				$http.post(
+	       			evoUrl + '/ezOffice/dealfile/list.do',
+			        {workStatus : workStatus, currPage : currPage, offset : offset,title : $('search').value}, 
+			        function(data) {
+			        	if(data){
+			        		var jsonData = eval('('+data+')');
+			        		if(!jsonData){
+			        			noDataContent(listJson,itemJson);
+			        			return false;
+			        		}
+			        		currPage = jsonData.data_2;
+			        		offset = jsonData.data_1;
+			        		var picRootPath = jsonData.data_3;
+			        		var message = jsonData.data_0.message;
+			        		var realData = jsonData.data_0.data;
+			        		var resultType = message.result;
+			        		var listJson = {items:[]};
+		        			var itemJson;
+			        		if(resultType == '1'){
+			        			var dealedWorkFlowArray = realData.dealedWorkFlow;
+			        			var pageCount = realData.pageCount;
+			        			var recordcount = realData.recordcount;
+			        			if(!titleText){
+			        				titleText = '待办文件';
+			        			}
+			        			$('centerTitle').text = titleText + '(' + recordcount + ')';
+			        			var empLivingPhoto;
+			        			// 打开文件办理详情url
+			        			var dealFileDatailUrl;
+			        			var workId;
+			        			var funcitonVal = '';
+			        			var empPhotoUrl = '';
+			        			if(dealedWorkFlowArray instanceof Array){
+				        			for(var i = 0,length = dealedWorkFlowArray.length;i < length; i++){
+				        				empLivingPhoto = dealedWorkFlowArray[i].empLivingPhoto;
+				        				if(empLivingPhoto==null || empLivingPhoto == 'null' || empLivingPhoto == ' ' 
+				        				   || empLivingPhoto == '' || empLivingPhoto == '[]' || !empLivingPhoto){
+				        					empLivingPhoto = '';
+				        				}
+				        				dealFileDatailUrl = dealedWorkFlowArray[i].workMainLinkFile;
+				        				funcitonVal = getOpenDetailUrl(dealFileDatailUrl);
+				        				workId = dealedWorkFlowArray[i].workId;
+
+				        				if(empLivingPhoto!=''){
+				        				   empPhotoUrl = picRootPath + empLivingPhoto;
+				        				}else{
+				        				   empPhotoUrl='';
+				        				}
+				        				itemJson = {
+					                        template : 0,
+					                        onclick : funcitonVal + '("'+workStatus+'","'+workId+'","'+empLivingPhoto+'")',
+					                        widgets : {
+					                            empLivingPhoto : {src : empPhotoUrl},
+					                            title : {text : dealedWorkFlowArray[i].workTitle},
+					                            submitTime : {text : dealedWorkFlowArray[i].workSubmitTime},
+					                            workCurStep : {text : dealedWorkFlowArray[i].workCurStep}
+					                        }
+					                    }
+					                    listJson.items.push(itemJson);
+				        			}
+			        			}else if(dealedWorkFlowArray instanceof Object){
+									empLivingPhoto = dealedWorkFlowArray.empLivingPhoto;
+			        				if(empLivingPhoto==null || empLivingPhoto == 'null' || !empLivingPhoto){
+			        					empLivingPhoto = '';
+			        				}
+			        				dealFileDatailUrl = dealedWorkFlowArray.workMainLinkFile;
+			        				funcitonVal = getOpenDetailUrl(dealFileDatailUrl);
+			        				workId = dealedWorkFlowArray.workId;
+			        				empPhotoUrl = '';
+			        				if(empLivingPhoto!=''){
+			        				   empPhotoUrl = picRootPath + empLivingPhoto;
+			        				}
+
+			        				itemJson = {
+				                        template : 0,
+				                        onclick : funcitonVal + '("'+workStatus+'","'+workId+'","'+empLivingPhoto+'")',
+				                        widgets : {
+				                            empLivingPhoto : {src : empPhotoUrl},
+				                            title : {text : dealedWorkFlowArray.workTitle},
+				                            submitTime : {text : dealedWorkFlowArray.workSubmitTime},
+				                            workCurStep : {text : dealedWorkFlowArray.workCurStep}
+				                        }
+				                    }
+				                    listJson.items.push(itemJson);
+			        			}else{
+			        				//未查询到数据
+			        				noDataContent(listJson,itemJson);
+			        			}
+			        			if(parseInt(pageCount) > parseInt(currPage)){
+			        				$('bottom_hasmore').css('display','');
+			        			}else{
+			        				$('bottom_hasmore').css('display','none');
+			        				$('content').hideBottom();
+			        				hasMore = 'false';
+			        			}
+			        			if(loadType == 'add'){
+				        			$('content_list').addMore(listJson);
+			        			}else if(loadType == 'update'){
+				        			$('content_list').update(listJson);
+			        			}
+			        		}else{
+			        			//查询数据异常
+			        			noDataContent(listJson,itemJson);
+			        		}
+			        	}
+	        			$('bottom_load').css('display','none');
+	        			loadFlag == '0';
+					},function(error) {
+				    if (error == 'timeout') {
+						hint('连接服务器超时！');
+				    } else if (error == '404') {
+						hint('链接超时重新登录！');
+				    } else if (error == '500') {
+						hint('内部服务器错误！');
+				    } else {
+						hint('访问网络错误！错误代码:' + error);
+				    }
+				  }
+				);
+	        }
+	        
+	        //没有查到数据或者数据查询异常时
+	        function noDataContent(listJson,itemJson){
+	        	itemJson = {
+                    template : 1,
+                    widgets : {
+                        title_tips : {text : '系统没有查询到数据！'}
+                    }
+                }
+                listJson.items.push(itemJson);
+	        }
+	            
+	        //页面加载完成后执行
+	        $page.onload = function() {
+	          if($param['refresh']=="1"){
+	             if($param['workStatus']!=null && $param['workStatus']!=''){
+		               workStatus = $param['workStatus'];
+		               switch (workStatus){
+		        		case '0' :
+			        		titleText = '待办文件';
+			        		break;
+			        	case '2' :
+			        		titleText = '待阅文件';
+			        		break;
+			        	case '101' :
+			        		titleText = '已办文件';
+			        		break;
+			        	case '1100' :
+			        		titleText = '我的文件';
+			        		break;
+			        	default :
+			        		break;
+		        	   }
+		        	currPage = '0';
+		        	offset = '0';
+		        	hasMore = '';
+	             }
+	             updateCache();
+	          }else{
+	            initList();
+	          }
+	        }
+	        
+	        // 获取打开详情链接
+	        function getOpenDetailUrl(workMainLinkFile){
+	        	if(!workMainLinkFile){
+		    		return '';
+		    	}
+		    	var functionVal = '';
+		    	if(workMainLinkFile.indexOf('/defaultroot/GovDocSendProcess!') > -1){
+		    		functionVal = 'openSendGovDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovSendFileLoadAction.do') > -1){
+		    		functionVal = 'openSendGovDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/wfopenflow!') > -1){
+		    		functionVal = 'openDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/WorkFlowProcAction.do') > -1){
+		    		functionVal = 'openDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/Information!') > -1){
+		    		functionVal = 'openInfoDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/InformationAction.do') > -1){
+		    		functionVal = 'openInfoDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovDocReceiveProcess!') > -1){
+		    		functionVal = 'openReceiveGovDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovReceiveFileLoadAction.do') > -1){
+		    		functionVal = 'openReceiveGovDetail';
+		    	}else if(workMainLinkFile.indexOf('/defaultroot/GovDocSendCheckProcess!') > -1){
+		    		functionVal = 'openDocSendCheckDetail';
+		    	}else{
+		    		functionVal = 'openDetail';
+		    	}
+		    	return functionVal;
+	        }
+	        
+	        //打开流程表单详情页面
+	        function openDetail(workStatus,workId,empLivingPhoto){
+            	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+	        	$page.open(getXmlPage() + 'fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        
+	        // 根据流程标识获取跳转的页面
+	        function getXmlPage(){
+	        	if(workStatus == '0'){
+	        		// 待办文件
+	        		return 'dealfile_process.xml?';
+	        	}else if(workStatus == '2'){
+	        		// 待阅文件
+	        		return 'dealfile_detail.xml?';
+	        	}else if(workStatus == '101'){
+	        		// 已办文件
+	        		return 'dealfile_processed.xml?';
+	        	}else if(workStatus == '1100'){
+	        		// 我的文件
+	        		return 'dealfile_myprocess.xml?';
+	        	}
+	        }
+	        
+	        // 打开发文流程详情页面
+	        function openSendGovDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+	        	$page.open('dealfile_sendDoc_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        
+	        // 打开收文流程详情页面
+	        function openReceiveGovDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+	        	$page.open('dealfile_receiveDoc_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        
+	        // 打开公文送审签详情页面
+	        function openDocSendCheckDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+	        	$page.open('dealfile_docSendCheck_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        
+	        // 打开信息流程详情页面
+	        function openInfoDetail(workStatus,workId,empLivingPhoto){
+	        	storage.setItem('workflow_workStatus',workStatus);
+            	storage.setItem('workflow_workId',workId);
+            	$page.open('dealfile_info_process.xml?fromXml='+fromXml+'&empLivingPhoto='+empLivingPhoto,{animation:'down-to-up'});
+	        }
+	        
+	        //选择头中部菜单事件
+	        function selectList(status){
+	        	var $menuBut = $('menuBut');
+	        	$('main_popupmenu').close();
+	        	switch (status){
+	        		case '0' :
+	        			//$menuBut.css('display','');
+	        			$('wait_process_file').css('display','');
+	        			$('wait_read_file').css('display','none');
+	        			$('processed_file').css('display','none');
+	        			$('my_file').css('display','none');
+		        		titleText = '待办文件';
+		        		break;
+		        	case '2' :
+		        		//$menuBut.css('display','none');
+		        		$('wait_process_file').css('display','none');
+	        			$('wait_read_file').css('display','');
+	        			$('processed_file').css('display','none');
+	        			$('my_file').css('display','none');
+		        		titleText = '待阅文件';
+		        		break;
+		        	case '101' :
+		        		//$menuBut.css('display','none');
+		        		$('wait_process_file').css('display','none');
+	        			$('wait_read_file').css('display','none');
+	        			$('processed_file').css('display','');
+	        			$('my_file').css('display','none');
+		        		titleText = '已办文件';
+		        		break;
+		        	case '1100' :
+		        		//$menuBut.css('display','none');
+		        		$('wait_process_file').css('display','none');
+	        			$('wait_read_file').css('display','none');
+	        			$('processed_file').css('display','none');
+	        			$('my_file').css('display','');
+		        		titleText = '我的文件';
+		        		break;
+		        	default :
+		        		break;
+	        	}
+	        	workStatus = status;
+	        	currPage = '0';
+	        	offset = '0';
+	        	hasMore = '';
+	        	//loadList('update');
+	        	CacheDataToPage();
+	        	$page.setTimeout(function() {
+	        	   hint('列表自动刷新中...');
+	        	   updateCache();
+                }, 2000);
+	        }
+	        
+	        //列表查询方法
+	        function searchList(){
+	        	currPage = '0';
+	        	offset = '0';
+	        	hasMore = '';
+	        	loadList('update');
+	        }
+	        
+	        // 打开新建流程列表
+	        function openNewFlowList(){
+	        	$page.open('../workflow/workflow_list.xml',{animation:'down-to-up'});
+	        }
+        ]]>
+    </script>
+    <page>
+        <title style="background:#3daffe;tint-color:white">
+            <left>
+            	<button role="back"/>
+            </left>
+            <center>
+            	<label id="centerTitle" onclick="openPopupMenu('main');">待办文件(0)</label>
+            	<icon id="upOrDownIcon" src="mail_down.png"/>
+            </center>
+            <right>
+				<progress id="progress1" style="display:hidden"/>
+                 <button onclick="openNewFlowList();" icon="desk_personcenter_add.png"/>
+			</right>
+        </title>
+        <header>
+            <row>
+                <input id="search" type="search" name="search" placeholder="请输入文件标题" onclick="searchList();"/>
+            </row>
+        </header>
+		<popupmenu id="main_popupmenu">
+			<list id="popupmenu_list">
+		    </list>
+		</popupmenu>
+        <content id="content" ondragdown="onloadList();$('content').hideTop();" draggable="true" >
+            <list id="content_list" reuse="true">
+                <item style="col-width: 12%,*">
+                    <col>
+	                    <row>
+	                    	<img effect="round" reusekey="empLivingPhoto" src="" style="height:35;width:35;" default="login_per.png"/>
+	                    </row>
+                    </col>
+                    <col>
+                   		<label reusekey="title" style="color:#555555;font-size:16;"></label>
+                    	<row>
+	                   		<label reusekey="submitTime" style="color:#b8b8b8;font-size:12;"></label>
+                    	</row>
+                    	<row>
+                    		<label style="align:right;text-align:center;background:#38adff;corner-radius:5;color:white;font-size:10" reusekey="workCurStep"></label>
+                    	</row>
+                    </col>
+                </item>
+                <item>
+                    <col>
+                    	<row>
+                    		<label reusekey="title_tips"></label>
+                    	</row>
+                    </col>
+                </item>
+            </list>
+            <bottom id="content_bottom">
+               <list>
+                   <item onclick="loadList('add');">
+	            		<row id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+                      	<row style="display:hidden" id="bottom_hasmore">
+	                        <label style="align:center;">点击加载更多...</label>
+	                        <progress id="more_progress" style="display:none;align:center"/>
+	                    </row>
+                	</item>
+               </list>
+            </bottom>
+        </content>
+    </page>
+</imag>

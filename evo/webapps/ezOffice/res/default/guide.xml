@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<guide indicatorIcon="guide_notselected.png,guide_selected.png" buttonIcon="guide_goindex.png,guide_goindex.png">
+    <item src="guide_1.png"/>
+    <item src="guide_2.png"/>
+    <item src="guide_3.png"/>
+	<item src="guide_4.png"/>
+</guide>

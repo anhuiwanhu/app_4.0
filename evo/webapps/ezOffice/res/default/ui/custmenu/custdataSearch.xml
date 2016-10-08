@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+        var menuId= "";
+        var searchfieldNames="";
+        var searchfieldTypes="";
+        var searchfieldShows="";
+        
+        $page.onload = function() {
+			var storage = $phone.localStorage();
+            var evoUrl = storage.getItem('evoUrl');
+            var custdata_menuName = storage.getItem('custdata_menuName');
+            $('titleLabel1').text = custdata_menuName+"查询";
+            menuId= $param['custmenuId'];
+            $('search_form_list').clear();
+            $http.post(evoUrl+'/ezOffice/custmenu/getCustMenuDataSearchList.do','menuid='+menuId, function(data) {
+			     var obj = JSON.parse(data);
+			     if(obj.message.result=="1"&&
+			        obj.data.searchFields){
+                    var groups = obj.data.searchFields;
+                    if(groups instanceof Array){
+				        for(var i=0;i<groups.length;i++){
+				            var fieldId=groups[i].fieldId;
+				            var fieldDesName=groups[i].fieldDesName;
+				            var fieldName=groups[i].fieldName;
+				            var fieldWith=groups[i].fieldWith;
+				            var fieldValue=groups[i].fieldValue;
+				            var fieldType=groups[i].fieldType;
+				            var fieldShow = groups[i].fieldShow;
+				            var itemContent = '<col style="background:#f9f9f9;margin:10;padding:10;"><row><label>' + fieldDesName + ':</label></row></col><col style="padding:10;margin:10;">';
+				            if(fieldType=="1000000" || fieldType=="1000001"){
+				               itemContent += '<row><input type="number" id="' + fieldName + '_start" name="' + fieldName + '_start" value=""/></row>';
+				               itemContent += '<row><input type="number" id="' + fieldName + '_end" name="' + fieldName + '_end" value=""/></row>';
+				            }else if(fieldShow == '101'){
+				                //单行文本
+				        		if(fieldType == '1000000'){
+				        			itemContent += '<row><input type="number" id="' + fieldName + '" value="" name="' + fieldName + '" maxlength="9"/></row>';
+				        		}else if(fieldType == '1000001'){
+				        			itemContent += '<row><input type="number" id="' + fieldName + '" value="" name="' + fieldName + '" maxlength="18"/></row>';
+				        		}else{
+				        			itemContent += '<row><input type="text" id="' + fieldName + '"  value="" name="' + fieldName + '"/></row>';
+				        		}
+				        		searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+				            }else if(fieldShow == '103'){
+				                //单选
+				                if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				                   itemContent += '<row><select id="' + fieldName + '" name="' + fieldName + '">'+
+				        			'<option value="">请选择</option>';
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<option value="'+hiddenval+'">'+showval+'</option>';
+	                                    }
+				        		    }
+				        		    itemContent += '</select></row>';
+				                 }
+				                 searchfieldNames += fieldName+",";
+				            	 searchfieldTypes += fieldType+",";
+				            	 searchfieldShows += fieldShow+",";
+				            }else if(fieldShow == '104'){
+				        		//多选
+				        		 if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<row><checkbox style="align:right;" id="' + fieldName +j+'" name="' + fieldName + '" value="'+hiddenval+',">'+showval+'</checkbox></row>';
+	                                    }
+	                                    searchfieldNames += fieldName+j+",";
+				            	 		searchfieldTypes += fieldType+",";
+				            	 		searchfieldShows += fieldShow+",";
+				        		    }
+				                 }
+		        	        }else if(fieldShow == '105'){
+				        		//下拉框
+				        		if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				                   itemContent += '<row><select id="' + fieldName + '" name="' + fieldName + '">'+
+				        			'<option value="">请选择</option>';
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<option value="'+hiddenval+'">'+showval+'</option>';
+	                                    }
+				        		    }
+				        		    itemContent += '</select></row>';
+				                }
+				                searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '107'){
+				        		//日期
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_start" name="' + fieldName + '_start" value=""/></row>';
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_end" name="' + fieldName + '_end" value=""/></row>';
+		        	            searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '108'){
+				        		//时间 
+				        		itemContent += '<row><input type="time" id="' + fieldName + '_start" name="' + fieldName + '_start" value=""/></row>';
+				        		itemContent += '<row><input type="time" id="' + fieldName + '_end" name="' + fieldName + '_end" value=""/></row>';
+		        	            searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '109'){
+				        		//日期 时间 
+				        		itemContent += '<row><input type="datetime" id="' + fieldName + '_start" name="' + fieldName + '_start" value=""/></row>';
+				        		itemContent += '<row><input type="datetime" id="' + fieldName + '_end" name="' + fieldName + '_end" value=""/></row>';
+		        	            searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else{
+		        		        itemContent += '<row><input type="text" id="' + fieldName + '" name="' + fieldName + '" value=""/></row>';
+		        		        searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+				            }
+				            itemContent += '</col>';
+				            var item = $C('<list-item><item style="col-width:90,*;padding:0;margin:0;">'+itemContent+'</item></list-item>');
+				            $('search_form_list').add(item);
+				        }
+				        
+				    }else if(groups instanceof Object){
+				        
+				            var fieldId=groups.field.fieldId;
+				            var fieldDesName=groups.field.fieldDesName;
+				            var fieldName=groups.field.fieldName;
+				            var fieldWith=groups.field.fieldWith;
+				            var fieldValue=groups.field.fieldValue;
+				            var fieldType=groups.field.fieldType;
+				            var fieldShow = groups.field.fieldShow;
+	
+				            var itemContent = '<col style="background:#f9f9f9;margin:10;padding:10;"><row><label>' + fieldDesName + ':</label></row></col><col style="padding:10;margin:10;">';
+				            if(fieldType=="1000000" || fieldType=="1000001"){
+				               itemContent += '<row><input type="number" id="' + fieldName + '_start" name="' + fieldName + '_start" value=""/></row>';
+				               itemContent += '<row><input type="number" id="' + fieldName + '_end" name="' + fieldName + '_end" value=""/></row>';
+				               searchfieldNames += fieldName+",";
+				               searchfieldTypes += fieldType+",";
+				               searchfieldShows += fieldShow+",";
+				            }else if(fieldShow == '101'){
+				                //单行文本
+				        		if(fieldType == '1000000'){
+				        			itemContent += '<row><input type="number" name="' + fieldName + '" value="" maxlength="9"/></row>';
+				        		}else if(fieldType == '1000001'){
+				        			itemContent += '<row><input type="number" name="' + fieldName + '" value="" maxlength="18"/></row>';
+				        		}else{
+				        			itemContent += '<row><input type="text" name="' + fieldName + '" value=""/></row>';
+				        		}
+				                searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+				            }else if(fieldShow == '103'){
+				                //单选
+				                if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				                   itemContent += '<row><select id="' + fieldName + '" name="' + fieldName + '">'+
+				        			'<option value="">请选择</option>';
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<option value="'+hiddenval+'">'+showval+'</option>';
+	                                    }
+				        		    }
+				        		    itemContent += '</select></row>';
+				        		 	searchfieldNames += fieldName+",";
+				            	 	searchfieldTypes += fieldType+",";
+				            		searchfieldShows += fieldShow+",";
+				                }
+				        		
+				            }else if(fieldShow == '104'){
+				        		//多选
+				        		if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<row><checkbox style="align:right;" name="' + fieldName + '" '+j+' value="'+hiddenval+',">'+showval+'</checkbox></row>';
+	                                    }
+	                                    searchfieldNames += fieldName+j+",";
+				            			searchfieldTypes += fieldType+",";
+				            			searchfieldShows += fieldShow+",";
+				        		    }
+				                }
+		        	        }else if(fieldShow == '105'){
+				        		//下拉框
+				        		if(groups[i].dataList){
+				                   var c_groups = groups[i].dataList;
+				                   itemContent += '<row><select id="' + fieldName + '" name="' + fieldName + '">'+
+				        			'<option value="">请选择</option>';
+				        			for(var j=0;j<c_groups.length;j++){
+				        			    var showval = c_groups[j].showval;
+				        			    var hiddenval = c_groups[j].hiddenval;
+	                                    if(hiddenval){
+	                                      itemContent += '<option value="'+hiddenval+'">'+showval+'</option>';
+	                                    }
+				        		    }
+				        		    itemContent += '</select></row>';
+				                }
+				                searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '107'){
+				        		//日期
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_start" name="' + fieldName + '_start" value="' + fieldValue + '"/></row>';
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_end" name="' + fieldName + '_end" value="' + fieldValue + '"/></row>';
+		        	            searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '108'){
+				        		//时间 
+				        		itemContent += '<row><input type="time" id="' + fieldName + '_start" name="' + fieldName + '_start" value="' + fieldValue + '"/></row>';
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_end" name="' + fieldName + '_end" value="' + fieldValue + '"/></row>';
+		        	            searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else if(fieldShow == '109'){
+				        		//日期 时间 
+				        		itemContent += '<row><input type="text" id="' + fieldName + '_start" name="' + fieldName + '_start" value="' + fieldValue + '"/></row>';
+				        		itemContent += '<row><input type="date" id="' + fieldName + '_end" name="' + fieldName + '_end" value="' + fieldValue + '"/></row>';
+		        	        	searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+		        	        }else{
+		        		
+		        		        itemContent += '<row><input type="text" id="' + fieldName + '" name="' + fieldName + '" value=""/></row>';
+		        		        searchfieldNames += fieldName+",";
+				            	searchfieldTypes += fieldType+",";
+				            	searchfieldShows += fieldShow+",";
+				            }
+				            itemContent += '</col>';
+				            var item = $C('<list-item><item style="col-width:90,*;padding:0;margin:0;">'+itemContent+'</item></list-item>');
+				            $('search_form_list').add(item);
+			        }
+			        
+			        var item = $C('<list-item><item><col><row><button onclick="searchclick();" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:330;height:40;font-size:14;">查  询</button></row></col></item></list-item>');
+			        $('search_form_list').add(item);
+
+			     }
+			 
+			},function(error) {
+			    if (error == 'timeout') {
+			        hint('连接服务器超时！');
+			    } else if (error == '404') {
+			        hint('链接超时重新登录！');
+			    } else if (error == '500') {
+			        hint('内部服务器错误！');
+			    } else {
+			        hint('访问网络错误！错误代码:' + error);
+			    }
+		    });
+		}
+		
+		//查询
+		function searchclick(){
+	        var searchfieldNamess = searchfieldNames.split(",");
+	        var searchfieldTypess = searchfieldTypes.split(",");
+	        var searchfieldShowss = searchfieldShows.split(",");
+	        var cust_queryField = '';
+	        var cust_queryText = '';
+	        if(searchfieldNamess!='' && searchfieldNamess.length>0){
+	           for(var i=0;i<searchfieldNamess.length-1;i++){
+	             var fieldName = searchfieldNamess[i];
+	             var fieldType = searchfieldTypess[i];
+	             var fieldShow = searchfieldShowss[i];
+	             if(fieldName!=''){
+		              if(fieldType=="1000000" || fieldType=="1000001"){
+		
+			             if($(fieldName + '_start').value!=''){
+			                cust_queryField += fieldName + '_start|';
+			                cust_queryText += $(fieldName + '_start').value+'|';
+			             }
+			             if($(fieldName + '_end').value!=''){
+			                cust_queryField += fieldName + '_end|';
+			                cust_queryText += $(fieldName + '_end').value+'|';
+			             }
+			          }else if(fieldShow == '101' ||
+			                   fieldShow == '103' ||
+			                   fieldShow == '105'){
+				              if($(fieldName).value!=''){
+				                cust_queryField += fieldName + '|';
+				                cust_queryText += $(fieldName).value+'|';
+				              }
+	    	           }else if(fieldShow == '104'){
+				              if($(fieldName).checked == true){
+				                cust_queryField += fieldName + '|';
+				                cust_queryText += $(fieldName).value+'|';
+				              }
+	    	           }else if(fieldShow == '107' ||
+	    	                  fieldShow == '108' ||
+	    	                  fieldShow == '109'){
+				      	     if($(fieldName + '_start').value!=''){
+				                cust_queryField += fieldName + '_start|';
+				                cust_queryText += $(fieldName + '_start').value+'|';
+				             }
+				             if($(fieldName + '_end').value!=''){
+				                cust_queryField += fieldName + '_end|';
+				                cust_queryText += $(fieldName + '_end').value+'|';
+				             }
+		    	        }else{
+		    		        if($(fieldName).value!=''){
+				                cust_queryField += fieldName + '|';
+				                cust_queryText += $(fieldName).value+'|';
+				            }
+			            }
+		             }
+	              }
+	           }
+	           var storage = $phone.localStorage();
+	           storage.setItem('cust_queryField',cust_queryField);
+	           storage.setItem('cust_queryText',cust_queryText);
+	           $page.close(-1);
+	           $page.open('custdataList.xml', {animation:'down-to-up',target:'_self'});
+				
+		}
+		
+		
+    ]]>
+    </script> 
+	<page>
+	    <title style="background:#3daffe;tint-color:white">
+            <left>
+				<button role="back" />
+			</left>
+            <center>
+                <label id="titleLabel1" style="color:#ffffff"></label>
+            </center>
+            <right>
+                <button id="but_cmdAdd" style="display:none;" type="icon" icon="desk_personcenter_add.png" />
+            </right>
+        </title>
+        <content style="background:white" id="content_form">
+				<form id="searchForm" multipart="true" prompt="正在查询...">
+					<list id="search_form_list">
+					</list>
+				</form>
+        </content>
+
+    </page>
+</imag>

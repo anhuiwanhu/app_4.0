@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+    <script>
+    <![CDATA[
+		$page.onload = function() {
+			var storage = $phone.localStorage();
+            var userAccount = storage.getItem('userAccount');
+            var userId = storage.getItem('sys_sys_userId');
+			//hint(userAccount);
+			
+              var dbName = storage.getItem('ezMobile_dbName');
+              
+              var selectAppids = "";
+              var db = $phone.openDatabase(dbName);
+		      db.transaction(queryDB0, function(err){alert(err);}, function(){});
+		      function queryDB0(tx) {
+				tx.executeSql('select AppId,AppValue from myApp where userId="'+userId+'" ',[],
+						function(results){
+						  if(results.rows!=null && results.rows.length>0){
+						    for(var i=0; i<results.rows.length; i++){
+						      var AppId = results.rows.item(i).AppId;
+						      selectAppids += "|"+AppId+"|";
+						    }
+						  }
+						} , function(err){alert(err);}); 
+		      }
+		      
+		      
+              var quickAddCodes = "";
+              var db = $phone.openDatabase(dbName);
+		      db.transaction(queryDB1, function(err){alert(err);}, function(){});
+		      function queryDB1(tx) {
+		        tx.executeSql('select mobileMenuCode from custmenu',[],
+						function(results){
+						  if(results.rows!=null && results.rows.length>0){
+						    for(var i=0; i<results.rows.length; i++){
+						      quickAddCodes += results.rows.item(i).mobileMenuCode+",";
+						    }
+						  }
+						} , function(err){alert(err);});  
+
+		      }
+		      //alert(quickAddCodes);
+              if(quickAddCodes.indexOf('workflow,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|flowApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'flowApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">流程</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="flowApp" value="flowApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('documentmanager,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|govApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'govApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">公文</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="govApp" value="govApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('innermail,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|mailApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'mailApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">邮件</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="mailApp" value="mailApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('information,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|infoApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'infoApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">信息</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="infoApp" value="infoApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('forum,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|forumApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'forumApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">论坛</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="forumApp" value="forumApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('workmanager_workreport,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|reportApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'reportApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">汇报</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="reportApp" value="reportApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('workmanager_worklog,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|logApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'logApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">日志</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="logApp" value="logApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('weibo,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|microblogApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'microblogApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">微博</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="microblogApp" value="microblogApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+              
+              if(quickAddCodes.indexOf('workmanager_calendar,')>-1){
+	              var haschecked = "";
+	              if(selectAppids.indexOf("|scheduleApp|")>-1){
+	                haschecked = ' checked="true" ';
+	              }
+	              var item = $C('<list-item><item onclick="selcheck(\'scheduleApp\');"><col><row><label style="align:left;margin-left:10;color:#555555;font-size:16;">日程</label></row></col><col><row>'+
+	              '<checkbox style="align:right" id="scheduleApp" value="scheduleApp" name="checkMenu" disabled="false" '+haschecked+
+	              '/></row></col></item></list-item>');
+	              $('popupmenu_addmenu_list').add(item);
+              }
+
+              var db = $phone.openDatabase(dbName);
+		      db.transaction(queryDB, function(err){alert(err);}, function(){});
+		      function queryDB(tx) {
+				tx.executeSql('select channelId,channelName from myInfoChannel',[],
+						function(results){
+						  if(results.rows!=null && results.rows.length>0){
+						    for(var i=0; i<results.rows.length; i++){
+						      var channelId = results.rows.item(i).channelId;
+						      var channelName = results.rows.item(i).channelName;
+						      var haschecked = "";
+				              if(selectAppids.indexOf("|infochannelApp"+channelId+"|")>-1){
+				                haschecked = ' checked="true" ';
+				              }
+						      var item = $C('<list-item><item onclick="selcheck(\'infochannelApp'+channelId+'\');"><col><row><label style="align:left;margin-left:10">'+channelName+
+						      '</label></row></col><col><row><checkbox style="align:right" id="infochannelApp'+channelId+
+						      '" value="'+channelId+'|'+channelName+'" name="checkMenu" disabled="false" '+haschecked+
+						      '/></row></col></item></list-item>');
+                              $('popupmenu_addmenu_list').add(item);
+						    }
+						  }
+						} , function(err){alert(err);}); 
+		    }
+		    
+		}
+		
+		function saveAppMenu(){
+        
+               var elements = $('addAppForm').elements;
+		       var storage = $phone.localStorage();
+               var dbName = storage.getItem('ezMobile_dbName');
+               var userId = storage.getItem('sys_sys_userId');
+	           
+	            var db = $phone.openDatabase(dbName);
+			    db.transaction(populateDB, function(err){alert(err);}, function(){});
+			    
+			    function populateDB(tx) {
+			        tx.executeSql('delete from myApp');
+			        for (var i = 0; i < elements.length; i++) {
+		                var element = elements[i];
+		                if (element instanceof CheckBox && element.checked) {
+		                    var sql='INSERT INTO myApp (AppId,AppValue,clickvar1,imgg,appname,clickvar2,topname,titlename,workTime,userId) VALUES ("'+element.id+'","'+element.value+'","","","","","","","","'+userId+'")';
+		                    //alert(sql);
+		                    tx.executeSql(sql);
+		                }
+		            }
+			        
+			    }
+			    //$page.close(0,'addItemToPersonTab("add")');
+			    $page.close(0,'refushMyApp("add")');
+			    
+        }
+        function selcheck(obj){
+           if($(obj).checked){
+             $(obj).checked=false;
+           }else{
+             $(obj).checked=true;
+           }
+        }
+    ]]>
+    </script> 
+	<page>
+	    <title style="background:#3DAFFE;">
+            <left>
+                <button role="back" />
+            </left>
+            <center>
+                <label style="color:#ffffff">添加常用应用</label>
+            </center>
+            <right>
+                <button onclick="saveAppMenu();" style="font-size:18;color:#FFFFFF;">确定</button>
+            </right>
+        </title>
+        <content>
+            <form id="addAppForm">
+            <list id="popupmenu_addmenu_list">
+                
+            </list> 
+           </form>
+        </content>
+
+    </page>
+</imag>
