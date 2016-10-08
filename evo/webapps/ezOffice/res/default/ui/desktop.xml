@@ -9,13 +9,11 @@
         var evoUrl = "";
         var userId = "";
         var custMentIdStr = '';   //自定义模块id拼接串，以','号分割。
-        
         var custMenuStr="";
         var linkBookStr="";
         var sys_location = "";
         
 		$page.onload = function() {
-		    
 		    var storage = $phone.localStorage();
             evoUrl = storage.getItem('evoUrl');
             userId = storage.getItem('sys_sys_userId');
@@ -103,6 +101,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
          
        }
@@ -121,6 +120,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
 		    saveDataToLinkbook();
 		}
@@ -322,6 +322,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('index.xml',{animation:'down-to-up'});
 		    });
 		    saveDataToCust();
 		}
@@ -803,7 +804,6 @@
         }
         
         function addItemToPersonTab(ty){
-
               $('personcenter_list').clear();
               if(ty=='add'){
                 var dlg = $page.waiting("正在应用设置，请稍等");
@@ -832,9 +832,7 @@
 		      
 		    $http.post(evoUrl+'/ezOffice/desktop/getRemindList.do',
 		    'remindModelids='+remindModelids+'&remindModelvalues='+remindModelvalues, function(data) {
-		    
               var remindObj = JSON.parse(data);
-              
               var db = $phone.openDatabase(dbName);
 		      db.transaction(queryDB0, function(err){alert(err);}, function(){});
 		      function queryDB0(tx) {
@@ -1025,7 +1023,6 @@
 						  }
 						} , 
 						function(err){
-						
 							alert(err);
 							if(ty=='add'){
 			                   dlg.close();
@@ -1048,9 +1045,6 @@
 			        hint('访问网络错误！错误代码:' + error);
 			    }
 		    });
-              
-              
-		      
         }
         
         function openPopupMenu() {
@@ -1068,8 +1062,8 @@
 	        tx.executeSql('DROP TABLE IF EXISTS mail_data');
 	        tx.executeSql('DROP TABLE IF EXISTS doc_list');
 	        tx.executeSql('DROP TABLE IF EXISTS information_list');
-	        
 	    }
+	    
         function clearlogin() {
          
           if(confirm('缓存包含您的登录信息、某些设置项，图标等数据，清除后需要重新登录，是否执行？')){
@@ -1079,12 +1073,9 @@
             storage.setItem('login_userAccount','');
 		    storage.setItem('login_password','');
 		    storage.setItem('login_remember','false');
-		     
             var dbName = storage.getItem('ezMobile_dbName');
-     
             var db = $phone.openDatabase(dbName);
 		    db.transaction(query_clearDB, function(err){alert(err);}, function(){});
-		    
 		      storage.setItem('isCreateDB','');
 		      storage.setItem('sys_userAccount','');
 			  storage.setItem('sys_password','');
@@ -1117,7 +1108,6 @@
 			  storage.setItem('sys_location','');
               hint("清理完毕");
               $page.open('index.xml', {target:'_self'});
-              
             }
         }
         function gologin() {
@@ -1200,7 +1190,7 @@
             }); 
 		}
 		
-		function searchReverseGeoCode(latitude,longitude) {  //根据经纬度获取具体位置
+		function searchReverseGeoCode(latitude,longitude){  //根据经纬度获取具体位置
                 bmap.reverseGeoCode({
                     location: latitude + ',' + longitude,
                     onGetReverseGeoCodeResult: function(result) {
@@ -1269,6 +1259,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 			  loadFlag = '0';
          }
@@ -1312,7 +1303,6 @@
        }
        
        function reflushPersonCenter(){
-       
           refushMyApp('');
           if(sys_location=='1'){checkSignIn();}
           $('content_per').hideTop();
@@ -1348,6 +1338,11 @@
 		                <button icon="desk_personcenter_add.png" onclick="go_quickadd();"/>
 		            </right>
 		        </title>
+		        <header>
+		            <row style="text-align:center;display:none;">
+		               	 <bmap id="bmap" center="39.915,116.404" zoom="14" style="display:none;"></bmap>
+					</row>
+		        </header>
 		        <dropmenu id="quickAdd_popupmenu"  position="top">
 			            <grid id="quickAdd_gridcust" cols="3" style="vertical-spacing:0">
 			               </grid>
@@ -1380,8 +1375,6 @@
 		            <list id="personcenter_list" style="background:#ffffff">
 					   
 		            </list>
-		            <bmap id="bmap" center="39.915,116.404" zoom="14" style="display:hidden;">
-           			</bmap>
 		        </content>
              </tab>
              <tab id="linkbook" label="通讯录" icon="desk_linkman_g.png,desk_linkman.png">

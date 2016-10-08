@@ -58,6 +58,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
         	}
@@ -165,18 +166,29 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
         
-        	var filename;
+        	var filename='';
+        	var displayName = '';
         	var wordType;
         	var docTitle = '';
         	function createDocView(){
         		if(filename){
-					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
-		                 var obj =eval('('+data+')');
-		                 var docUrl="$http.download('"+obj.sys_server+"doc/pdf.do?url="+obj.attachurl+"&amp;filename="+filename+wordType+"');";
-		                 $('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="'+docUrl+'">点击查看正文</label>'));
+					$http.post(evoUrl+'/ezOffice/doc/dealFiles.do',{accessorySaveNameseries:filename,accessoryNameseries:displayName,path: 'govdocumentmanager'},function(data) {
+		                if (data) {
+							var obj = JSON.parse(data);
+							var attList = obj.attList;
+							if (!attList == '') { //不为空，数据进行迭代,并为附件赋值
+								for (var k = 0; k < attList.length; k++) {
+									var files = $C('<row><label style="color:#330000;color:blue;align:right;"  onclick="$http.download(\'' + evoUrl + '/ezOffice/download/file.do?url=' + attList[k].attachurlser + '&amp;filename=' + attList[k].savename + '\')">' + attList[k].realname + '</label></row>')
+									$('docContent').add(files);
+								}
+							} else { //无附件，或者后台处理异常
+				
+							}
+						}
 		            },function(error) {
 				    if (error == 'timeout') {
 						hint('连接服务器超时！');
@@ -187,6 +199,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
         		}
         	}
@@ -233,6 +246,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -245,18 +259,6 @@
 		       	 	if(key=='title'&&govDocDetail.title){
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.title.name+':</label>'+
 		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.title.text == undefined ? '' : govDocDetail.title.text)+'</label></row></col></item>';
-		        	}
-		        	/*if(detailData.docSaveFile.file){
-		        		alert(detailData.docSaveFile.file);
-		        		filename = detailData.docSaveFile;
-		        		itemContent += '<item style="col-width:90,*"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>查看正文:</label>'+
-		        				   '</row></col><col style="margin:10;padding:10;"><row id="docContent"></row></col></item>';
-		        	}*/
-		        	if(key=='realFile'&&detailData.realFile){
-		        		realFiles = detailData.docRealFile;
-		        		saveFiles = detailData.docSaveFile;
-		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
-		        				   '</row></col><col id="attachments" style="margin:10;padding:10;"></col></item>';
 		        	}
 		        	if(key=='zjkySeq'&&govDocDetail.zjkySeq){
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.zjkySeq.name+':</label>'+
@@ -447,6 +449,34 @@
 		        				   		   '</row></col></item>';
 		        		}	
 		        	}
+	        	}
+	        	
+	        	if(detailData.docSaveFile){   //正文
+	        	        var docSaveFileArr = detailData.docSaveFile;
+	        	        var docRealFileArr = detailData.docRealFile;
+	        	        if(docSaveFileArr instanceof Array){
+	        	            for(var j=0;j<docSaveFileArr.length;j++){
+	        	            	if(j<docSaveFileArr.length-1){
+			        	            filename += docSaveFileArr[j]+"|";
+				        		    displayName += docRealFileArr[j]+"|";
+			        	        }else if(j==docSaveFileArr.length-1){
+			        	            filename += docSaveFileArr[j];
+				        		    displayName += docRealFileArr[j];
+			        	        }
+				        	}
+				        		
+	        	        }else{
+			        		filename = detailData.docSaveFile.file;
+			        		displayName = detailData.docRealFile.file;
+			        	}
+			        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>查看正文:</label>'+
+			        				   '</row></col><col style="margin:10;padding:10;" id="docContent"></col></item>';
+		        }
+	        	if(detailData.realFile){   //附件下载
+	        		realFiles = detailData.realFile;
+	        		saveFiles = detailData.saveFile;
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
+	        				   '</row></col><col id="attachments" style="margin:10;padding:10;"></col></item>';
 	        	}
 	        	
 	        	// 自定义字段集合批示意见
@@ -693,7 +723,7 @@
 					// 待办
 					case '0' : {
 						if(haveBackButton != 'true'){
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0 || modiButton.indexOf('Selfsend') > 0){
 								itemContent = 			
 						        	'<item style="col-width: 80%,20%">'+
 										'<col>'+
@@ -720,7 +750,7 @@
 									'</item>';
 			        		}
 			        	}else{
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 					        	itemContent = 			
 						        	'<item style="col-width: 40%,40%,20%">'+
 										'<col>'+
@@ -826,12 +856,16 @@
 	        	$('footer_list').addMore('<imag><list>' + itemContent + '</list></imag>');
 	        }
 	        	        
-	        // 打开转办 加签
+	          // 打开转办 加签
 	        function openPopMenu(modiButton){
 	        	if(modiButton.indexOf('Tran') < 0){
 		        	$('popupmenu_list').remove($('tranInfoItem'));
-	        	}else if(modiButton.indexOf('AddSign') < 0){
+	        	}
+	        	if(modiButton.indexOf('AddSign') < 0){
 		        	$('popupmenu_list').remove($('addSignItem'));
+	        	}
+	        	if(modiButton.indexOf('Selfsend') < 0){
+		        	$('popupmenu_list').remove($('selfSendItem'));
 	        	}
 	       		$('main_popupmenu').open();
 	        }
@@ -913,19 +947,22 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
 	        
 	        // 发送流程 
 			function sendFlow(smsRight,workTitle,workSubmitTime,empLivingPhoto){
-			    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
-			    if(commentIsNone == 'true'){
-			    	 var comment_input_value = $('comment_input').value;
-			    	 if(comment_input_value == null || comment_input_value == ''){
-			    	 	alert('批示意见不能为空！');
-			    	 	return;
-			    	 }
+			    if($('commentmustnonull')&& $('comment_input')){
+				    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
+				    if(commentIsNone == 'true'){
+				    	 var comment_input_value = $('comment_input').value;
+				    	 if(comment_input_value == null || comment_input_value == ''){
+				    	 	alert('批示意见不能为空！');
+				    	 	return;
+				    	 }
+				    }
 			    }
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
@@ -1036,6 +1073,13 @@
 				{animation:'down-to-up'});
 			}    
 			
+			// 阅件发送
+			function selfsend(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_selfsend.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			} 
+			
 			   // 打开常用语菜单
 	        function openUseComment(officeList) {
 	        	if(!officeList){
@@ -1082,6 +1126,9 @@
 	         	</item>            
 	         	<item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;">
 	         		<label style="align:center;color:#F0F9FF,white">加签</label>
+	         	</item>
+	         	<item id="selfSendItem" onclick="selfsend();"  style="background:#3daffe,#474747;">
+	         		<label style="align:center;color:#F0F9FF,white">阅件</label>
 	         	</item>
 		    </list>
 		</popupmenu>
@@ -1156,7 +1203,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

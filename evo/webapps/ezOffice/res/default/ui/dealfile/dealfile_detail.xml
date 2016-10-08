@@ -3,6 +3,7 @@
     <script>
         <![CDATA[
             var info = $phone.info();
+            var fromXml = $param['fromXml'];
             var fujianwidth='';
             if(info['platform']=='android'){
               fujianwidth='width:200';
@@ -83,6 +84,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -108,7 +110,22 @@
 				storage.setItem('workflow_forkId',workInfo.forkId ? workInfo.forkId : '');
 				storage.setItem('workflow_smsRight',workInfo.smsRight ? workInfo.smsRight : '');
 				var empLivingPhoto = $param['empLivingPhoto'];
-	        	var itemContent = 			
+				if(modiButton.indexOf('cmdTranRead')>-1){
+					var itemContent = 			
+		        	'<item style="col-width: 40%,60%">'+
+						'<col>'+
+							'<row style="height:50;">'+
+								'<button onclick="sendFlow();" style="align:center;background:#3EAFFF,#007aff;color:#F0F9FF,white;border:0;corner-radius:3;width:300;height:38;font-size:14">发送</button>'+
+							'</row>'+
+						'</col>'+
+						'<col onclick="openPopMenu(\'' + modiButton + '\')">'+
+						            '<row style="height:50;">'+
+										'<button onclick="openPopMenu(\'' + modiButton + '\')" style="align:center;background:workflow_footer_menu.png;width:20;height:20"/>'+
+						            '</row>'+
+						'</col>'+
+					'</item>';
+				}else{
+					var itemContent = 			
 		        	'<item>'+
 						'<col>'+
 							'<row style="height:50;">'+
@@ -116,8 +133,30 @@
 							'</row>'+
 						'</col>'+
 					'</item>';
+				}
+	        	
 	        	$('footer_list').addMore('<imag><list>' + itemContent + '</list></imag>');
 	        }
+	        
+	         // 转阅
+	        function openPopMenu(modiButton){
+	            $('main_popupmenu').position='bottomright';
+	            $('main_popupmenu').style='offset-x:5;offset-y:-55';
+	            
+	            $('popupmenu_list').style='';
+	            $('popupmenu_list').clear();
+	            var itemvar = '';
+	        	itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranRead();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转阅</label></row></col></item></list-item>');
+	            $('popupmenu_list').add(itemvar); 
+	       		$('main_popupmenu').open();
+	        }
+	        
+	        // 转办发送
+			function tranRead(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_tranRead.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			}
 	        
 	        //创建流程图
 	        function createFlowImg(flowGraphUrl){
@@ -136,6 +175,7 @@
 			function createWorkInfoHiddenArea(workInfo,detailData){
 				var paramList = detailData.paramList;
 				var fieldList = detailData.fieldList;
+				$('workcurstep').value = workInfo.workcurstep;
 				// 发送表单提交数据
 				/*
 				$('workId').value = workInfo.wf_work_id;
@@ -197,15 +237,19 @@
 							if(subFieldList instanceof Array){
 								fieldCount = subFieldList.length;
 							}else if(subFieldList instanceof Object){
-							    fieldCount = 1;
+							     if(subFieldList.dataId == null || subFieldList.dataId == ''|| subFieldList.dataId == '[]' ){  //没有子表
+								    	  fieldCount = 0;
+								 }else{
+								        fieldCount = 1;
+								 		itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
+						                contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+										$('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
+								 }
 							}else{
 							    fieldCount = 0;
 							}
 						}
-						itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
-										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
-						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
-						$('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
 				}
 			}
 			// 打开子表
@@ -413,6 +457,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -605,6 +650,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -791,6 +837,7 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			   }
             );
         }
@@ -811,6 +858,10 @@
                 <item label="流程记录" onclick="loadFlowRecord();"></item>
             </tabbar>
         </header>
+        <popupmenu id="main_popupmenu">
+			<list id="popupmenu_list">
+		    </list>
+		</popupmenu>
 		<contents id="contents">
             <content style="background:white" id="content_form">
 				<form id="sendForm" multipart="true" prompt="请稍后...">
@@ -818,6 +869,7 @@
 					<item style="display:none">
 						<row>
 						   <input type="hidden" id="commentType" name="commentType" value="0"/>
+						   <input type="hidden" id="workcurstep" name="workcurstep" value=""/>
 						   <input type="file" style="display:none;" id="comment_input_shouxie" name="comment_input_shouxie" value=""/>
 						   <input type="file" style="display:none;" id="comment_input_yuyin" name="comment_input_yuyin" value=""/>
 						 </row>
@@ -833,7 +885,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

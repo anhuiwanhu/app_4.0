@@ -90,6 +90,7 @@
 					    } else {
 					        hint('访问网络错误！错误代码:' + error);
 					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 				   }
 	            );
 	        }
@@ -197,6 +198,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
         
@@ -242,6 +244,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -865,6 +868,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        } 
@@ -1101,7 +1105,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

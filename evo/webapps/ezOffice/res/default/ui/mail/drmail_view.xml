@@ -183,6 +183,7 @@
 				} else {
 					hint('访问网络错误！错误代码:' + error);
 				}
+				$page.open('../index.xml',{animation:'down-to-up'});
 			}
         ]]>
     </script>
@@ -258,6 +259,19 @@
 	        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
 	        	if(showpath.indexOf(".") == -1) {
 	        		hint("无后缀名的附件不允许上传，请重新选择");
+	        		return false;
+	        	}
+	        	var filenameExt = path.substring(path.lastIndexOf('\.')+1,path.length);
+	        	if(filenameExt == 'exe'){
+	        	    hint("后缀名为exe的附件不允许上传，请重新选择");
+	        		return false;
+	        	}
+	        	if(filenameExt == 'cmd'){
+	        	    hint("后缀名为cmd的附件不允许上传，请重新选择");
+	        		return false;
+	        	}
+	        	if(filenameExt == 'jsp'){
+	        	    hint("后缀名为jsp的附件不允许上传，请重新选择");
 	        		return false;
 	        	}
 	        	var row = $C('<row id="row'+fileindex+'"><label id="attachmentId'+fileindex+'" style="color:blue;width:220">'+showpath+'</label><input type="file" style="display:none;" value="'+path+'" name="attachment"  id="input_file'+fileindex+'"/><icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\''+fileindex+'\');"/></row>');

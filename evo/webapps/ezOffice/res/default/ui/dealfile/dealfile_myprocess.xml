@@ -33,7 +33,11 @@
         				if(workInfoResult != '1' || detailResult != '1'){
         					alert('数据获取失败！');
         				}
-        				var workInfo = jsonData.data_0.data.workInfo;
+        				var workInfo = jsonData.data_0.data.workInfo;  
+        				var backComment = workInfo.backComment;   //退回意见弹出
+        				if(backComment!=null&&backComment!=''&&backComment!='[]'){
+        				   alert(backComment.replace(/(<[^>]+>)|(&nbsp;)/g,""));
+        				}
 						var detailData = jsonData.data_1.data;
         				var fieldList = detailData.fieldList.field;
         				var showType;
@@ -76,6 +80,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 
@@ -217,6 +222,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -411,6 +417,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -446,18 +453,16 @@
 						if(!subFieldList){
 							subFieldList = subTableList.subTable;
 						}else {
-							if(subFieldList instanceof Array){
-								fieldCount = subFieldList.length;
-							}else if(subFieldList instanceof Object){
-							    fieldCount = 1;
-							}else{
-							    fieldCount = 0;
-							}
-						}
-						itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+							 if(subFieldList.dataId == null || subFieldList.dataId == ''|| subFieldList.dataId == '[]' ){  //没有子表
+							    	  fieldCount = 0;
+							  }else{
+							    	  fieldCount = 1;
+							    	  itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
 										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
-						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
-						$('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
+									  contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+									  $('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
+							  }
+						}
 				}
 			}
 			// 打开子表
@@ -584,6 +589,7 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			   }
             );
         }
@@ -616,6 +622,7 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			   }
             );
         }
@@ -661,7 +668,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

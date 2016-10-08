@@ -61,6 +61,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
         	}
@@ -169,6 +170,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
         
@@ -193,6 +195,7 @@
 					    } else {
 							hint('访问网络错误！错误代码:' + error);
 					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 					  });
 				}
         	}
@@ -245,6 +248,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -265,12 +269,6 @@
 			        	wordType = govDocDetail.wordType.text;
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">正文:</label>'+
 		        				   '</row></col><col style="margin:10;padding:10;"><row id="docContent"></row></col></item>';
-		        	}
-		        	if(key=='realFile'&&govDocDetail.realFile){
-		        		realFiles = detailData.realFile;
-		        		saveFiles = detailData.saveFile;
-		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
-		        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
 		        	}
 		        	if(key=='departWord'&&govDocDetail.departWord){
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.departWord.name+':</label>'+
@@ -538,6 +536,14 @@
 		        		}	
 		        	}
        			}
+       			
+       			if(detailData.realFile){   //构建附件
+	        		realFiles = detailData.realFile;
+	        		saveFiles = detailData.saveFile;
+	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">附件:</label>'+
+	        				   '</row></col><col id="attachments"  style="margin:10;padding:10;"></col></item>';
+	        	}
+       			
 	        	// 自定义字段集合批示意见
 	        	if(govDocDetail.custemFieldList){
 	        		var custemFieldList = govDocDetail.custemFieldList;
@@ -770,7 +776,7 @@
 					// 待办
 					case '0' : {
 						if(haveBackButton != 'true'){
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 								itemContent = 			
 						        	'<item style="col-width: 80%,20%">'+
 										'<col>'+
@@ -797,7 +803,7 @@
 									'</item>';
 			        		}
 			        	}else{
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 					        	itemContent = 			
 						        	'<item style="col-width: 40%,40%,20%">'+
 										'<col>'+
@@ -907,8 +913,12 @@
 	        function openPopMenu(modiButton){
 	        	if(modiButton.indexOf('Tran') < 0){
 		        	$('popupmenu_list').remove($('tranInfoItem'));
-	        	}else if(modiButton.indexOf('AddSign') < 0){
+	        	}
+	        	if(modiButton.indexOf('AddSign') < 0){
 		        	$('popupmenu_list').remove($('addSignItem'));
+	        	}
+	        	if(modiButton.indexOf('Selfsend') < 0){
+		        	$('popupmenu_list').remove($('selfSendItem'));
 	        	}
 	       		$('main_popupmenu').open();
 	        }
@@ -990,19 +1000,22 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        } 
 	        
 	        // 发送流程 
 			function sendFlow(smsRight,workTitle,workSubmitTime,empLivingPhoto){
-			    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
-			    if(commentIsNone == 'true'){
-			    	 var comment_input_value = $('comment_input').value;
-			    	 if(comment_input_value == null || comment_input_value == ''){
-			    	 	alert('批示意见不能为空！');
-			    	 	return;
-			    	 }
+			   if($('commentmustnonull')&& $('comment_input')){
+				    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
+				    if(commentIsNone == 'true'){
+				    	 var comment_input_value = $('comment_input').value;
+				    	 if(comment_input_value == null || comment_input_value == ''){
+				    	 	alert('批示意见不能为空！');
+				    	 	return;
+				    	 }
+				    }
 			    }
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
@@ -1125,7 +1138,14 @@
 				$('main_popupmenu').close();
 				$page.open('../workflow/workflow_addSign.xml?workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
 				{animation:'down-to-up'});
-			}       
+			}      
+			
+			// 阅件发送
+			function selfsend(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_selfsend.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			} 
 			
 			   // 打开常用语菜单
 	        function openUseComment(officeList) {
@@ -1173,6 +1193,9 @@
 	         	</item>            
 	         	<item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;">
 	         		<label style="align:center;color:#F0F9FF,white">加签</label>
+	         	</item>
+	         	<item id="selfSendItem" onclick="selfsend();"  style="background:#3daffe,#474747;">
+	         		<label style="align:center;color:#F0F9FF,white">阅件</label>
 	         	</item>
 		    </list>
 		</popupmenu>
@@ -1247,7 +1270,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

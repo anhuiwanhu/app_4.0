@@ -46,11 +46,11 @@
 		        }
 		        loadFlag = '1';
 		        $('bottom_hasmore'+contentIdIndex).css('display','hidden');
-		        $('bottom_load'+contentIdIndex).css('display','');
+		    //    $('bottom_load'+contentIdIndex).css('display','');
 		        $('indexContent'+contentIdIndex).showBottom();
 		        var storage = $phone.localStorage();
 				var evoUrl = storage.getItem('evoUrl');
-	            $http.post(evoUrl+'/ezOffice/information/index.do',function(data) {
+	            $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/information/index.do',function(data) {
 	                if(data){
 	                   // alert(data);
 		                var obj = JSON.parse(data);
@@ -101,7 +101,7 @@
 											        '<bottom>'+
 										                '<list>'+
 										                    '<item onclick="loadList(\'add\')">'+
-										                        '<row id="bottom_load'+i+'"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>'+
+										                        '<row id="bottom_load'+i+'" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>'+
 										                      	'<row style="display:hidden" id="bottom_hasmore'+i+'">'+
 											                        '<label style="align:center;">点击加载更多...</label>'+
 											                        '<progress id="more_progress" style="display:none;align:center"/>'+
@@ -144,7 +144,7 @@
 											        '<bottom id="content_bottom">'+
 										                '<list>'+
 										                    '<item onclick="loadList(\'add\')">'+
-										                        '<row id="bottom_load0"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>'+
+										                        '<row id="bottom_load0" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>'+
 										                      	'<row style="display:hidden" id="bottom_hasmore0">'+
 											                        '<label style="align:center;">点击加载更多...</label>'+
 											                        '<progress id="more_progress" style="display:none;align:center"/>'+
@@ -158,14 +158,7 @@
 		                }
 		            }
 		        	loadFlag = '0';
-		        //	initList("update","",contentId,"1","0");  //加载全部列表
-		            CacheDataToPage("",contentIdIndex,"1","0");
-	                $page.setTimeout(function() {
-		        	 //  hint('列表自动刷新中...');
-		        	  // updateCache2();
-		        	   updateCache("",contentIdIndex,"1","0");
-		        	 //  isNeedupdateListCache("update","",contentIdIndex,"1","0");
-                   }, 2000);
+		         	initList("update","",contentIdIndex,"1","0");  //加载全部列表
 		         },function(error) {
 					    if (error == 'timeout') {
 					        hint('连接服务器超时！');
@@ -176,6 +169,7 @@
 					    } else {
 					        hint('访问网络错误！错误代码:' + error);
 					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 				    }
 		         );
         	}
@@ -183,7 +177,8 @@
         	
               //标签缓存无数据则更新
 	       function isNeedupdateListCache(loadType,userChannelId,contentIdIndex,userDefine,channelType){
-	             var storage = $phone.localStorage();
+	             updateCache(userChannelId,contentIdIndex,userDefine,channelType);
+	       /*      var storage = $phone.localStorage();
 	       	 	 var dbName = storage.getItem('ezMobile_dbName');
 	       	  	 var db = $phone.openDatabase(dbName);
 		     	 db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
@@ -203,7 +198,7 @@
 							     updateCache(userChannelId,contentIdIndex,userDefine,channelType);
 							  }
 							} , function(err){alert(err);}); 
-			      }
+			      }  */
 	        }
         
            //更新标签缓存数据并刷新页面
@@ -226,6 +221,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
 			   );
 	         }
@@ -297,7 +293,7 @@
 			    cunrrentContentIdIndex = contentIdIndex;       //公共序列赋值,标识哪个content
 			    //alert(contentIdIndex);
 		        $('bottom_hasmore'+contentIdIndex).css('display','hidden');
-		        $('bottom_load'+contentIdIndex).css('display','');
+		     //   $('bottom_load'+contentIdIndex).css('display','');
 		        $('indexContent'+contentIdIndex).showBottom();
 		        db.transaction(queryinformationListDB, function(err){alert(err);}, function(){});
 		        function queryinformationListDB(tx) {
@@ -375,7 +371,7 @@
 	        $('indexContent'+contentIdIndex).showBottom();
 	        var storage = $phone.localStorage();
 			var evoUrl = storage.getItem('evoUrl');
-            $http.post(evoUrl+'/ezOffice/information/listAll.do',{title : $('search').value,pagerOffset:pagerOffset,userChannelId:userChannelId,userDefine:userDefine,channelType:channelType},function(data){
+            $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/information/listAll.do',{title : $('search').value,pagerOffset:pagerOffset,userChannelId:userChannelId,userDefine:userDefine,channelType:channelType},function(data){
                 if(data){
                  //  alert(data);
 	                var obj = JSON.parse(data);
@@ -485,7 +481,7 @@
 	        			$('docList'+contentIdIndex).update(listJson);
         			}
 	            }
-	            $('bottom_load'+contentIdIndex).css('display','none');
+	        //    $('bottom_load'+contentIdIndex).css('display','none');
 	        	loadFlag = '0';
 	         },function(error) {
 				    if (error == 'timeout') {
@@ -497,6 +493,7 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			    }
 	         );
         }
@@ -505,11 +502,12 @@
             $('indexContent'+contentIdIndex).hideTop();
             $('docList'+cunrrentContentIdIndex).clear();   //清理上一个content内容
 	        pagerOffset = 0;
-	        if($('search').value == null||$('search').value ==''){  //检索内容为空时，需要刷新缓存列表
+	        initList("update",commUserChannelId,contentIdIndex,commUserDefine,commChannelType);  //加载 所选频道列表
+	      /*  if($('search').value == null||$('search').value ==''){  //检索内容为空时，需要刷新缓存列表
 	        	updateCache(commUserChannelId,contentIdIndex,commUserDefine,commChannelType);
 	        }else{
 	        	initList("update",commUserChannelId,contentIdIndex,commUserDefine,commChannelType);  //加载 所选频道列表
-	        }
+	        } */
 	        
         }
         
@@ -580,7 +578,7 @@
 			        <bottom>
 		                <list>
 		                    <item onclick="loadList('add')">
-		                        <row id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+		                        <row id="bottom_load" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
 		                      	<row style="display:hidden" id="bottom_hasmore">
 			                        <label style="align:center;">点击加载更多...</label>
 			                        <progress id="more_progress" style="display:none;align:center"/>
@@ -618,7 +616,7 @@
 			        <bottom>
 		                <list>
 		                    <item onclick="loadList('add')">
-		                        <row id="bottom_loadinfo"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+		                        <row id="bottom_loadinfo" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
 		                      	<row style="display:hidden" id="bottom_hasmoreinfo">
 			                        <label style="align:center;">点击加载更多...</label>
 			                        <progress id="more_progressinfo" style="display:none;align:center"/>
@@ -656,7 +654,7 @@
 			        <bottom>
 		                <list>
 		                    <item onclick="loadList('add')">
-		                        <row id="bottom_loadportal"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+		                        <row id="bottom_loadportal" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
 		                      	<row style="display:hidden" id="bottom_hasmoreportal">
 			                        <label style="align:center;">点击加载更多...</label>
 			                        <progress id="more_progressportal" style="display:none;align:center"/>

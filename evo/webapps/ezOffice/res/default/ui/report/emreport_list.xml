@@ -11,15 +11,9 @@
 			var userId = storage.getItem('sys_sys_userId');
 			var curpage = '1';
 			$page.onload=function(){
-            	pageWeek();
-            	pageMonth();
-            	pageOther();
-				$page.setTimeout(function() {
-	        	   updateWeek2();
-	        	   updateMonth2();
-	        	   updateOther2();
-                }, 2000);
-                
+            	refresh('1');
+                refreshMonth('1');
+                refreshOther('1');
             }
             
             function openPopupMenu() {
@@ -49,7 +43,7 @@
 					curpage = 1;
 				}
 				var evoUrl = storage.getItem('evoUrl');
-				$http.post(evoUrl+'/ezOffice/report/emWeekdate.do', 
+				$http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/report/emWeekdate.do', 
 					{curpage:pageNum,queryText:$('queryWeek').value}, function(data){
 						var obj = JSON.parse(data);
 						var result = obj.message.result;
@@ -81,7 +75,7 @@
 								$('reportList').update(listJson);
 								$('weekContent').hideBottom();
 								$('weekContent').hideTop();
-								weekAddMore= 0;
+								weekAddMore= 0;                      
 							}else{
 								var pageCount = obj.data.pageCount;
 								var picRootPath = obj.picRootPath;
@@ -142,7 +136,6 @@
 			                	$('reportList').addMore(listJson);
 			                	if(parseInt(pageNum) < parseInt(pageCount)){
 		                			$('weekbottom_more').css('display','block');
-	                				$('weekbottom_load').css('display','none');
 			                	}else{
 			                		$('weekContent').hideBottom();
 			                	}
@@ -174,225 +167,17 @@
 					    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
 			
 			function upWeek(){
 		   		$('weekbottom_more').css('display','none');
-	            $('weekbottom_load').css('display','none');
 	            $('weekContent').showBottom();
 		   		curpage = '1';
-				if($('queryWeek').value==''){
-		   			updateWeek2();
-		   		}else{
-		   			refresh('1');
-		   		}
+				refresh('1');
 		   }
-			
-		   //缓存无数据则更新
-	        function updateWeek(){
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			      function queryHasDataDB(tx) {
-					tx.executeSql('select reportid from report_data where type="emweek" and userId="'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							     pageWeek();
-							  }else{
-							     updateWeek2();
-							  }
-						} , function(err){alert(err);}); 
-			      }
-	        }
-	        
-	        //更新缓存数据并刷新页面
-	        function updateWeek2(){
-	           $http.post(
-	       			evoUrl+'/ezOffice/report/emWeekdate.do', 
-			        {curpage:'1'}, 
-			        function(data) {
-			            var obj = JSON.parse(data);
-			            if(obj){
-			        	  dbWeek(obj);
-			        	  pageWeek();
-			        	}
-			        	
-			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				  }
-				    
-			  );
-	        }
-	        
-	        //将获取到的数据存入缓存
-	        function dbWeek(obj) {
-		       var dbName = storage.getItem('ezMobile_dbName');
-       	       var db = $phone.openDatabase(dbName);
-		       db.transaction(DbToCacheData_1);
-		       function DbToCacheData_1(tx) {
-			        tx.executeSql('delete from report_data where type="emweek" and userId="'+userId+'"');
-			        var result = obj.message.result;
-	        		if(result == '1'){
-	        			var recordCount = obj.data.recordCount;
-						if(parseInt(recordCount) >0){
-							var list = obj.data.list;
-		                	var hasMore='0';
-		                	var pageCount = obj.data.pageCount;
-		                	if(parseInt(pageCount)>1){
-		                		hasMore='1';
-		                	}
-		                	var notRead = obj.data.notRead+"";
-							if(notRead ==null || notRead=="" || notRead=="0"){
-								notRead="";
-							}
-							var allNotRead = obj.data.allNotRead+"";
-							if(allNotRead== null || allNotRead=="" ||allNotRead=="0"){
-								allNotRead="";
-							}
-							var picRootPath = obj.picRootPath;
-		                	if(list instanceof Array){
-		                		for(var i=0;i<list.length;i++){
-		                			var reportid = list[i].id;
-		                			var reportTime = list[i].reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list[i].reportEmpName +" 周报";
-				                    var reportCourse = list[i].reportCourse;
-				                    var empLivingPhoto="";
-				                    if(list[i].empLivingPhoto != "" && list[i].empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list[i].empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list[i].hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emweek","'+reportTime+'","'+reportEmpName+'","'+reportCourse+'","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                		}
-		                	}else if(list instanceof Object){
-		                			var reportid = list.id;
-		                			var reportTime = list.reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list.reportEmpName +" 周报";
-				                    var reportCourse = list.reportCourse;
-				                    var empLivingPhoto="";
-				                    if(list.empLivingPhoto != "" && list.empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list.empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list.hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emweek","'+reportTime+'","'+reportEmpName+'","'+reportCourse+'","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                	}else{
-		                		var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        title : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('reportList').update(listJson);
-		                	}
-						}
-	        		}else{
-	        			var itemJson = {
-		                    template : 1,
-		                    onclick : '',
-		                    widgets : {
-		                        title : {text :'暂无相关信息'}
-		                    }
-		                }
-		                listJson.items.push(itemJson);
-						$('reportList').update(listJson);
-	        		}
-			   }
-		    }
-	        
-		    //将缓存数据更新到页面
-		    function pageWeek(){
-	        	  $('reportList').clear();
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryDealfileListDB, function(err){alert(err);}, function(){});
-			      function queryDealfileListDB(tx) {
-					tx.executeSql('select reportid,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,hasMore from report_data where type = "emweek" and userId = "'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							  	var listJson = {items:[]};
-							    for(var i=0; i<results.rows.length; i++){
-								      var reportid = results.rows.item(i).reportid;
-								      var reportTime = results.rows.item(i).reportTime;
-								      var reportCourse = results.rows.item(i).reportCourse;
-								      var reportEmpName = results.rows.item(i).reportEmpName;
-								      var photo = results.rows.item(i).photo;
-								      var read = results.rows.item(i).read;
-								      var itemJson = {
-						                    template : 0,
-						                    onclick : 'toView('+reportid+')',
-						                    widgets : {
-						                        unRead : {src:read},
-						                        photo : {src:photo},
-						                        enName : {text:reportEmpName},
-						                        dataStar : {text:reportCourse},
-						                        dataTime : {text:reportTime}
-						                    }
-						                }
-						             listJson.items.push(itemJson);
-							    }
-							  $('reportList').addMore(listJson);
-							  var notRead = results.rows.item(0).notRead;
-							  $('weeklab').badge=notRead;
-							  var allNotRead = results.rows.item(0).allNotRead;
-							  if(allNotRead !=""){
-							  	 $('allNotRead').text="("+allNotRead+")";
-							  }
-							  var hasMore = results.rows.item(0).hasMore;
-							  if(hasMore=='1'){
-							  	 $('weekContent').showBottom();
-							  	 $('weekbottom_more').css('display','block');
-	                			 $('weekbottom_load').css('display','none');
-							  }else{
-							  	 $('weekContent').hideBottom();
-							  }
-							  $('weekContent').hideTop();
-							}else{
-								var listJson = {items:[]};
-								var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        title : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('reportList').update(listJson);
-								$('weekContent').hideBottom();
-							}
-						} , function(err){alert(err);}); 
-			      }
-	        }
-			
-			
-			
-			
-			
+		
 			
 			//下属月报
 			function refreshMonth(pageNum){
@@ -529,6 +314,7 @@
 					    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
 			
@@ -537,215 +323,10 @@
 	            $('monthbottom_load').css('display','none');
 	            $('monthContent').showBottom();
 		   		curpage = '1';
-				if($('queryMonth').value==''){
-		   			updateMonth2();
-		   		}else{
-		   			refreshMonth('1');
-		   		}
+				refreshMonth('1');
 		   }
 			
-		   //缓存无数据则更新
-	        function updateMonth(){
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			      function queryHasDataDB(tx) {
-					tx.executeSql('select reportid from report_data where type="emmonth" and userId="'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							     pageMonth();
-							  }else{
-							     updateMonth2();
-							  }
-						} , function(err){alert(err);}); 
-			      }
-	        }
-	        
-	        //更新缓存数据并刷新页面
-	        function updateMonth2(){
-	           $http.post(
-	       			evoUrl+'/ezOffice/report/emMonthdate.do', 
-			        {curpage:'1'}, 
-			        function(data) {
-			            var obj = JSON.parse(data);
-			            if(obj){
-			        	  dbMonth(obj);
-			        	  pageMonth();
-			        	}
-			        	
-			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				  }
-				    
-			  );
-	        }
-	        
-	        //将获取到的数据存入缓存
-	        function dbMonth(obj) {
-		       var dbName = storage.getItem('ezMobile_dbName');
-       	       var db = $phone.openDatabase(dbName);
-		       db.transaction(DbToCacheData_1);
-		       function DbToCacheData_1(tx) {
-			        tx.executeSql('delete from report_data where type="emmonth" and userId="'+userId+'"');
-			        var result = obj.message.result;
-	        		if(result == '1'){
-	        			var recordCount = obj.data.recordCount;
-						if(parseInt(recordCount) >0){
-							var list = obj.data.list;
-		                	var hasMore='0';
-		                	var pageCount = obj.data.pageCount;
-		                	if(parseInt(pageCount)>1){
-		                		hasMore='1';
-		                	}
-		                	var notRead = obj.data.notRead+"";
-							if(notRead ==null || notRead=="" || notRead=="0"){
-								notRead="";
-							}
-							var allNotRead = obj.data.allNotRead+"";
-							if(allNotRead== null || allNotRead=="" ||allNotRead=="0"){
-								allNotRead="";
-							}
-							var picRootPath = obj.picRootPath;
-		                	if(list instanceof Array){
-		                		for(var i=0;i<list.length;i++){
-		                			var reportid = list[i].id;
-		                			var reportTime = list[i].reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list[i].reportEmpName +" 月报";
-				                    var reportCourse = list[i].reportCourse;
-				                    var empLivingPhoto="";
-				                    if(list[i].empLivingPhoto != "" && list[i].empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list[i].empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list[i].hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emmonth","'+reportTime+'","'+reportEmpName+'","'+reportCourse+'","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                		}
-		                	}else if(list instanceof Object){
-		                			var reportid = list.id;
-		                			var reportTime = list.reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list.reportEmpName +" 月报";
-				                    var reportCourse = list.reportCourse;
-				                    var empLivingPhoto="";
-				                    if(list.empLivingPhoto != "" && list.empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list.empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list.hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emmonth","'+reportTime+'","'+reportEmpName+'","'+reportCourse+'","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                	}else{
-		                		var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        title : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('monthReportList').update(listJson);
-		                	}
-						}
-	        		}else{
-	        			var itemJson = {
-		                    template : 1,
-		                    onclick : '',
-		                    widgets : {
-		                        title : {text :'暂无相关信息'}
-		                    }
-		                }
-		                listJson.items.push(itemJson);
-						$('monthReportList').update(listJson);
-	        		}
-			   }
-		    }
-	        
-		    //将缓存数据更新到页面
-		    function pageMonth(){
-	        	  $('monthReportList').clear();
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryDealfileListDB, function(err){alert(err);}, function(){});
-			      function queryDealfileListDB(tx) {
-					tx.executeSql('select reportid,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,hasMore from report_data where type = "emmonth" and userId = "'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							  	var listJson = {items:[]};
-							    for(var i=0; i<results.rows.length; i++){
-								      var reportid = results.rows.item(i).reportid;
-								      var reportTime = results.rows.item(i).reportTime;
-								      var reportCourse = results.rows.item(i).reportCourse;
-								      var reportEmpName = results.rows.item(i).reportEmpName;
-								      var photo = results.rows.item(i).photo;
-								      var read = results.rows.item(i).read;
-								      var itemJson = {
-						                    template : 0,
-						                    onclick : 'toView('+reportid+')',
-						                    widgets : {
-						                        monthUnRead : {src:read},
-						                        monthPhoto : {src:photo},
-						                        monthEnName : {text:reportEmpName},
-						                        monthDataStar : {text:reportCourse},
-						                        monthDataTime : {text:reportTime}
-						                    }
-						                }
-						             listJson.items.push(itemJson);
-							    }
-							  $('monthReportList').addMore(listJson);
-							  var notRead = results.rows.item(0).notRead;
-							  $('monthlab').badge=notRead;
-							  var allNotRead = results.rows.item(0).allNotRead;
-							  if(allNotRead !=""){
-							  	 $('allNotRead').text="("+allNotRead+")";
-							  }
-							  var hasMore = results.rows.item(0).hasMore;
-							  if(hasMore=='1'){
-							  	 $('monthContent').showBottom();
-							  	 $('monthbottom_more').css('display','block');
-	                			 $('monthbottom_load').css('display','none');
-							  }else{
-							  	 $('monthContent').hideBottom();
-							  }
-							  $('monthContent').hideTop();
-							}else{
-								var listJson = {items:[]};
-								var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        monthTitle : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('monthReportList').update(listJson);
-								$('monthContent').hideBottom();
-							}
-						} , function(err){alert(err);}); 
-			      }
-	        }
-			
-			
-			
+		  
 			//下属其它
 			function refreshOther(pageNum){
 				if(otherAddMore==1){
@@ -880,6 +461,7 @@
 					    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
 			
@@ -888,209 +470,8 @@
 	            $('otherbottom_load').css('display','none');
 	            $('otherContent').showBottom();
 		   		curpage = '1';
-				if($('queryOther').value==''){
-		   			updateOther2();
-		   		}else{
-		   			refreshOther('1');
-		   		}
+				refreshOther('1');
 		   }
-			
-		   //缓存无数据则更新
-	        function updateOther(){
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			      function queryHasDataDB(tx) {
-					tx.executeSql('select reportid from report_data where type="emother" and userId="'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							     pageOther();
-							  }else{
-							     updateOther2();
-							  }
-						} , function(err){alert(err);}); 
-			      }
-	        }
-	        
-	        //更新缓存数据并刷新页面
-	        function updateOther2(){
-	           $http.post(
-	       			evoUrl+'/ezOffice/report/emOtherdate.do',  
-			        {curpage:'1'}, 
-			        function(data) {
-			            var obj = JSON.parse(data);
-			            if(obj){
-			        	  dbOther(obj);
-			        	  pageOther();
-			        	}
-			        	
-			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				  }
-				    
-			  );
-	        }
-	        
-	        //将获取到的数据存入缓存
-	        function dbOther(obj) {
-		       var dbName = storage.getItem('ezMobile_dbName');
-       	       var db = $phone.openDatabase(dbName);
-		       db.transaction(DbToCacheData_1);
-		       function DbToCacheData_1(tx) {
-			        tx.executeSql('delete from report_data where type="emother" and userId="'+userId+'"');
-			        var result = obj.message.result;
-	        		if(result == '1'){
-	        			var recordCount = obj.data.recordCount;
-						if(parseInt(recordCount) >0){
-							var list = obj.data.list;
-		                	var hasMore='0';
-		                	var pageCount = obj.data.pageCount;
-		                	if(parseInt(pageCount)>1){
-		                		hasMore='1';
-		                	}
-		                	var notRead = obj.data.notRead+"";
-							if(notRead ==null || notRead=="" || notRead=="0"){
-								notRead="";
-							}
-							var allNotRead = obj.data.allNotRead+"";
-							if(allNotRead== null || allNotRead=="" ||allNotRead=="0"){
-								allNotRead="";
-							}
-							var picRootPath = obj.picRootPath;
-		                	if(list instanceof Array){
-		                		for(var i=0;i<list.length;i++){
-		                			var reportid = list[i].id;
-		                			var reportTime = list[i].reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list[i].reportEmpName +" "+list[i].reportTitle;
-				                    var empLivingPhoto="";
-				                    if(list[i].empLivingPhoto != "" && list[i].empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list[i].empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list[i].hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emother","'+reportTime+'","'+reportEmpName+'","","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                		}
-		                	}else if(list instanceof Object){
-		                			var reportid = list.id;
-		                			var reportTime = list.reportTime;
-				                    if(reportTime!=null&&reportTime.length>20){
-				                        reportTime = reportTime.substring(0,16);
-				                    }
-				                    var reportEmpName = list.reportEmpName +" "+list.reportTitle;
-				                    var empLivingPhoto="";
-				                    if(list.empLivingPhoto != "" && list.empLivingPhoto != "null"){
-			        					empLivingPhoto = picRootPath+list.empLivingPhoto;
-			        				}
-			        				var read="mail_read.png";
-		                			if(list.hadRead!="1"){
-		                				read = "mail_unread.png";
-		                			}
-				                    var dealfile_sql = 'insert into report_data(reportid,type,reportTime,reportEmpName,reportCourse,photo,read,notRead,allNotRead,userId,hasMore)'+
-	        							' values("'+reportid+'","emother","'+reportTime+'","'+reportEmpName+'","","'+empLivingPhoto+'","'+read+'","'+notRead+'","'+allNotRead+'","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                	}else{
-		                		var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        title : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('otherReportList').update(listJson);
-		                	}
-						}
-	        		}else{
-	        			var itemJson = {
-		                    template : 1,
-		                    onclick : '',
-		                    widgets : {
-		                        title : {text :'暂无相关信息'}
-		                    }
-		                }
-		                listJson.items.push(itemJson);
-						$('otherReportList').update(listJson);
-	        		}
-			   }
-		    }
-	        
-		    //将缓存数据更新到页面
-		    function pageOther(){
-	        	  $('otherReportList').clear();
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryDealfileListDB, function(err){alert(err);}, function(){});
-			      function queryDealfileListDB(tx) {
-					tx.executeSql('select reportid,reportTime,reportEmpName,photo,read,notRead,allNotRead,hasMore from report_data where type = "emother" and userId = "'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							  	var listJson = {items:[]};
-							    for(var i=0; i<results.rows.length; i++){
-								      var reportid = results.rows.item(i).reportid;
-								      var reportTime = results.rows.item(i).reportTime;
-								      var reportEmpName = results.rows.item(i).reportEmpName;
-								      var photo = results.rows.item(i).photo;
-								      var read = results.rows.item(i).read;
-								      var itemJson = {
-						                    template : 0,
-						                    onclick : 'toView('+reportid+')',
-						                    widgets : {
-						                        otherUnRead : {src:read},
-						                        otherPhoto : {src:photo},
-						                        otherEnName : {text:reportEmpName},
-						                        otherDataTime : {text:reportTime}
-						                    }
-						                }
-						             listJson.items.push(itemJson);
-							    }
-							  $('otherReportList').addMore(listJson);
-							  var notRead = results.rows.item(0).notRead;
-							  $('otherlab').badge=notRead;
-							  var allNotRead = results.rows.item(0).allNotRead;
-							  if(allNotRead !=""){
-							  	 $('allNotRead').text="("+allNotRead+")";
-							  }
-							  var hasMore = results.rows.item(0).hasMore;
-							  if(hasMore=='1'){
-							  	 $('otherContent').showBottom();
-							  	 $('otherbottom_more').css('display','block');
-	                			 $('otherbottom_load').css('display','none');
-							  }else{
-							  	 $('otherContent').hideBottom();
-							  }
-							  $('otherContent').hideTop();
-							}else{
-								var listJson = {items:[]};
-								var itemJson = {
-				                    template : 1,
-				                    onclick : '',
-				                    widgets : {
-				                        otherTitle : {text :'暂无相关信息'}
-				                    }
-				                }
-				                listJson.items.push(itemJson);
-								$('otherReportList').update(listJson);
-								$('otherContent').hideBottom();
-							}
-						} , function(err){alert(err);}); 
-			      }
-	        }
-			
 			
 			function downfrsh(){
 				curpage = parseInt(curpage)+1+"";
@@ -1231,10 +612,6 @@
 	            <bottom id="bottom" style="display:block">
 	               <list>
 	                   <item onclick="downfrsh();" style="background:null,#DEE3E7">
-	                        <row id="weekbottom_load">
-		                    <label style="align:center;">正在加载...</label>
-		                    <progress style="align:center"/>
-		                    </row>
 		                    <row id="weekbottom_more" style="display:none">
 		                        <label style="align:center;">点击加载更多...</label>
 		                        <progress id="globalProgress" style="display:hidden;align:center;"/>

@@ -151,6 +151,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
         
@@ -196,6 +197,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -510,7 +512,7 @@
 					// 待办
 					case '0' : {
 						if(haveBackButton != 'true'){
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 								itemContent = 			
 						        	'<item style="col-width: 80%,20%">'+
 										'<col>'+
@@ -537,7 +539,7 @@
 									'</item>';
 			        		}
 			        	}else{
-			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+			        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 					        	itemContent = 			
 						        	'<item style="col-width: 40%,40%,20%">'+
 										'<col>'+
@@ -643,12 +645,16 @@
 	        	$('footer_list').addMore('<imag><list>' + itemContent + '</list></imag>');
 	        }
 	        
-	        // 打开转办 加签
+	         // 打开转办 加签
 	        function openPopMenu(modiButton){
 	        	if(modiButton.indexOf('Tran') < 0){
 		        	$('popupmenu_list').remove($('tranInfoItem'));
-	        	}else if(modiButton.indexOf('AddSign') < 0){
+	        	}
+	        	if(modiButton.indexOf('AddSign') < 0){
 		        	$('popupmenu_list').remove($('addSignItem'));
+	        	}
+	        	if(modiButton.indexOf('Selfsend') < 0){
+		        	$('popupmenu_list').remove($('selfSendItem'));
 	        	}
 	       		$('main_popupmenu').open();
 	        }
@@ -734,19 +740,22 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        } 
 	        
 	        // 发送流程 
 			function sendFlow(smsRight,workTitle,workSubmitTime,empLivingPhoto){
-			    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
-			    if(commentIsNone == 'true'){
-			    	 var comment_input_value = $('comment_input').value;
-			    	 if(comment_input_value == null || comment_input_value == ''){
-			    	 	alert('批示意见不能为空！');
-			    	 	return;
-			    	 }
+			    if($('commentmustnonull')&& $('comment_input')){
+				    var commentIsNone = $('commentmustnonull').value;  //节点中的批示意见是否为空表示，若为true为不能为空
+				    if(commentIsNone == 'true'){
+				    	 var comment_input_value = $('comment_input').value;
+				    	 if(comment_input_value == null || comment_input_value == ''){
+				    	 	alert('批示意见不能为空！');
+				    	 	return;
+				    	 }
+				    }
 			    }
 				$('sendForm').action = evoUrl + '/ezOffice/workflow/sendnew.do';
 				$('sendForm').submit(function(data) {
@@ -852,7 +861,14 @@
 				$('main_popupmenu').close();
 				$page.open('../workflow/workflow_addSign.xml?workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
 				{animation:'down-to-up'});
-			}      
+			}     
+			
+			// 阅件发送
+			function selfsend(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_selfsend.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			}  
         ]]>
     </script>
 	<page>
@@ -873,11 +889,14 @@
         </header>
         <popupmenu id="main_popupmenu" position="bottomright" style="width:100;offset-x:5;offset-y:-2">
 			<list id="popupmenu_list">
-				<item id="tranInfoItem" onclick="tranInfo();" icon="workflow_top_menu.png" style="background:#3daffe,#474747">
-	         		<label>转办</label>
+				<item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747">
+	         		<label style="align:center;color:#F0F9FF,white">转办</label>
 	         	</item>            
-	         	<item id="addSignItem" onclick="addSign();" icon="workflow_top_menu.png" style="background:#3daffe,#474747">
-	         		<label>加签</label>
+	         	<item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747">
+	         		<label style="align:center;color:#F0F9FF,white">加签</label>
+	         	</item>
+	         	<item id="selfSendItem" onclick="selfsend();"  style="background:#3daffe,#474747;">
+	         		<label style="align:center;color:#F0F9FF,white">阅件</label>
 	         	</item>
 		    </list>
 		</popupmenu>
@@ -952,7 +971,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

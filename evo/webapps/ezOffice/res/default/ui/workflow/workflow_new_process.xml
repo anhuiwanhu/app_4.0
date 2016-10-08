@@ -7,12 +7,13 @@
             if(info['platform']=='android'){
               fujianwidth='width:200';
             }
-	        var fileindex =0;    //附件最多能上传5个
+            var fileTotle = 0 ;  //附件最多能上传5个
+	        var fileindex =0;    //附件id标识
             var fileAddressArr = new Array();
             var fileTypeArr = new Array();   //附件上传时，存储对应数组fileAddressArr中的类型。pic:图片类型，sound：声音类型，file：其他附件类型
 	        
 	        function getAttanchNum(){
-				if(fileindex>=5){
+				if(fileTotle>=5){
 					hint('上传附件不能超过5个！');
 					return false;
 				}
@@ -34,7 +35,6 @@
 					$page.browseImage({
 						complete: function(path) {
 						 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-				            
                             var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
 						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
 						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
@@ -42,6 +42,7 @@
 						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
 				            
 				        	fileindex++;
+				        	fileTotle++;
 				        },
 				        error: function() {
 				            hint('上传图片失败！');
@@ -55,7 +56,6 @@
 		    $phone.camera({
 		        success: function(path) {
 		        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-		        	
 		        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
 						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
 						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
@@ -63,6 +63,7 @@
 						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
 				      
 		        	fileindex++;
+		        	fileTotle++;
 		        },
 		        error: function() {
 		            hint('拍照失败！');
@@ -77,7 +78,6 @@
 		    $phone.recordSound({
 		        success: function(path) {
 		        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-		        	
 		        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
 						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
 						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
@@ -85,6 +85,7 @@
 						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
 				      
 		        	fileindex++;
+		        	fileTotle++;
 		        },
 		        error: function() {
 		            hint('录音失败！');
@@ -122,6 +123,7 @@
 						//$('input_file'+fileindex).value = path;
 						$('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
 						fileindex++;
+						fileTotle++;
 					}
 				});
 			}
@@ -130,7 +132,7 @@
 				if (confirm('确认删除附件吗？')) {
 					$('input_file' + index).value = "";
 					$(appendId).remove($('row' + index));
-					fileindex--;
+					fileTotle--;
 				}
 			}
 		
@@ -213,6 +215,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -272,7 +275,7 @@
 			
 			//打开子表
 			function openSubTableCon(subFieldList,tableName,subTableTitle){
-			
+			    $('leftButton').css('display','none');
 			    if(subTableTitle != null && subTableTitle.length>15){
         	      subTableTitle = subTableTitle.substring(0,15)+'...';
         	    }
@@ -828,6 +831,7 @@
 			}
 	        // 子表返回主表界面
 			function goBack(){
+			    $('leftButton').css('display','block');
 				$('subTabel_form_list').css('display','none');
 				$('content_form_list').css('display','');
 				$('subTable_footer_list').css('display','none');
@@ -844,7 +848,7 @@
 			var _subfieldjson='';
 			// 子表保存并返回主表界面
 			function goBackSaveSubForm(){
-
+                $('leftButton').css('display','block');
 			    var subFieldList = JSON.parse(global_subFieldList);
 			    _subfieldjson = '';
 			    var subFormxml = '';
@@ -1079,6 +1083,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -1299,8 +1304,8 @@
 	        		itemContent += '<row><textarea style="color:#555555;font-size:16;" rows="5" maxrows="5" id="_main_' + field.sysname + '" name="_main_' + field.sysname + '">' + field.value + '</textarea></row>';
 	        		pushMustFillArray(mustfilled,field.name,'_main_' + field.sysname);
 	        	}else if(showType == '115'){
-	        		fileindex = fileindex++;
-	        		var attId = 'attachments_' + fileindex;
+	        		//fileindex = fileindex++;
+	        		var attId = 'attachments_' + field.sysname;
 	        		//附件上传
 	        		if(field.value && field.value.length > 0){
 		        		attachmentArray.push(field.value + ';attachments_' + fileindex);
@@ -1308,7 +1313,7 @@
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555">' + field.name + ':</label>'+
 	        		'<input type="hidden" name="_mainfile_' + field.sysname + '"/></row></col><col id="' + attId + '" style="padding:10;margin:10;">';
 	        		if(readWrite == '1'){
-	        		    itemContent += '<row id="fileRow" onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"><icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"/></row>';
+	        		    itemContent += '<row onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"><icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this,\'' + attId + '\',\'' + field.sysname + '\')"/></row>';
 	        		}
 	        	}else if(showType == '116'){
 	        		//Word编辑
@@ -1502,19 +1507,20 @@
 	                alert('提交失败！');
 	            });
 			}
-				
+			
+			function goToback(){
+			  $page.close(0);   //关闭当前页面
+			}	
         ]]>
     </script>
-    <page>
-        <title style="background:#3daffe;tint-color:white">
-            <left>
-            	<button role="back"></button>
-            </left>
-            <center><label id="centerTitle"></label></center>
-            <right>
-            	<button id="topright"></button>
-            </right>
-        </title>
+    <page style="background:#38b0f9;">
+        <header>
+            <row style="background:#38b0f9;height:50;">
+               		<icon style="align:left;margin-left:12;" src="mail_back.png" onclick="goToback();" id="leftButton"/>
+               		<label style="align:center;color:white;font-size:18;" id="centerTitle"></label>
+               		<label style="align:right;color:white;font-size:18;margin-right:12;" id="topright" ></label>
+             </row>
+        </header>
         <popupmenu id="popupmenu" position="center" onclose=""  style="width:260;height:260;border:1 white;background:white;">
             <list style="border:0 white;" id="totallist" >
                 

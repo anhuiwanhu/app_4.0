@@ -12,10 +12,7 @@
             var evoUrl = storage.getItem('evoUrl');
             var userId = storage.getItem('sys_sys_userId');
             $page.onload=function(){
-				CacheDataToPage();
-				$page.setTimeout(function() {
-	        	   updateCache2();
-                }, 2000);
+				refresh();
             }
             
             function showDe(){
@@ -29,7 +26,6 @@
                 }
                 if(disp=='1'){
             		$('bottom_more').css('display','none');
-	                $('bottom_load').css('display','none');
             	}
             }
             
@@ -46,7 +42,6 @@
                 }
                 if(disp=='1'){
             		$('bottom_more').css('display','block');
-	                $('bottom_load').css('display','none');
             	}
             }
             
@@ -107,7 +102,7 @@
 					$('mailList').clear();
 					arrId = new Array();
 				}
-				$http.post(evoUrl+'/ezOffice/mail/seListdate.do', 
+				$http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/mail/seListdate.do', 
 					{curpage:curpage,subject:$('subject').value}, function(data) {
 					var obj = JSON.parse(data);
 					var result = obj.message.result;
@@ -198,7 +193,6 @@
 			                $('mailList').addMore(listJson);
 		                	if(parseInt(curpage) < parseInt(pageCount)){
 	                			$('bottom_more').css('display','block');
-	                			$('bottom_load').css('display','none');
 	                			disp='1';
 		                	}else{
 		                		$('indexContent').hideBottom();
@@ -229,26 +223,19 @@
 			function downfrsh(){
 				curpage = parseInt(curpage)+1+"";
 				$('bottom_more').css('display','none');
-	            $('bottom_load').css('display','block');
 				refresh();
 			}
 			
 			function searchMail(){
 				curpage = '1';
 				$('bottom_more').css('display','none');
-	            $('bottom_load').css('display','block');
 				refresh();
 			}
 			function upfrsh(){
 		   		$('bottom_more').css('display','none');
-	            $('bottom_load').css('display','none');
 	            $('indexContent').showBottom();
 		   		curpage = '1';
-				if($('subject').value==''){
-		   			updateCache2();
-		   		}else{
-		   			refresh();
-		   		}
+				refresh();
 		   }
 		   
 		   function toErro(error){
@@ -261,182 +248,8 @@
 				} else {
 					hint('访问网络错误！错误代码:' + error);
 				}
+				$page.open('../index.xml',{animation:'down-to-up'});
 			}
-			
-			//缓存无数据则更新
-	        function updateCache(){
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			      function queryHasDataDB(tx) {
-					tx.executeSql('select mailid from mail_data where mailType="send" and userId="'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							     CacheDataToPage();
-							  }else{
-							     updateCache2();
-							  }
-						} , function(err){alert(err);}); 
-			      }
-	        }
-	        
-	        //更新缓存数据并刷新页面
-	        function updateCache2(){
-	           $http.post(
-	       			evoUrl+'/ezOffice/mail/seListdate.do', 
-			        {currPage : '1'}, 
-			        function(data) {
-			            var obj = JSON.parse(data);
-			            if(obj){
-			        	  DbToCacheData(obj);
-			        	  CacheDataToPage();
-			        	}
-			        	
-			        },function(error) {
-				    if (error == 'timeout') {
-						hint('连接服务器超时！');
-				    } else if (error == '404') {
-						hint('链接超时重新登录！');
-				    } else if (error == '500') {
-						hint('内部服务器错误！');
-				    } else {
-						hint('访问网络错误！错误代码:' + error);
-				    }
-				  }
-				    
-			  );
-	        }
-	        
-	        //将获取到的数据存入缓存
-	        function DbToCacheData(obj) {
-		       var dbName = storage.getItem('ezMobile_dbName');
-       	       var db = $phone.openDatabase(dbName);
-		       db.transaction(DbToCacheData_1);
-		       function DbToCacheData_1(tx) {
-			        tx.executeSql('delete from mail_data where mailType="send" and userId="'+userId+'"');
-			        var result = obj.message.result;
-	        		if(result == '1'){
-	        			var recordCount = obj.data.recordCount;
-						if(parseInt(recordCount) >0){
-		                	var list = obj.data.list;
-		                	var hasMore='0';
-		                	var pageCount = obj.data.pageCount;
-		                	if(parseInt(pageCount)>1){
-		                		hasMore='1';
-		                	}
-		                	if(list instanceof Array){
-		                		for(var i=0;i<list.length;i++){
-		                			var mailid = list[i].mailid;
-			                		var mailuserid = list[i].mailuserid;
-		                			var mailposttime = list[i].mailposttime;
-				                    if(mailposttime!=null&&mailposttime.length>20){
-				                        mailposttime = mailposttime.substring(0,16);
-				                    }
-				                    var mailsubject = list[i].mailsubject;
-				                    var accessorySize = list[i].accessorySize;
-				                    var dealfile_sql = 'insert into mail_data(mailid,mailuserid,read,photo,notRead,mailposttime,mailpostername,mailsubject,accessorySize,mailType,userId,hasMore) '+
-	        							' values("'+mailid+'","'+mailuserid+'","","","","'+mailposttime+'","","'+mailsubject+'","'+accessorySize+'","send","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                		}
-		                	}else if(list instanceof Object){
-		                			var mailid = list.mailid;
-			                		var mailuserid = list.mailuserid;
-		                			var mailposttime = list.mailposttime;
-				                    if(mailposttime!=null&&mailposttime.length>20){
-				                        mailposttime = mailposttime.substring(0,16);
-				                    }
-				                    var mailsubject = list.mailsubject;
-				                    var accessorySize = list.accessorySize;
-				                    var dealfile_sql = 'insert into mail_data(mailid,mailuserid,read,photo,notRead,mailposttime,mailpostername,mailsubject,accessorySize,mailType,userId,hasMore) '+
-	        							' values("'+mailid+'","'+mailuserid+'","","","","'+mailposttime+'","","'+mailsubject+'","'+accessorySize+'","send","'+userId+'","'+hasMore+'")';
-	        						tx.executeSql(dealfile_sql);
-		                	}
-						}else{
-							noDataContent();
-						}
-	        		}else{
-	        			//查询数据异常
-	        			noDataContent();
-	        		}
-			   }
-		    }
-	        
-	        //没有查到数据或者数据查询异常时
-	        function noDataContent(){
-	        	var listJson = {items:[]};
-	        	var itemJson = {
-                    template : 2,
-                    onclick : '',
-                    widgets : {
-                        title : {text :'暂无相关记录'}
-                    }
-                }
-                listJson.items.push(itemJson);
-				$('mailList').update(listJson);
-				$('indexContent').hideBottom();
-	        }
-	        
-		    //将缓存数据更新到页面
-		    function CacheDataToPage(){
-	        	  $('mailList').clear();
-	        	  arrId = new Array();
-			      var dbName = storage.getItem('ezMobile_dbName');
-       	    	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryDealfileListDB, function(err){alert(err);}, function(){});
-			      function queryDealfileListDB(tx) {
-					tx.executeSql('select mailid,mailuserid,mailposttime,mailsubject,accessorySize,hasMore from mail_data where mailType = "send" and userId = "'+userId+'"',[],
-						function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							  	var listJson = {items:[]};
-							    for(var i=0; i<results.rows.length; i++){
-								      var mailid = results.rows.item(i).mailid;
-								      var mailuserid = results.rows.item(i).mailuserid;
-								      var mailposttime = results.rows.item(i).mailposttime;
-								      var mailsubject = results.rows.item(i).mailsubject;
-								      var accessorySize = results.rows.item(i).accessorySize;
-								      arrId.push(mailid);
-								      if(accessorySize=="0"){
-								      	var itemJson = {
-						                    template : 0,
-						                    id : 'ite'+mailid,
-						                    onclick : 'toView("'+mailid+'","'+mailuserid+'")',
-						                    widgets : {
-						                        chData : {onclick:'addIds("'+mailid+'","'+mailuserid+'");',src:'mail_uncheck.png'},
-						                        cont : {text:mailsubject},
-						                        time : {text:mailposttime}
-						                    }
-						                }
-						                listJson.items.push(itemJson);
-								      }else{
-								      	var itemJson = {
-						                    template : 1,
-						                    id : 'ite'+mailid,
-						                    onclick : 'toView("'+mailid+'","'+mailuserid+'")',
-						                    widgets : {
-						                        chData : {onclick:'addIds("'+mailid+'","'+mailuserid+'");',src:'mail_uncheck.png'},
-						                        cont : {text:mailsubject},
-						                        time : {text:mailposttime}
-						                    }
-						                }
-						                listJson.items.push(itemJson);
-								      }
-							    }
-							  $('mailList').addMore(listJson);
-							  var hasMore = results.rows.item(0).hasMore;
-							  if(hasMore=='1'){
-							  	 $('indexContent').showBottom();
-							  	 $('bottom_more').css('display','block');
-	                			 $('bottom_load').css('display','none');
-							  }else{
-							  	 $('indexContent').hideBottom();
-							  }
-							  $('indexContent').hideTop();
-							}else{
-								noDataContent();
-							}
-						} , function(err){alert(err);}); 
-			      }
-	        }
         ]]>
     </script>
     <page>
@@ -509,10 +322,6 @@
             <bottom id="bottom" style="display:block">
 	            <list>
 	                <item onclick="downfrsh();" style="background:null,#DEE3E7">
-	                    <row id="bottom_load">
-		                    <label style="align:center;">正在加载...</label>
-		                    <progress style="align:center"/>
-	                    </row>
 	                    <row id="bottom_more" style="display:none">
 	                        <label style="align:center;">点击加载更多...</label>
 	                        <progress id="globalProgress" style="display:hidden;align:center;"/>

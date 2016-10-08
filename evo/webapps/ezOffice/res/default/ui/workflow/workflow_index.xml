@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+        <![CDATA[
+        	//打开头部中间主菜单
+            function openMainPopupMenu() {
+                $('main_popupmenu').open();
+            }
+            
+            //打开排序菜单
+            function openSortPopupMenu() {
+                $('sort_popupmenu').open();
+            }
+	        
+	        //初始化列表数据   
+	        function initList() {
+	            var listJson = {items:[]};
+	            for (var i = 0; i < 10; i++) {
+	                var itemJson = {
+	                    template:0,
+	                    onclick:'alert("item' + i + '")',
+	                    widgets:{
+	                        title:{text:'标题' + i},
+	                        subtitle:{text: '副标题' + i}
+	                    }
+	                }
+	                listJson.items.push(itemJson);
+	            }
+	            $('content_list').update(listJson);
+	        }
+	        
+	        //页面家在完成后执行
+	        $page.onload = function() {
+	            initList();
+	        }
+        ]]>
+    </script>
+    <page>
+        <title style="background:gradient(#4169E1)">
+            <left>
+            	<button onclick="$page.close()" icon="" role="back"></button>
+            </left>
+            <center><label id="centerTitle" onclick="">待办文件(0)</label></center>
+            <right>
+				<progress id="progress1" style="display:hidden"/>
+				<button target="_blank" style="" icon="" onclick="openSortPopupMenu();">排序</button>
+				<button onclick="" style="${skin_backbuttonstyle};border:0;color:;font-size:16;width:40;height:38;padding-right:1" icon="" >新增</button>
+			</right>
+        </title>
+        <header>
+            <row style="background:gradient(#E5EAEE #BAC8D2);border-bottom:1 #999999;padding:3">
+                <input id="search" type="search" name="search" placeholder="请输入关键字"/>
+            </row>
+        </header>
+		<popmenu>
+			 <item onclick="" id="allItem">
+			 	<label>待办文件</label>
+				<icon src="person_selected.png" style="width:28;heigth:28;margin-left:5;display:hidden" id="allIcon"/>
+			 </item>
+		     <item onclick="" id="careItem">
+		      	<label>待阅文件</label>
+		      	<icon src="person_selected.png" style="width:28;heigth:28;margin-left:5;display:hidden" id="careIcon"/>
+		     </item>
+		     <item onclick="" id="myselfItem">
+		      	<label>已办文件</label>
+		      	<icon src="person_selected.png" style="width:28;heigth:28;margin-left:5;display:hidden" id="myselfIcon"/>
+		     </item>
+		     <item onclick="" id="myselfItem">
+		      	<label>我的文件</label>
+		      	<icon src="person_selected.png" style="width:28;heigth:28;margin-left:5;display:hidden" id="myselfIcon"/>
+		     </item>
+		</popmenu>
+        <popupmenu id="sort_popupmenu" position="topright" style="width:100;offset-x:10">
+            <list>
+                <item onclick="$('sort_popupmenu').close();hint('最新待办')">
+                    <label style="color:black;">最新待办</label>
+                </item>
+                <item onclick="$('sort_popupmenu').close();hint('流程分类')">
+                    <label style="color:black">流程分类</label>
+                </item>
+                <item onclick="$('sort_popupmenu').close();hint('缓急程度')">
+                    <label style="color:black">缓急程度</label>
+                </item>
+            </list> 
+        </popupmenu>
+        <content id="content" draggable="true" ondragdown="$page.refresh();" ondragup="">
+            <list id="content_list" reuse="true">
+                <item style="col-width: 60,*">
+                    <col>
+	                    <row>
+	                    	<img src="http://192.168.0.197:7004/defaultroot/upload/forum/201508/20150817160548975.jpg" style=""/>
+	                    </row>
+                    </col>
+                    <col>
+                    	<row>
+                    		<label>TEST发起的行政办公设备采购流程 等待您的办理！（2015-12-11 10:16:30）</label>
+                    	</row>
+                    </col>
+                </item>
+            </list>
+            <bottom id="content_bottom" style="display:hidden">
+               <list>
+                   <item>
+                       <row>
+                        <label style="align:center;">更多...</label>
+                        <progress id="more_progress" style="display:hidden;align:center"/>
+                    </row>
+                </item>
+               </list>
+            </bottom>
+        </content>
+    </page>
+</imag>

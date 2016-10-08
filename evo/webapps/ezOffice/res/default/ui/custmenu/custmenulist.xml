@@ -4,10 +4,7 @@
     <![CDATA[
             
 		$page.onload = function() {
-		     CacheDataToPage();
-             $page.setTimeout(function() {
-       	     getMenuInfo();
-                }, 2000);
+		     getMenuInfo();
 		}
 		
 		function CacheDataToPage(){
@@ -92,7 +89,7 @@
             var custMenu_menuName = storage.getItem('custMenu_menuName');
             $('titleLabel1').text=custMenu_menuName;
 		    $('content').clear();
-		    $http.post(evoUrl+'/ezOffice/custmenu/getCustMenu.do','menuid='+custMenu_menuId, function(data) {
+		    $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/custmenu/getCustMenu.do','menuid='+custMenu_menuId, function(data) {
 		         if(data!=null && data!= ''){
 		            storage.setItem('custMenu_data'+custMenu_menuId,data);   //将返回数据放入缓存中。
 		         }
@@ -151,6 +148,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 		}
 
@@ -251,6 +249,5 @@
         </title>
         <content id="content" draggable="true">
         </content>
-
     </page>
 </imag>

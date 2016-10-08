@@ -212,6 +212,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 
 		}
@@ -310,6 +311,7 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
+			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 			
 		}
@@ -347,7 +349,7 @@
          </list>
         </content>
         <footer style="background:#e0e0e0;">
-			<multipleview id="multipleview" style="tint-color:#ffffff;margin-right:2;confirm-titlesize:16;height:50;" confirmBackground="#38adff,#38adff" onclick="completeseleted();"></multipleview>
+			<multipleview id="multipleview" style="tint-color:#ffffff;margin-right:2;confirm-titlesize:16;height:50;" confirmBackground="#0000ff,#0000ff" onclick="completeseleted();"></multipleview>
 		</footer>
 		
 	</page>

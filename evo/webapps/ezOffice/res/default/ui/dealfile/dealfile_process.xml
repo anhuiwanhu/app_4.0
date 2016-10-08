@@ -174,7 +174,7 @@
         				
         				var dealTipsContent = workInfo.dealTipsContent;
         				if(dealTipsContent!=null&&dealTipsContent!=''&&dealTipsContent!='[]'){
-        				   alert(dealTipsContent);
+        				   alert(dealTipsContent.replace(/(<[^>]+>)|(&nbsp;)/g,""));
         				}
         				flag = workInfo.isEzFlow;
         				commentmustnonull = workInfo.commentmustnonull;
@@ -221,6 +221,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -247,9 +248,9 @@
 				storage.setItem('workflow_forkId',workInfo.forkId ? workInfo.forkId : '');
 				storage.setItem('workflow_smsRight',workInfo.smsRight ? workInfo.smsRight : '');
 				var empLivingPhoto = $param['empLivingPhoto'];
-
+				
 	        	if(haveBackButton != 'true'){
-	        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+	        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 						itemContent = 			
 				        	'<item style="col-width: 80%,20%">'+
 								'<col>'+
@@ -276,7 +277,7 @@
 							'</item>';
 	        		}
 	        	}else{
-	        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0){
+	        		if(modiButton.indexOf('Tran') > 0 || modiButton.indexOf('AddSign') > 0|| modiButton.indexOf('Selfsend') > 0){
 			        	itemContent = 			
 				        	'<item style="col-width: 40%,40%,20%">'+
 								'<col>'+
@@ -314,7 +315,7 @@
 	        	$('footer_list').addMore('<imag><list>' + itemContent + '</list></imag>');
 	        }
 	        
-	        // 打开转办 加签
+	        // 打开转办 加签、转阅
 	        function openPopMenu(modiButton){
 	            $('main_popupmenu').position='bottomright';
 	            $('main_popupmenu').style='offset-x:5;offset-y:-55';
@@ -322,19 +323,17 @@
 	            $('popupmenu_list').style='';
 	            $('popupmenu_list').clear();
 	            var itemvar = '';
-	        	if(modiButton.indexOf('Tran') < 0){
-		        	//$('popupmenu_list').remove($('tranInfoItem'));
+	        	if(modiButton.indexOf('Tran') > 0){
+	        	    itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col></item></list-item>');
+	                $('popupmenu_list').add(itemvar);
+	        	}
+	            if(modiButton.indexOf('AddSign') > 0){
 		        	itemvar = $C('<list-item><item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col></item></list-item>');
-	                 $('popupmenu_list').add(itemvar);
-	        	}else if(modiButton.indexOf('AddSign') < 0){
-		        	//$('popupmenu_list').remove($('addSignItem'));
-		        	itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col></item></list-item>');
-	                 $('popupmenu_list').add(itemvar);
-	        	}else{
-	        	     itemvar = $C('<list-item><item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">转办</label></row></col></item></list-item>');
-	                 $('popupmenu_list').add(itemvar); 
-	                 itemvar = $C('<list-item><item id="addSignItem" onclick="addSign();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">加签</label></row></col></item></list-item>');
-	                 $('popupmenu_list').add(itemvar);
+	                $('popupmenu_list').add(itemvar);
+	        	}
+	        	if(modiButton.indexOf('Selfsend') > 0){
+		        	itemvar = $C('<list-item><item id="selfsendItem" onclick="selfsend();"  style="background:#3daffe,#474747;margin:0;padding:0;"><col><row style="margin:10;padding:10;"><label style="align:center;color:#F0F9FF,white;font-size:14;">阅件</label></row></col></item></list-item>');
+	                $('popupmenu_list').add(itemvar);
 	        	}
 	       		$('main_popupmenu').open();
 	        }
@@ -346,10 +345,23 @@
 		        	$('flowgraphurl').value = imgPath;
 		        	var image = $C('<img src="' + imgPath + '" id="flowImg" progress="true" style="align:center;"/>');
 		        	$('content_flow_pic').add(image);
+		        	var flowForm= $C('<tabbar-item><item label="流程表单"></item></tabbar-item>');
+			        var flowPic =$C('<tabbar-item><item id="imgItem" label="流程图"></item></tabbar-item>');
+			        var flowRecord =$C('<tabbar-item><item label="流程记录" onclick="loadFlowRecord();"></item></tabbar-item>');
+			        $('tabbar').clear();
+			        $('tabbar').add(flowForm);
+			        $('tabbar').add(flowPic);
+			        $('tabbar').add(flowRecord);
 	        	}else{
-	        		$('tabbar').remove($('imgItem'));
+	        		//$('tabbar').remove($('imgItem'));
+	        		var flowForm= $C('<tabbar-item><item label="流程表单"></item></tabbar-item>');
+			        var flowRecord =$C('<tabbar-item><item label="流程记录" onclick="loadFlowRecord();"></item></tabbar-item>');
+			        $('tabbar').clear();
+			        $('tabbar').add(flowForm);
+			        $('tabbar').add(flowRecord);
 	        		$('contents').remove($('content_flow_pic'));
 	        	}
+	        	
 	        }
 	        
 			//创建工作流程信息隐藏域
@@ -468,18 +480,25 @@
 						}else{
 							if(subFieldList instanceof Array){
 								fieldCount = subFieldList.length;
+								itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
+											  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
+								contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+							    $('item_'+tableName).onclick = "openSubTableCon('"+JSON.stringify(subFieldList)+"','"+tableName+"','"+canUpdate+"')";
 							}else if(subFieldList instanceof Object){
-							    fieldCount = 1;
+							    if(subFieldList.dataId == null || subFieldList.dataId == ''|| subFieldList.dataId == '[]' ){  //没有子表
+							    	  fieldCount = 0;
+							    }else{
+							    	  fieldCount = 1;
+									  itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
+											  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
+								      contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+									  $('item_'+tableName).onclick = "openSubTableCon('"+JSON.stringify(subFieldList)+"','"+tableName+"','"+canUpdate+"')";
+								}
 							}else{
 								fieldCount = 0;
 							}
 						}
 
-						itemContent = '<item id="item_'+tableName+'" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+subTableList.subTable.name+':</label></row></col><col style="padding:10;margin:10;"><row>'+
-									  '<input type="hidden" id="'+tableName+'" name="'+tableName+'" style="display:none;" value=""/><input type="hidden" id="json_'+tableName+'" name="json_'+tableName+'" style="display:none;" value=""/><input id="'+tableName+'_count" name="'+tableName+'_count" readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
-
-						contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
-						$('item_'+tableName).onclick = "openSubTableCon('"+JSON.stringify(subFieldList)+"','"+tableName+"','"+canUpdate+"')";
 						//设置子表
 						$('save_subformname').value = tableName+',';
 						
@@ -489,7 +508,7 @@
 			
 			//打开子表
 			function openSubTableCon(subFieldList,tableName,canUpdate){
-			  //  $('leftButton').css('display','none');
+			    $('leftButton').css('display','none');
 			    global_subTableUpdate = canUpdate;
 			    //有临时存储的数据就取临时数据
 			    if($('json_'+tableName).value!=''&&$('json_'+tableName).value!='[]'){
@@ -1068,7 +1087,7 @@
 			
 			// 子表返回主表界面
 			function goBack(){
-			 //   $('leftButton').css('display','block');
+			    $('leftButton').css('display','block');
 				$('subTabel_form_list').css('display','none');
 				$('content_form_list').css('display','');
 				$('subTable_footer_list').css('display','none');
@@ -1084,7 +1103,7 @@
 			var _subfieldjson='';
 			// 子表保存并返回主表界面
 			function goBackSaveSubForm(){
-
+                $('leftButton').css('display','block');
 			    var subFieldList = JSON.parse(global_subFieldList);
 			    _subfieldjson = '';
 			    var subFormxml = '';
@@ -1134,7 +1153,6 @@
                 //设置临时数据
                 $('json_'+global_subTableName).value = _subfieldjson;
 				$(global_subTableName).value=subFormxml;
-			//	$('leftButton').css('display','block');
 				$('subTabel_form_list').css('display','none');
 				$('content_form_list').css('display','');
 				$('subTable_footer_list').css('display','none');
@@ -1417,14 +1435,14 @@
 						itemContent += '<row><label style="align:right;font-size:16;color:#555555">'+commentList.comment.person+'('+commentList.comment.date+')</label></row></col></item>';
 					}
 				}
-				// 退回意见填写未处理 
+				// 退回意见填写未处理 （不需要显示）
 				var commentMustNoNull = workInfo.commentmustnonull;
 				var backNoComment = workInfo.backnocomment;
 				var backComment = detailData.backComment;
-				if(backComment){
+			/*	if(backComment){
 					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">退回意见:</label></row></col><col><row>'+
 								   '<label style="align:right;font-size:16;color:#555555">'+backComment+'</label></row></col></item>';
-				}
+				}  */
 				contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
 			}
 
@@ -1470,6 +1488,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 	        	});
 	        }
@@ -1891,6 +1910,7 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			   }
             );
         }
@@ -2015,6 +2035,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
@@ -2087,34 +2108,32 @@
 			// 加签发送
 			function addSign(){
 				$('main_popupmenu').close();
-				/**
-				if(!confirm('确定加签？')){
-					return false;
-				}
-				**/
 				$page.open('../workflow/workflow_addSign.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
 				{animation:'down-to-up'});
 			}
 			
+			// 加签发送
+			function selfsend(){
+				$('main_popupmenu').close();
+				$page.open('../workflow/workflow_selfsend.xml?fromXml='+fromXml+'&workId='+workId+'&workcurstep='+encodeURIComponent($('workcurstep').value),
+				{animation:'down-to-up'});
+			}
+			
+			function goToback(){
+			  $page.close(0);   //关闭当前页面
+			}
 			
         ]]>
     </script>
-    <page>
-    	
-        <title style="background:#3daffe;tint-color:white">
-            <left>
-            	<button role="back"></button>
-            </left>
-            <center><label id="centerTitle">流程表单</label></center>
-            <right>
-            	<button id="topright"></button>
-            </right>
-        </title>
-        <header id="headers" style="display:none">
-        	<tabbar id="tabbar" style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;">
-                <item label="流程表单"></item>
-                <item id="imgItem" label="流程图"></item>
-                <item label="流程记录" onclick="loadFlowRecord();"></item>
+    <page style="background:#38b0f9;">
+        <header id="headers">
+            <row style="background:#38b0f9;height:50;">
+               		<icon style="align:left;margin-left:13;width:10;" src="mail_back.png" onclick="goToback();" id="leftButton"/><icon style="align:left;width:12;alpha:0;" src="mail_back.png" onclick="goToback();" />
+               		<label style="align:center;color:white;font-size:18;" id="centerTitle">流程表单</label>
+               		<label style="align:right;color:white;font-size:18;margin-right:12;" id="topright" ></label>
+             </row>
+        	<tabbar id="tabbar"  style="label-color:#b8b8b8,#008eef;indicator-color:#008eef;background:#f9f9f9;">
+                
             </tabbar>
         </header>
         
@@ -2210,7 +2229,7 @@
             </content>
             <content style="background:white" id="content_flow_record">
             	<list id="content_flow_record_list" reuse="true">
-        			<item style="col-width:2%,33%,2%,26%,2%,33%,2%;" >
+        			<item style="col-width:3%,32%,2%,26%,2%,32%,*;" >
         			    <col>
             			</col>
             			<col>

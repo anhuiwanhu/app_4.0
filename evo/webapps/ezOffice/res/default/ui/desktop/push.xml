@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+	<script>
+        <![CDATA[
+            var storage = $phone.localStorage();
+            var pass = storage.getItem('sys_password');
+            var evoUrl = storage.getItem('evoUrl');
+            $page.onload=function(){
+            	load();
+            }
+            function load(){
+            	$http.post(evoUrl+'/ezOffice/set/getRemindInfo.do',function(data){
+				    var obj = JSON.parse(data);
+					var result = obj.message.result;
+					if(result=='1'){
+						var forbidmodule = obj.data.forbidmodule;
+						if(forbidmodule.indexOf("workflow") !=-1){
+							$('workflow').checked=false;
+						}
+						if(forbidmodule.indexOf("email") !=-1){
+							$('email').checked=false;
+						}
+						if(forbidmodule.indexOf("govfile") !=-1){
+							$('govfile').checked=false;
+						}
+					}
+				},function(error) {
+					toErro(error);
+				});
+            }
+           
+            function send(){
+            	var forbidmodule="";
+            	if(!$('workflow').checked){
+            		forbidmodule=forbidmodule+"workflow,";
+            	}
+            	if(!$('email').checked){
+            		forbidmodule=forbidmodule+"email,";
+            	}
+            	if(!$('govfile').checked){
+            		forbidmodule=forbidmodule+"govfile,";
+            	}
+            	forbidmodule = forbidmodule.substring(0,(forbidmodule.length-1));
+            	$http.post(evoUrl+'/ezOffice/set/saveRemind.do', 
+						{forbidmodule:forbidmodule}, function(data){
+				    var obj = JSON.parse(data);
+					var result = obj.message.result;
+					if(result=='0'){
+						hint(obj.message.description);
+					}else{
+						hint('更新推送设置信息成功！');
+						$page.close();
+					}
+				},function(error) {
+					toErro(error);
+				});
+            }
+            function toErro(error){
+			if (error == 'timeout') {
+				hint('连接服务器超时！');
+			} else if (error == '404') {
+				hint('链接超时重新登录！');
+			} else if (error == '500') {
+				hint('内部服务器错误！');
+			} else {
+				hint('访问网络错误！错误代码:' + error);
+			}
+			$page.open('../index.xml',{animation:'down-to-up'});
+		}
+   		]]>
+    </script>
+    <page>
+       <title style="background:#38adff;tint-color:#ffffff">
+            <left>
+                <button role="back"></button>
+            </left>
+            <center>
+                <label>推送开关</label>
+            </center>
+            <right>
+                <button onclick="send();" style="font-size:18;font-weight:bold">完成</button>
+            </right>
+        </title>
+        <content>
+            <list>
+                <item style="background:#f0eff5;"></item>
+                <item>
+                   <row>
+                   	   <label style="font-color:#555555;font-size:16;">待办文件提醒</label>
+                       <checkbox type="switch" id="workflow" checked="true" style="align:right;"></checkbox>
+                   </row>
+                </item>
+                <item>
+                   <row>
+                   	   <label style="font-color:#555555;font-size:16;">新邮件提醒</label>
+                       <checkbox type="switch" id="email" checked="true" style="align:right;"></checkbox>
+                   </row>
+                </item>
+                <item>
+                   <row>
+                   	   <label style="font-color:#555555;font-size:16;">新收文推送提醒</label>
+                       <checkbox type="switch" id="govfile" checked="true" style="align:right;"></checkbox>
+                   </row>
+                </item>
+                <!--<item>
+                   <row>
+                   	   <label style="font-color:#555555;font-size:16;">新汇报推送提醒</label>
+                       <checkbox type="switch" id="remember" checked="true" style="align:right;"></checkbox>
+                   </row>
+                </item>
+                <item>
+                   <row>
+                   	   <label style="font-color:#555555;font-size:16;">信息推送提醒</label>
+                       <checkbox type="switch" id="infomation" checked="true" style="align:right;"></checkbox>
+                   </row>
+                </item>
+                
+            --></list>
+        </content>
+    </page>
+</imag>

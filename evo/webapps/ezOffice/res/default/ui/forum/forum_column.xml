@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+        <![CDATA[
+            var storage = $phone.localStorage();
+			var loadFlag = '0';
+			var evoUrl = storage.getItem('evoUrl');
+			$page.onload=function(){
+            	refresh();
+            }
+            function openPopupMenu() {
+                $('popmenu').open();
+                $('arrow').src = 'mail_up.png';
+            }
+			
+			function openChildChannel(id,hasChild,className){
+				storage.setItem('forum_classId',id);
+				storage.setItem('forum_hasChild',hasChild);
+				storage.setItem('forum_className',className);
+				$page.open('forum_child.xml');
+			}
+			
+			function refresh(){
+				if(loadFlag == '1'){
+		        	return false;
+		        }
+		        loadFlag = '1';
+				$http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/forum/columnList.do',function(data){
+					var obj = JSON.parse(data);
+					var result = obj.message.result;
+					var listJson = {items:[]};
+					if(result =="1"){
+						var list = obj.data;
+						if(!list){
+			        	   return false;
+			        	}
+						if(list instanceof Array){
+							for (var i = 0; i < list.length; i++) {
+			                    var haveRightFlag = list[i].haveRightFlag;
+			                    if(haveRightFlag =="1"){
+			                    	var channelName = list[i].className;
+				                    var btn="";
+				                    if(channelName!=null&&channelName!=""){
+				                          btn = channelName.substring(0,1);
+				                    }
+				                    var hasChildChannl = list[i].classHasJunior;
+				                    var childTip = "";
+				                    if(hasChildChannl!="0"){
+				                        childTip = "下级栏目"+hasChildChannl;
+				                    }
+				                    var style = '';
+				                    if((i%6)==0){
+				                         style = 'width:120;background:#f98e75;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }else if((i%6)==1){
+				                         style = 'width:120;background:#f6d75b;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }else if((i%6)==2){
+				                         style = 'width:120;background:#6fd5ff;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }else if((i%6)==3){
+				                         style = 'width:120;background:#9cc2ff;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }else if((i%6)==4){
+				                         style = 'width:120;background:#93df88;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }else if((i%6)==5){
+				                         style = 'width:120;background:#d795ea;width:40;height:40;align:left;font-size:16;color:#ffffff';
+				                    }
+				                    itemJson = {
+					                        template :0,
+					                        onclick : 'openChildChannel("'+list[i].id+'","'+list[i].classHasJunior+'","'+channelName+'")',
+					                        widgets : {
+					                            btn : {text :btn,style:style},
+					                            channelName : {text :channelName},
+					                            childTip    : {text :childTip }
+					                        }
+					                 };
+					                 listJson.items.push(itemJson);
+			                    }
+			                }
+			                $('forumList').update(listJson);
+			                $('indexContent').hideTop();
+						}else if(list instanceof Object){
+							list = list.list;
+							var haveRightFlag = list.haveRightFlag;
+			                if(haveRightFlag =="1"){
+			                	var channelName = list.className;
+			                    var btn="";
+			                    if(channelName!=null&&channelName!=""){
+			                          btn = channelName.substring(0,1);
+			                    }
+			                    var hasChildChannl = list.classHasJunior;
+			                    var childTip = "";
+			                    if(hasChildChannl!="0"){
+			                        childTip = "下级栏目"+hasChildChannl;
+			                    }
+			                    var style = 'width:120;background:#f98e75;width:40;height:40;align:left;font-size:16;color:#ffffff';
+			                    itemJson = {
+				                        template :0,
+				                        onclick : 'openChildChannel("'+list.id+'","'+list.classHasJunior+'","'+channelName+'")',
+				                        widgets : {
+				                            btn : {text :btn,style: style},
+				                            channelName : {text :channelName},
+				                            childTip    : {text :childTip }
+				                        }
+				                 };
+				                 listJson.items.push(itemJson);
+			                }
+			                $('forumList').update(listJson);
+			                $('indexContent').hideTop();
+						}else{
+							var itemJson = {
+			                    template : 1,
+			                    onclick : '',
+			                    widgets : {
+			                        title : {text :'系统没有查询到数据!'}
+			                    }
+			                }
+			                listJson.items.push(itemJson);
+							$('forumList').update(listJson);
+							$('indexContent').hideTop();
+						}
+					}else{
+						var itemJson = {
+		                    template : 1,
+		                    onclick : '',
+		                    widgets : {
+		                        title : {text :'系统没有查询到数据!'}
+		                    }
+		                }
+		                listJson.items.push(itemJson);
+						$('forumList').update(listJson);
+						$('indexContent').hideTop();
+					}
+		        	loadFlag = '0';
+				},function(error) {
+					toErro(error);
+				});
+			}
+			function toErro(error){
+				if (error == 'timeout') {
+					hint('连接服务器超时！');
+				} else if (error == '404') {
+					hint('链接超时重新登录！');
+				} else if (error == '500') {
+					hint('内部服务器错误！');
+				} else {
+					hint('访问网络错误！错误代码:' + error);
+				}
+				$page.open('../index.xml',{animation:'down-to-up'});
+			}
+        ]]>
+    </script>
+    <page>
+        <popupmenu id="popmenu" position="topcenter" onclose="$('arrow').src = 'mail_down.png';" style="width:150">
+            <list>
+                <item onclick="$('popmenu').close();$page.open('forum_list.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">论坛更新</label>
+                    </row>
+                </item>
+                <item onclick="$('popmenu').close();$page.open('forum_column.xml',{target:'_self'});" style="background:#3daffe,#474747">
+                    <row>
+                        <label style="margin-left:15;font-size:18;color:white;">模块视图</label>
+                        <icon src="top_updown.png" style="align:right;width:15;"></icon>
+                    </row>
+                </item>
+            </list>
+		</popupmenu> 
+        <title style="background:#38adff;tint-color:white">
+            <left>
+                <button role="back"></button>
+            </left>
+            <center>
+                <label onclick="openPopupMenu();">模块视图</label>
+                <icon id="arrow" src="mail_down.png" style="width:15;margin-left:5;" onclick="openPopupMenu();"></icon>
+            </center>
+            <right>
+                <button onclick="$page.open('forum_new.xml',{animation:'down-to-up'});" icon="desk_personcenter_add.png"></button>
+            </right>
+        </title>
+		<content id="indexContent" draggable="true" ondragdown="refresh();">
+            <list id="forumList" reuse="true">
+                <item style="col-width:45,*;">
+                    <col>
+					   <row>
+					   		<button reusekey="btn" style="font-size:16;color:#ffffff;"></button>
+					   </row>
+				   </col>
+				   <col style="margin-left:5;">
+					   <row><label reusekey="channelName" style="font-size:16;color:#555555;"></label></row>
+					   <row><label reusekey="childTip" style="font-size:12;color:#b8b8b8;"></label></row>
+				   </col>
+                </item>
+                <item>
+                   <col><row><label reusekey="title" style="align:center;"></label></row></col>
+                </item>
+            </list>
+        </content>
+    </page>
+</imag>

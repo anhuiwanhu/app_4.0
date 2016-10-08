@@ -58,7 +58,7 @@
 						}else{
 							var hasSelect = 'selected="true"';
 							var items = '';
-        					items += '<item style="col-width: 90,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回环节:</label></row></col><col style="padding:10;margin:10;"><row><select name="activity" id="backSelect" style="align:right" onchange="showBackPerson();">'+
+        					items += '<item style="col-width: 100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回环节:</label></row></col><col style="padding:10;margin:10;"><row><select name="activity" id="backSelect" style="align:right" onchange="showBackPerson();">'+
         							 '<option value="0">退回发起人</option>';
         					var length;
 							if(resultData instanceof Array){
@@ -72,16 +72,17 @@
 								items += '</select></row></col></item>';
 								// 数组长度不为0：有退回环节选择，需要创建退回人选项；数组长度为0：无退回环节选择，不创建退回人选项
 								if(length != 0){
-									items += '<item style="col-width: 90,*;padding:0;margin:0;" id="backPersonItem"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回人:</label></row></col><col style="padding:10;margin:10;"><row><label id="backPerson" style="align:right"></label></row></col></item>';
+									items += '<item style="col-width: 100,*;padding:0;margin:0;" id="backPersonItem"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回人:</label></row></col><col style="padding:10;margin:10;"><row><label id="backPerson" style="align:right"></label></row></col></item>';
 								}
 							}else if(resultData instanceof Object){
 								items += createOption(resultData.backWorkFlow,hasSelect) + '</select></row></col></item>'+
-									     '<item style="col-width: 90,*;padding:0;margin:0;" id="backPersonItem"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回人:</label></row></col><col style="padding:10;margin:10;"><row><label id="backPerson" style="align:right">'
+									     '<item style="col-width: 100,*;padding:0;margin:0;" id="backPersonItem"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label>退回人:</label></row></col><col style="padding:10;margin:10;"><row><label id="backPerson" style="align:right">'
 									     +resultData.backWorkFlow.dealwithEmpName+'</label></row></col></item>';
 							}
 			        		$('content_list').addMore('<imag><list>' + items + '</list></imag>');
 			        		// 第一次初始化退回人
 			        		showBackPerson();
+			        		createOtherItem();  //加载退回意见
 						}
 				},function(error) {
 				    if (error == 'timeout') {
@@ -93,6 +94,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
         	}
         	
@@ -103,6 +105,14 @@
         		var option = '<option value="'+optionVal+'" ' + hasSelect + '>'+backWorkFlow.activityName+':'+backWorkFlow.dealwithEmpName+'</option>';
         		return option;
         	}
+        	
+        	// 创建固定ITEM内容
+        	function createOtherItem(){
+        		var itemContent =  
+        		'<item style="col-width: 100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:12;color:#FF4617">*</label><label style="align:left;font-size:16;">退回原因:</label></row></col><col style="padding:10;margin:10;"><row><textarea rows="5"  id="tips" maxrows="500"></textarea></row></col> </item>';
+               $('content_list').addMore('<imag><list>' + itemContent + '</list></imag>');
+        	}
+        	
         	
         	// 显示退回人
         	function showBackPerson(){
@@ -144,9 +154,12 @@
 
 			// 退回
 			function backFlow(){
-				//if(!confirm('确定退回？')){
-				//	return false;
-				//}
+				var tipsValue = $('tips').value;  //退回意见不能为空
+				if(tipsValue=='' || tipsValue==null){
+					alert('退回意见不能为空！');
+					return false;
+				}
+				$('comment').value=tipsValue;
         		$('backForm').action = evoUrl + '/ezOffice/workflow/backprocess.do';
 				$('backForm').submit(function(data) {
 					if(!data){
@@ -178,7 +191,7 @@
             <left>
             	<button role="back"></button>
             </left>
-            <center><label id="centerTitle" onclick="">文件办理</label></center>
+            <center><label id="centerTitle" onclick="">流程退回</label></center>
         </title>
         <header>
         	<list>
@@ -201,7 +214,6 @@
         </header>
         <content id="content">
         	<form id="backForm" multipart="true" prompt="请稍后...">
-				<input type="hidden" name="comment" value="不同意，退回。"/>
 				<!--backMailRange 邮件提醒范围0:退回环节经办人1:所有办理人-->
 				<input type="hidden" name="backMailRange" value="0"/>
 				<!--needSmsRemind 是否短信提醒 0：不提醒  1：提醒-->

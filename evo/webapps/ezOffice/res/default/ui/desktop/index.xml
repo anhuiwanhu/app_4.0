@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag mode="develop">
+	<page style="background: loading.png">
+	   <content style="margin:0 5">
+
+	        <list type="transparent" style="margin:10 10 0;background:#D6E6F3">
+				<item style="col-width:25%,25%,25%,25%; background:login_input.png;">
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <row><label style="font-size: 15; color: black; align: center">流程</label></row>
+					</col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('doc/index.xml');"/></row>
+                      <label style="font-size: 15; color: black; align: center">公文</label>
+					</col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+					  <label style="font-size: 15; color: black; align: center">信息</label>
+                    </col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <label style="font-size: 15; color: black; align: center">日程</label>
+					</col>
+				</item>
+				<item style="col-width:25%,25%,25%,25%; background:login_input.png;">
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <row><label style="font-size: 15; color: black; align: center">论坛</label></row>
+					</col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <label style="font-size: 15; color: black; align: center">邮件</label>
+					</col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+					  <label style="font-size: 15; color: black; align: center">联系人</label>
+                    </col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <label style="font-size: 15; color: black; align: center">汇报</label>
+					</col>
+				</item>
+				<item style="col-width:25%,25%,25%,25%; background:login_input.png;">
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <row><label style="font-size: 15; color: black; align: center">微博</label></row>
+					</col>
+					<col>
+					  <row><icon src="icon_custom.png" style="align:center;width:46;height:46" onclick="$page.open('/ezOffice/desktop/testlist.do');"/></row>
+                      <label style="font-size: 15; color: black; align: center">通知通告</label>
+					</col>
+					<col>
+					  <row></row>
+                    </col>
+					<col>
+					  <row></row>
+					</col>
+				</item>
+				
+			</list>
+
+		</content>
+	</page>
+</imag>

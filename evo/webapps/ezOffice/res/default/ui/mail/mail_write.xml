@@ -173,6 +173,19 @@
 		        		hint("无后缀名的附件不允许上传，请重新选择");
 		        		return false;
 		        	}
+		        	var filenameExt = path.substring(path.lastIndexOf('\.')+1,path.length);
+		        	if(filenameExt == 'exe'){
+		        	    hint("后缀名为exe的附件不允许上传，请重新选择");
+		        		return false;
+		        	}
+		        	if(filenameExt == 'cmd'){
+		        	    hint("后缀名为cmd的附件不允许上传，请重新选择");
+		        		return false;
+		        	}
+		        	if(filenameExt == 'jsp'){
+		        	    hint("后缀名为jsp的附件不允许上传，请重新选择");
+		        		return false;
+		        	}
 		        	fileAddressArr.push(path);
 		        	fileTypeArr.push('file');
 		            uploadFileView();

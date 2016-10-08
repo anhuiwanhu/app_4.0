@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<imag>
+    <script>
+    <![CDATA[
+        //页面家在完成后执行
+        $page.onload = function() {
+            initSex();
+        }
+        
+        
+        function initSex(){
+            //获取手机缓存中的数据 ,并为页面赋值
+            var storage = $phone.localStorage();
+            var desktopEmpsex = storage.getItem('desktopEmpsex');            //性别
+            
+            if(desktopEmpsex=="0"){
+               $('man').css("display","");
+            }else if(desktopEmpsex=="1"){
+               $('woman').css("display","");
+            }else{
+               $('nobody').css("display","");
+            }
+        }
+        
+        function fillToparent(sex){   //确定后，调用父页面的方法。
+           var empsex = "";
+           if(sex == "man"){
+               $('man').css("display","");
+               $('woman').css("display","hidden");
+               $('nobody').css("display","hidden");
+               empsex = "0";
+           }else if(sex == "woman"){
+               $('man').css("display","hidden");
+               $('woman').css("display","");
+               $('nobody').css("display","hidden");
+               empsex = "1";
+           }else{
+               $('man').css("display","hidden");
+               $('woman').css("display","hidden");
+               $('nobody').css("display","");
+               empsex = "";
+           }
+		   
+		   $page.close(0, 'fillInputSex("'+empsex+'")');
+        }
+        
+		
+    ]]>
+    </script> 
+	<page>
+		<title style="background:#3daffe;tint-color:white;">
+		    <left>
+				<button   role="back" />
+			</left>
+            <center>
+                <label id="title_center_label">更改性别</label>
+            </center>
+	    </title>
+	  
+		<content id="docContent" style="background:#f0f0f3;">
+			<list id="docList" >
+	            <item style="padding:4;border:1 #f0f0f3;background:#f0f0f3;" >
+			           <col>
+					   </col>
+	            </item>
+               <item style="col-width:250,*" >
+                    <col style="margin-left:5;">
+                        <row><label style="height:40;color:#555555;font-size:16;">男</label></row>
+                    </col>
+                    <col onclick="fillToparent('man')">
+                        <row><icon id="man" src="mail_check.png" style="width:20;align:right;display:hidden;"  ></icon></row>
+                    </col>
+                </item>
+                <item style="col-width:250,*" onclick="fillToparent('woman')">
+                    <col style="margin-left:5;">
+                        <row><label style="height:40;color:#555555;font-size:16;">女</label></row>
+                    </col>
+                    <col>
+                        <row><icon id="woman" src="mail_check.png" style="width:20;align:right;display:hidden;"  ></icon></row>
+                    </col>
+                </item>
+                <item style="col-width:250,*" onclick="fillToparent('nobody')">
+                    <col style="margin-left:5;">
+                        <row><label style="height:40;color:#555555;font-size:16;">无</label></row>
+                    </col>
+                    <col>
+                        <row><icon id="nobody" src="mail_check.png" style="width:20;align:right;display:hidden;"  ></icon></row>
+                    </col>
+                </item>
+			</list>
+		</content>
+	</page>
+</imag>

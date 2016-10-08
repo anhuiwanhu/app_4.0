@@ -13,30 +13,11 @@
 	            $page.setTimeout(function() {
 	        	   //hint('列表自动刷新中...');
 	        	   updateCache();
-                }, 2000);
+                }, 2000); 
 			}
-			//缓存无数据则更新
-	        function updateCache2(){
-	        
-	              var storage = $phone.localStorage();
-	        	  var dbName = storage.getItem('ezMobile_dbName');
-	        	  var db = $phone.openDatabase(dbName);
-			      db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-			      function queryHasDataDB(tx) {
-					tx.executeSql('select packageId from workflow_list where userId = "'+userId+'"',[],
-							function(results){
-							  if(results.rows!=null && results.rows.length>0){
-							     CacheDataToPage();
-							  }else{
-							     updateCache();
-							  }
-							  
-							} , function(err){alert(err);}); 
-			      }
-	        }
+			
 			//更新缓存数据并刷新页面
 	        function updateCache(){
-	        
 	           $http.post(
 	       			evoUrl + '/ezOffice/workflow/getTopFlowList.do',{processName : ''}, 
 			        function(data) {
@@ -56,6 +37,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
 				    
 			   );
@@ -98,6 +80,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
 				    
 			  );
@@ -481,6 +464,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 			}

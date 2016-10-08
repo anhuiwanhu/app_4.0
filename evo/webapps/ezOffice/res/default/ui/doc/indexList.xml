@@ -3,217 +3,12 @@
  <script>
     <![CDATA[
         var loadFlag = '0';  //函数执行置为1，提交之前进行判断，若为1，则禁止 提交，防重复提交
-      //  var currPage;
         var pagerOffset=0;
         
          //页面家在完成后执行
         $page.onload = function() {
-            if($param['refresh']=="1"){
-	             updateCache();
-	          }else{
-	          //   updateCache2();  //非其他页面进入，需要判断本地数据库是否有数据
-	               CacheDataToPage();
-	               $page.setTimeout(function() {
-		        	  // hint('列表自动刷新中...');
-		        	   updateCache();
-                   }, 2000);
-	          }
+	         initList('update');
         }
-        
-        //缓存无数据则更新
-       function updateCache2(){
-             var storage = $phone.localStorage();
-       	 	 var dbName = storage.getItem('ezMobile_dbName');
-       	  	 var db = $phone.openDatabase(dbName);
-	     	 db.transaction(queryHasDataDB, function(err){alert(err);}, function(){});
-		     function queryHasDataDB(tx) {
-				tx.executeSql('select id,userId from doc_list',[],
-						function(results){
-						  if(results.rows!=null && results.rows.length>0){   //缓存中有数据
-						     var userId = storage.getItem('sys_sys_userId');  //判断登录人与缓存中的登录人是否是同一人
-						     var localUserId = results.rows.item(0).userId; 
-						     if(userId == localUserId ){
-						     	 CacheDataToPage();
-						     }else{
-						         updateCache();
-						     }
-						  }else{                         //缓存中无数据          
-						     updateCache();
-						  }
-						} , function(err){alert(err);}); 
-		      }
-        }
-        
-        //更新缓存数据并刷新页面
-       function updateCache(){
-            pagerOffset = 0 ;
-            $('bottom_hasmore').css('display','hidden');
-	        $('bottom_load').css('display','');
-	        $('indexContent').showBottom();
-            $('docList').clear();
-       		var storage = $phone.localStorage();
-		    var evoUrl = storage.getItem('evoUrl');	
-            $http.post(evoUrl+'/ezOffice/doc/index.do',{pagerOffset:'0'},  function(data) {
-		            var jsonData = eval('('+data+')');
-		            if(jsonData){
-		        	  DbToCacheData(jsonData);
-		        	  CacheDataToPage();
-		        	}
-		        },function(error) {
-			    if (error == 'timeout') {
-					hint('连接服务器超时！');
-			    } else if (error == '404') {
-					hint('链接超时重新登录！');
-			    } else if (error == '500') {
-					hint('内部服务器错误！');
-			    } else {
-					hint('访问网络错误！错误代码:' + error);
-			    }
-			  }
-		   );
-         }
-        
-        //将获取到的数据存入缓存
-        function DbToCacheData(obj) {
-              $('bottom_hasmore').css('display','hidden');
-	          $('bottom_load').css('display','');
-	          $('indexContent').showBottom();
-              var storage = $phone.localStorage();
-           	  var dbName = storage.getItem('ezMobile_dbName');
-              var db = $phone.openDatabase(dbName);
-	          db.transaction(DbToCacheData_1);
-	          function DbToCacheData_1(tx) {
-                   if(obj){
-				        tx.executeSql('delete from doc_list ');
-	                    var result = obj.message.result;
-	                    var recordCount = obj.data.recordCount;
-		        		if(result == '1'){
-		        		    var objArr = obj.data.result; //返回列表数组
-		        			if(objArr instanceof Array){
-		        			    for (var i = 0; i < objArr.length; i++) { 
-		        			    	var userIsReaded = objArr[i].userIsReaded;   //判断是否是未读公文
-				                  //  alert(userIsReaded);
-				                    var picAddress = "mail_unread.png"; 
-				                    if(userIsReaded==1){
-				                       picAddress = " ";
-				                    }
-				                    var handOutTime = objArr[i].handOutTime;     //日期显示
-				                    if(handOutTime!=null&&handOutTime!=""){
-				                        handOutTime = handOutTime.substring(0,10);
-				                    }else{
-				                        handOutTime = "";
-				                    }
-				                    var localTitle = objArr[i].title;   //字数超过18位，使用省略号（...）代替
-				                    if(localTitle!=""&&localTitle!=null&&localTitle.length>18){
-				                        localTitle = localTitle.substring(0,18)+"...";
-				                    }
-				                    var localWriteOrg = objArr[i].writeOrg;   //只显示最后一级
-				                    if(localWriteOrg!=""&&localWriteOrg!=null&&localWriteOrg.lastIndexOf('.')>-1){
-				                        localWriteOrg = localWriteOrg.substring(localWriteOrg.lastIndexOf('.')+1,localWriteOrg.length);
-				                    }
-			        				var doc_sql = 'insert into doc_list(picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,'+
-			        				'accessoryName,writeOrg,byteNumber,userIsReaded,recordCount,userId) '+
-			        				' values("'+picAddress+'","'+handOutTime+'","'+localTitle+'","'+localWriteOrg+'","'+objArr[i].goldGridId+'","'+objArr[i].title+'","'+objArr[i].wordType+'","'+objArr[i].id+'","'+
-			        				objArr[i].accessoryName+'","'+objArr[i].writeOrg+'","'+objArr[i].byteNumber+'","'+objArr[i].userIsReaded+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
-			        				tx.executeSql(doc_sql);
-			        			}
-		        			}else if(objArr instanceof Object){
-		        					var userIsReaded = objArr.userIsReaded;   //判断是否是未读公文
-				                    var picAddress = "mail_unread.png"; 
-				                    if(userIsReaded==1){
-				                       picAddress = " ";
-				                    }
-				                    var handOutTime = objArr.handOutTime;     //日期显示
-				                    if(handOutTime!=null&&handOutTime!=""){
-				                        handOutTime = handOutTime.substring(0,10);
-				                    }else{
-				                        handOutTime = "";
-				                    }
-				                    var localTitle = objArr.title;   //字数超过18位，使用省略号（...）代替
-				                    if(localTitle!=""&&localTitle!=null&&localTitle.length>18){
-				                        localTitle = localTitle.substring(0,18)+"...";
-				                    }
-				                    var localWriteOrg = objArr.writeOrg;   //只显示最后一级
-				                    if(localWriteOrg!=""&&localWriteOrg!=null&&localWriteOrg.lastIndexOf('.')>-1){
-				                        localWriteOrg = localWriteOrg.substring(localWriteOrg.lastIndexOf('.')+1,localWriteOrg.length);
-				                    }
-			        				var doc_sql = 'insert into doc_list(picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,'+
-			        				'accessoryName,writeOrg,byteNumber,userIsReaded,recordCount,userId) '+
-			        				' values("'+picAddress+'","'+handOutTime+'","'+localTitle+'","'+localWriteOrg+'","'+objArr.goldGridId+'","'+objArr.title+'","'+objArr.wordType+'","'+objArr.id+'","'+
-			        				objArr.accessoryName+'","'+objArr.writeOrg+'","'+objArr.byteNumber+'","'+objArr.userIsReaded+'","'+recordCount+'","'+storage.getItem('sys_sys_userId')+'")';
-			        				tx.executeSql(doc_sql);
-		        			}
-		        		}else{
-		        			//查询数据异常
-		        			noDataContent(listJson,itemJson);
-		        		}
-		        }
-		   }
-	    
-	    }
-	    
-	    
-	     function CacheDataToPage(){
-	        $('bottom_hasmore').css('display','hidden');
-	        $('bottom_load').css('display','');
-	        $('indexContent').showBottom();
-	        var storage = $phone.localStorage();
-		    var dbName = storage.getItem('ezMobile_dbName');
-		    var listJson = {items:[]};   //存储返回数据列表信息
-		    var itemJson;
-			var recordCount;
-		    var db = $phone.openDatabase(dbName);
-	        db.transaction(queryDocListDB, function(err){alert(err);}, function(){});
-	        function queryDocListDB(tx) {
-					tx.executeSql('select picAddress,handOutTime,localTitle,localWriteOrg,goldGridId,title,wordType,id,accessoryName,writeOrg,byteNumber,userIsReaded,recordCount from doc_list',[],
-					function(results){
-						 if(results.rows!=null && results.rows.length>0){
-							    for(var i=0; i<results.rows.length; i++){
-							    	 var picAddress = results.rows.item(i).picAddress;
-							    	 var handOutTime = results.rows.item(i).handOutTime;
-							    	 var localTitle = results.rows.item(i).localTitle;
-							    	 var localWriteOrg = results.rows.item(i).localWriteOrg;
-							    	 var goldGridId = results.rows.item(i).goldGridId;
-							    	 var title = results.rows.item(i).title;
-							    	 var wordType = results.rows.item(i).wordType;
-							    	 var id = results.rows.item(i).id;
-							    	 var accessoryName = results.rows.item(i).accessoryName;
-							    	 var writeOrg = results.rows.item(i).writeOrg;
-							    	 var byteNumber = results.rows.item(i).byteNumber;
-							    	 var userIsReaded = results.rows.item(i).userIsReaded;
-							    	 recordCount = results.rows.item(i).recordCount;
-							    	 itemJson = {
-					                        template : 1,
-					                        onclick : 'openDetail("'+goldGridId+'","'+title+'","'+wordType+'","'+id+'","'+accessoryName+'","'+handOutTime+'","'+writeOrg+'","'+byteNumber+'","'+userIsReaded+'")',
-					                        widgets : {
-					                            userIsReaded : {src : picAddress},
-					                            title : {text :localTitle },
-					                            handOutTime : {text :handOutTime},
-					                            writeOrg : {text :localWriteOrg}
-					                        }
-					                 };
-					                 listJson.items.push(itemJson);
-					                 var    itemJson_null = {   
-									                        template : 0,
-									                        onclick : '',
-									                        widgets : {
-									                        }
-									                  };
-									 listJson.items.push(itemJson_null);
-							    }
-						 }
-					} , function(err){alert(err);}); 
-			  }
-			  pagerOffset=15;  //点击加载更多，需要置为15
-              if(parseInt(recordCount) > 15){
-       				$('bottom_hasmore').css('display','');
-       		  }else{
-       				$('bottom_hasmore').css('display','none');
-       				$('indexContent').hideBottom();
-       		  }
-        	  $('docList').update(listJson);
-        	  $('bottom_load').css('display','none');
-	     }
         
         function loadList(loadType){   //加载更多
            initList(loadType);
@@ -222,11 +17,13 @@
          //检索列表查询方法
         function searchDoc(){
         	pagerOffset = 0;
-        	if($('search').value == ''){
-           		updateCache();
-           }else{
-                initList('update');
-           }
+            initList('update');
+        }
+        
+        function refreshPage(){
+           pagerOffset = 0;
+           $('indexContent').hideTop();
+           initList('update');
         }
        
         function initList(loadType){
@@ -238,11 +35,11 @@
 	        }
 	        loadFlag = '1';
 	        $('bottom_hasmore').css('display','hidden');
-	        $('bottom_load').css('display','');
+	   //     $('bottom_load').css('display','');
 	        $('indexContent').showBottom();
 	        var storage = $phone.localStorage();
 		    var evoUrl = storage.getItem('evoUrl');	
-            $http.post(evoUrl+'/ezOffice/doc/index.do',{title : $('search').value,pagerOffset:pagerOffset},  function(data) {
+            $http.progress('正在加载，请稍后...').post(evoUrl+'/ezOffice/doc/index.do',{title : $('search').value,pagerOffset:pagerOffset},  function(data) {
                 if(data){
 	                var obj = JSON.parse(data);
 	                var result = obj.message.result;
@@ -365,7 +162,7 @@
 	        			$('docList').update(listJson);
         			}
 	            }
-	            $('bottom_load').css('display','none');
+	         //   $('bottom_load').css('display','none');
 	        	loadFlag = '0';
 	         },function(error) {
 				    if (error == 'timeout') {
@@ -377,20 +174,11 @@
 				    } else {
 				        hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 			    }
 	         );
         }
         
-        
-        function refreshPage(){
-           pagerOffset = 0;
-           $('indexContent').hideTop();
-           if($('search').value == ''){
-           		updateCache();
-           }else{
-                initList('update');
-           }
-        }
     ]]>
 </script>
 	<page >
@@ -436,7 +224,7 @@
 			<bottom>
                 <list>
                     <item onclick="loadList('add');" >
-                        <row id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
+                        <row id="bottom_load" style="display:hidden;"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
                       	<row style="display:hidden" id="bottom_hasmore">
 	                        <label style="align:center;">点击加载更多...</label>
 	                        <progress id="more_progress" style="display:none;align:center"/>

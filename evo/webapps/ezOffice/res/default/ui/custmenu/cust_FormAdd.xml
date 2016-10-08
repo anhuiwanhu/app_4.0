@@ -7,12 +7,13 @@
             if(info['platform']=='android'){
               fujianwidth='width:200';
             }
-	        var fileindex =0;    //附件最多能上传5个
+            var fileTotle = 0 ;  //附件最多能上传5个
+	        var fileindex =0;    //附件id标识
             var fileAddressArr = new Array();
             var fileTypeArr = new Array();   //附件上传时，存储对应数组fileAddressArr中的类型。pic:图片类型，sound：声音类型，file：其他附件类型
 	        
 	        function getAttanchNum(){
-				if(fileindex>=5){
+				if(fileTotle>=5){
 					hint('上传附件不能超过5个！');
 					return false;
 				}
@@ -33,55 +34,42 @@
 					}
 					$page.browseImage({
 						complete: function(path) {
-						    fileAddressArr.push(path);
-						    fileTypeArr.push('pic');
-						    uploadFileView(appendId,sysname);
-			        	    fileindex++;
-					    },
+						 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
+                            var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+						    $(appendId).add(row);
+						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+				            
+				        	fileindex++;
+				        	fileTotle++;
+				        },
 				        error: function() {
 				            hint('上传图片失败！');
 				        }
 					  });
 		     }
-		     
-		     function uploadFileView(appendId,sysname){   //附件上传展示
-		     	    $(appendId).clear();
-		            if(fileTypeArr.length == fileAddressArr.length){  //两个数组中长度一致
-		                var addRow = $C('<row onclick="doRelatedAcc(this,\'' + appendId + '\',\'' +sysname + '\')"><icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this,\'' + appendId + '\',\'' +sysname + '\')"/><input type="hidden" name="_mainfile_' +sysname + '" /></row>');
-		              //  var row = $C('<row><icon style="width:28;height:28;margin-left:8;" src="mail_fujian.png"/><input type="hidden" name="_mainfile_' +sysname + '"/></row>');
-			            $(appendId).add(addRow);
-		            	for(var i=0;i<fileAddressArr.length;i++){
-							if(fileAddressArr[i]!=null&&fileAddressArr[i]!=""&&fileAddressArr[i]!=undefined){
-							    var path = fileAddressArr[i];
-							    var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-	                            var listRow = $C('<row><icon style="width:28;height:28;margin-left:8;" src="mail_fujian.png"/>'+
-	                            '<label style="color:blue;width:180;">' + showpath + '</label>'+
-							    '<input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '" />'+
-							    '<icon  src="mail_del.png" style="width:12;height:12;margin-right:2;" onclick="delrow(\''+i+'\');"/></row>');
-							    $(appendId).add(listRow);
-							}	            
-			            }
-		            }else{   //若不一致
-		                 alert('上传出错！');
-		            }
-		     }
-		     
-			 function doFileCamera(file,appendId,sysname) {  //拍照
-				if(!getAttanchNum()){
-					return;
-				}
-			    $phone.camera({
-			        success: function(path) {
-			        	fileAddressArr.push(path);
-			        	fileTypeArr.push('pic');
-			        	uploadFileView(appendId,sysname);
-			        	fileindex++;
-			        },
-			        error: function() {
-			            hint('拍照失败！');
-			        }
-			    });
+		 function doFileCamera(file,appendId,sysname) {  //拍照
+			if(!getAttanchNum()){
+				return;
 			}
+		    $phone.camera({
+		        success: function(path) {
+		        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
+		        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+						    $(appendId).add(row);
+						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+				      
+		        	fileindex++;
+		        	fileTotle++;
+		        },
+		        error: function() {
+		            hint('拍照失败！');
+		        }
+		    });
+		}
 		
 		 function doFileRecordSound(file,appendId,sysname) {
 			if(!getAttanchNum()){
@@ -90,10 +78,14 @@
 		    $phone.recordSound({
 		        success: function(path) {
 		        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-			        fileAddressArr.push(path);
-			        fileTypeArr.push('file');
-					uploadFileView(appendId,sysname);
+		        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+						    '<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+						    '<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+						    $(appendId).add(row);
+						    $('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+				      
 		        	fileindex++;
+		        	fileTotle++;
 		        },
 		        error: function() {
 		            hint('录音失败！');
@@ -124,22 +116,26 @@
 			        	    hint("后缀名为jsp的附件不允许上传，请重新选择");
 			        		return false;
 			        	}
-			        	fileAddressArr.push(path);
-			        	fileTypeArr.push('file');
-			            uploadFileView(appendId,sysname);
-			        	fileindex++;fileindex++;
+						var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+						'<label id="attachmentId' + fileindex + '" style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+						'<icon id="imageId" src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+						$(appendId).add(row);
+						//$('input_file'+fileindex).value = path;
+						$('content_form_list').addMore('<imag><list><item><row><input type="file" style="display:none;" value="' + path + '" name="attachment_main_' + sysname + '"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+						fileindex++;
+						fileTotle++;
 					}
 				});
 			}
 			
-			function delFile(index){   //删除附件
-				if(confirm('确认删除附件吗？')){
-					fileAddressArr.splice(parseInt(index),'1');
-					fileTypeArr.splice(parseInt(index),'1');
-				    uploadFileView();
-					fileindex--;
+			function delrow(index,appendId) { //删除附件
+				if (confirm('确认删除附件吗？')) {
+					$('input_file' + index).value = "";
+					$(appendId).remove($('row' + index));
+					fileTotle--;
 				}
 			}
+		
 		
     ]]>
     </script> 
@@ -220,6 +216,7 @@
 					    } else {
 					        hint('访问网络错误！错误代码:' + error);
 					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 				    }
         		);
 	        }
@@ -251,8 +248,13 @@
         	       mustfilled_view = '<label style="align:left;font-size:12;color:#FF4617">*</label>';
         	    }
 	        	//alert(field.name+':'+showType+':'+mustfilled);
-	        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label>' + field.name + ':</label>'+
-	        				   '</row></col><col style="padding:10;margin:10;" id="'+attId+'">';
+	        	if(showType == '115'){
+	        			itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label>' + field.name + ':</label>'+
+	        				   '<input type="hidden" name="_mainfile_' +field.sysname + '" /></row></col><col style="padding:10;margin:10;" id="'+attId+'">';
+	        	}else{
+	        			itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label>' + field.name + ':</label>'+
+	        				   '</row></col><col style="padding:10;margin:10;" >';
+	        	}
 	        	if((showType == '101'||showType == '803') && readWrite == '1'){
 	        		//单行文本
 	        		if(fieldType == '1000000'){

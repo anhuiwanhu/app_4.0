@@ -73,6 +73,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
         	}
@@ -187,6 +188,7 @@
 					    } else {
 					        hint('访问网络错误！错误代码:' + error);
 					    }
+					    $page.open('../index.xml',{animation:'down-to-up'});
 				   }
 	            );
         }
@@ -306,6 +308,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  });
 			}
 			
@@ -743,6 +746,7 @@
 				    } else {
 						hint('访问网络错误！错误代码:' + error);
 				    }
+				    $page.open('../index.xml',{animation:'down-to-up'});
 				  }
         		);
 	        }
