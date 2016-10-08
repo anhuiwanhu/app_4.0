@@ -236,6 +236,10 @@
 						}else{
 							if(subFieldList instanceof Array){
 								fieldCount = subFieldList.length;
+								itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+										   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据>"/></row></col></item>';
+				                contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+								$('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
 							}else if(subFieldList instanceof Object){
 							     if(subFieldList.dataId == null || subFieldList.dataId == ''|| subFieldList.dataId == '[]' ){  //没有子表
 								    	  fieldCount = 0;
@@ -260,11 +264,14 @@
 				var subFieldList = JSON.parse(subFieldList);
 				if(subFieldList instanceof Array){
 					for(var i=0,length=subFieldList.length;i<length;i++){
+				        subTabelItemContent += '<item ><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col></item>';
 						createSubTableField(subFieldList[i].field);
 						subTabelItemContent += '<item></item>';
 					}
 				}else if(subFieldList instanceof Object){
+				    subTabelItemContent += '<item ><col><row><label style="align:left;font-size:14;">表1</label></row></col></item>';
 					createSubTableField(subFieldList.field);
+					subTabelItemContent += '<item></item>';
 				}
 				//$page.open('dealfile_subProcess.xml?workId=' + workId);
 				$('subTabel_form_list').addMore('<imag><list>' + subTabelItemContent + '</list></imag>');
@@ -314,7 +321,7 @@
 	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
 				}else{
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-					subTabelItemContent += '<row><label style="align:right">' + (field.value == "undefined" ? "" : field.value) + '</label></row></col></item>';
+					subTabelItemContent += '<row><label style="align:right">' + (field.hiddenval == "undefined" ? "" : field.hiddenval) + '</label></row></col></item>';
 				}
 				// 创建附件内容
 				createAttachCon();
@@ -346,12 +353,20 @@
 			// 创建审批意见、退回意见
 			function createCommentCon(contentFormList,workInfo,detailData,officeList){
 				var itemContent = '';
-				var passRoundCommField = workInfo.passRoundCommField;
+				var passRoundCommField = workInfo.passRoundCommField;   //待办文件使用passRoundCommField字段
 				var passRoundCommFieldType = workInfo.passRoundCommFieldType;
 				var commentList = detailData.commentList;
-				if(passRoundCommFieldType != '-1' && (passRoundCommField == '-1' || passRoundCommField == 'nullCommentField' ||
-				   passRoundCommField == 'autoCommentField' || passRoundCommField == 'null')){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">审批意见:</label></row></col><col style="padding:10;margin:10;"><row>'+
+				if(passRoundCommFieldType != '-1' && passRoundCommField != '-1' && passRoundCommField != 'nullCommentField' &&
+				   passRoundCommField != 'autoCommentField' && passRoundCommField != 'null'){   
+				    var passRoundCommFieldName = workInfo.passRoundCommFieldName;
+				    var commentViewName = '';
+				    var  workcurstep =  workInfo.workcurstep;
+				    if(passRoundCommFieldName == '' || passRoundCommFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = passRoundCommFieldName;
+				    }
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 								   '<textarea style="font-size:16;color:#555555" rows="5" name="comment_input" id="comment_input" maxrows="500"></textarea></row></col></item>'+
 								   '<item id="" style="col-width:*,40,40,50,40"><col><row></row></col>'+
 								   <!-- '<col><row><icon id="qianzhang" src="workflow_spread.png" style="display:none;width:30;height:30;"/></row></col>'+ -->
@@ -371,7 +386,7 @@
 								// 手写
 								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 								//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-								itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+								itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 											   '<img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
@@ -390,7 +405,7 @@
 							// 手写
 							commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 							//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-							itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
+							itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');"  style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col style="padding:10;margin:10;"><row>'+
 									   	   '<img src="'+commentShouxie+'"/></row>';
 						}else if(commentType == '5'){
 							// 语音
@@ -509,7 +524,7 @@
 									// 手写
 									commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 									//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-									itemContent += '<row><img src="'+commentShouxie+'"/></row>';
+									itemContent += '<row onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 								}else if(commentType == '5'){
 									// 语音
 									commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
@@ -525,7 +540,7 @@
 								// 手写
 								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 								//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-								itemContent += '<row><img src="'+commentShouxie+'"/></row>';
+								itemContent += '<row onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
 								commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
@@ -744,7 +759,7 @@
 					return;
 				}
 		        $page.graffiti({
-		        	type: 'draft',
+		        	type: 'sign',
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
@@ -767,6 +782,12 @@
         		drfNum = '0';
         		$('comment_input_sxyy').css('display','none');
 			}
+			
+			//全屏显示手写审批内容
+			function view_sxContent(path){
+				$page.open('dealfile_viewBiggraffiti.xml?sxContenturl='+encodeURIComponent(path),{target:'_blank'});
+			}
+			
 		    //语音审批
 			function doRecordSound(){
 			   if(drfNum == "1"){

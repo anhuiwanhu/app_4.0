@@ -118,6 +118,10 @@
 						}else{
 							if(subFieldList instanceof Array){
 								      fieldCount = subFieldList.length;
+								      itemContent = '<item id="sub" onclick="openSubTableCon('+subFieldList+');" accessory="indicator" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">子表('+subTableList.subTable.name+')填写:</label></row></col><col style="padding:10;margin:10;"><row>'+
+											   '<input readonly="true" style="border:0 white;font-size:16;text-align:right;color:#555555" type="text" value="'+fieldCount+'条子表数据"/></row></col></item>';
+									  contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+							          $('sub').onclick = "openSubTableCon('" + JSON.stringify(subFieldList) + "')";
 							}else if(subFieldList instanceof Object){
 								 if(subFieldList.dataId == null || subFieldList.dataId == ''|| subFieldList.dataId == '[]' ){  //没有子表
 								    	  fieldCount = 0;
@@ -140,11 +144,14 @@
 				var subFieldList = JSON.parse(subFieldList);
 				if(subFieldList instanceof Array){
 					for(var i=0,length=subFieldList.length;i<length;i++){
+						subTabelItemContent += '<item ><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col></item>';
 						createSubTableField(subFieldList[i].field);
 						subTabelItemContent += '<item></item>';
 					}
 				}else if(subFieldList instanceof Object){
+					subTabelItemContent += '<item ><col><row><label style="align:left;font-size:14;">表1</label></row></col></item>';
 					createSubTableField(subFieldList.field);
+					subTabelItemContent += '<item></item>';
 				}
 				//$page.open('dealfile_subProcess.xml?workId=' + workId);
 				$('subTabel_form_list').addMore('<imag><list>' + subTabelItemContent + '</list></imag>');
@@ -194,7 +201,7 @@
 	        		viewFiles('wpsFiles',"正文",field.value+".wps","information");   //显示名不能为空
 				}else{
 					subTabelItemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label>' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-					subTabelItemContent += '<row><label style="align:right">' + (field.value == "undefined" ? "" : field.value) + '</label></row></col></item>';
+					subTabelItemContent += '<row><label style="align:right">' + (field.hiddenval == "undefined" ? "" : field.hiddenval) + '</label></row></col></item>';
 				}
 				// 创建附件内容
 				createAttachCon();

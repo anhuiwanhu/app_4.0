@@ -154,10 +154,14 @@
 	       					    hasremind=nextActivityList[i].id;
 		        				option += '<option value="'+ nextActivityList[i].id +'" selected="true">'+ nextActivityList[i].name +'</option>';
 		        				scopeId = nextActivityList[i].scopeId;
-		        				if(scopeId==''||scopeId=='[]'){
-				        			alert('流程设置错误！');
-				        			return false;
-				        		}
+		        				if(hasremind == '-1' || hasremind == '-2'||hasremind == '-100'){    
+		        					//不需要判断scopeId
+		        				}else{
+		        					if(scopeId==''||scopeId=='[]'){
+					        			alert('流程设置错误！');
+					        			return false;
+					        		}
+		        				}
 		        				scopeType = nextActivityList[i].scopeType;
 	        					scopeName = nextActivityList[i].scopeName;
 	        					activityId = nextActivityList[i].id;
@@ -210,7 +214,6 @@
 		                     '<input type="hidden" name="userId" id="userId" value="'+userId+'"/>'+
 		                     '</row></col></item>';
 		            pushMustFillArray('userId');
-
         		}
         		contentList.addMore('<imag><list>' + items + '</list></imag>');
         		
@@ -224,11 +227,17 @@
         	  if(id=='-2'){
         	     $('msRemind_item').css('display','none');
         	     $('emergency_item').css('display','none');
-                   $('smsContent_item').css('display','none');
+                 $('smsContent_item').css('display','none');
+                 if($('processtime_item')){
+                	$('processtime_item').css('display','none');
+                 }
         	  }else{
         	     $('msRemind_item').css('display','block');
         	     $('emergency_item').css('display','block');
-                   $('smsContent_item').css('display','block');
+                 $('smsContent_item').css('display','block');
+                 if($('processtime_item')){
+                	$('processtime_item').css('display','block');
+                 }
         	  }
         	}
         	// 选择办理环节时的事件
@@ -387,6 +396,9 @@
                    if($('processDeadlineDate') != null){
                    		$('processDeadlineDate').css('display','none');
                    } 
+                   if($('processtime_item')){
+                   		 $('processtime_item').css('display','none');
+                   }
                 }
         	}
         	

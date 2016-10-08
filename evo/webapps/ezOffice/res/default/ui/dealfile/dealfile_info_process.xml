@@ -325,7 +325,7 @@
 							// 手写
 							commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 							//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-							itemContent += '<row style="margin-bottom:20"><img src="'+commentShouxie+'"/></row>';
+							itemContent += '<row style="margin-bottom:20" onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 						}else if(commentType == '5'){
 							// 语音
 							commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
@@ -344,7 +344,7 @@
 						// 手写
 						commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 						//commentShouxie = evoUrl+'/ezOffice/download/file.do?url='+encodeURIComponent(commentShouxie)+'&amp;filename=aaa.png&amp;uploadPath=workflow_acc&amp;isDecode=false';
-						itemContent += '<row style="margin-bottom:20"><img src="'+commentShouxie+'"/></row>';
+						itemContent += '<row style="margin-bottom:20" onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 					}else if(commentType == '5'){
 						// 语音
 						commentYuyin = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
@@ -386,7 +386,7 @@
 					return;
 				}
 		        $page.graffiti({
-		        	type: 'draft',
+		        	type: 'sign',
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
@@ -411,6 +411,11 @@
         		drfNum = '0';
         		$('comment_input_sxyy').css('display','none');
         		$('comment_input').css('display','block');
+			}
+			
+			//全屏显示手写审批内容
+			function view_sxContent(path){
+				$page.open('dealfile_viewBiggraffiti.xml?sxContenturl='+encodeURIComponent(path),{target:'_blank'});
 			}
 			
 		    //语音审批

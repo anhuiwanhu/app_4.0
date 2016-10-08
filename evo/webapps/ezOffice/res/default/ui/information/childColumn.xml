@@ -318,7 +318,7 @@
            //获取手机缓存中的数据
              pagerOffset=0;
              var storage = $phone.localStorage();
-             var channelId = storage.getItem('information_channelId');
+        //     var channelId = storage.getItem('information_channelId');
              initColumnList("update",channelId);
         }    
         ]]>

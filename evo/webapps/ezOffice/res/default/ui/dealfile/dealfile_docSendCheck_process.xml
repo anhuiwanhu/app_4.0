@@ -28,6 +28,10 @@
         					alert('数据获取失败！');
         				}
         				var workInfo = jsonData.data_0.data.workInfo;
+        				var dealTipsContent = workInfo.dealTipsContent;
+        				if(dealTipsContent!=null&&dealTipsContent!=''&&dealTipsContent!='[]'){
+        				   alert(dealTipsContent.replace(/(<[^>]+>)|(&nbsp;)/g,""));
+        				}
 						var detailData = jsonData.data_1.data;
 						var $contentFormList = $('content_form_list');
 						//创建流程图
@@ -417,25 +421,44 @@
 	        	}
 	        	
 	        	// 批示意见对应字段workInfo.commentField
-	        	if(workInfo.commentField != '' && workInfo.commentField != 'nullCommentField' && workInfo.commentField != '-1'){
-	        		var workcurstep = workInfoData.workInfo.workcurstep;
-	        		var commentField = workInfoData.workInfo.commentField;  
-	        	/*    var workcurstep = '';       //批示意见完全按照返回数据进行判断的
-		        	if(','+'SENDFILECHECK_WRITERCOMMENT'+',' == commentField){
-		        		workcurstep = '批示意见';
-		        	}else if('sendFileCheckLeaderComment' == commentField){
-		        		workcurstep = '意见';
-		        	}else{
-		        		workcurstep = '新增意见';
-		        	} */
-	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+workcurstep+':</label></row></col>'+
-		        				   '<col  style="margin:10;padding:10;"><row><textarea name="comment_input" rows="5" id="comment_input"></textarea></row></col></item>';
+	        	if(workStatus == '2'){  //阅件批示意见
+			    	var workInfo = workInfoData.workInfo ;
+			    	var passRoundCommFieldName = workInfo.passRoundCommFieldName;
+			 		var commentViewName = '';
+			        var  workcurstep =  workInfo.workcurstep;
+				    if(passRoundCommFieldName == '' || passRoundCommFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = passRoundCommFieldName;
+				    }
+			    	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+	        	    itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="margin:10;padding:10;">';
+	        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
+	        			          '<row><label style=""></label><radio name="commentradio" value="1" checked="false" onclick="$(\'comment_input\').value=\'同意。\'">同意</radio><label style="width:10"></label><label style=""></label><radio onclick="$(\'comment_input\').value=\'已阅。\'" name="commentradio" value="0">已阅</radio></row>';
+	        	    itemContent += '</col></item>';
+			    }else if(workStatus != '102' && workStatus != '101'&& workInfoData.workInfo.commentField != '-1'&&workInfoData.workInfo.commentField != '' && workInfoData.workInfo.commentField != 'nullCommentField'&& workInfoData.workInfo.commentField != '-1'){
+			    	var workInfo = workInfoData.workInfo ;    //其他批示，待办
+			    	var commentFieldName = workInfo.commentFieldName;
+				    var commentViewName = '';
+				    var commentField = workInfo.commentField;
+				    var  workcurstep =  workInfo.workcurstep;
+				    if(commentFieldName == '' || commentFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = commentFieldName;
+				    }
+	        	    itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+	        	    itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="margin:10;padding:10;">';
+	        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
+	        			          '<row><label style=""></label><radio name="commentradio" value="1" checked="false" onclick="$(\'comment_input\').value=\'同意。\'">同意</radio><label style="width:10"></label><label style=""></label><radio onclick="$(\'comment_input\').value=\'已阅。\'" name="commentradio" value="0">已阅</radio></row>';
+	        	    itemContent += '</col></item>';
 	        	}
 	        	// 退回意见
+	        	/*
 	        	if(detailData.backComment){
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">退回意见:</label></row></col>'+
 	        					   '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+detailData.backComment+'</label></row></col></item>';
-	        	}
+	        	} */
 	        }
 
 	        // 构建自定义字段内容

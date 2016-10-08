@@ -7,15 +7,19 @@
         	var storage = $phone.localStorage();
         	var evoUrl = storage.getItem('evoUrl');
         	var	workStatus = storage.getItem('workflow_workStatus');
+        	var un = storage.getItem('sys_userName');
 	        var workId = storage.getItem('workflow_workId');
 	        var webServiceUrl = storage.getItem('webServiceUrl');
 	        var evoword = storage.getItem('sys_evoword');
+	        var oaPDF = storage.getItem('sys_oaPdf');
 	        var realFiles;
 	        var saveFiles;
 	        var passRoundCommField = '';
 	        var itemContent = '';
 	        var officeList = '';
 	        var oaUrl = '';
+	        var workName='';
+	        var pdflist='';
 	        // 页面加载完后执行
         	$page.onload = function(){
 				$http.post(
@@ -32,9 +36,14 @@
         					alert('数据获取失败！');
         				}
         				var workInfo = jsonData.data_0.data.workInfo;
+        				var dealTipsContent = workInfo.dealTipsContent;
+        				if(dealTipsContent!=null&&dealTipsContent!=''&&dealTipsContent!='[]'){
+        				   alert(dealTipsContent.replace(/(<[^>]+>)|(&nbsp;)/g,""));
+        				}
         				passRoundCommField = workInfo.passRoundCommField;
 						var detailData = jsonData.data_1.data;
 						oaUrl = jsonData.data_1.oaUrl;
+						workName = workInfo.workcurstep;
 						var $contentFormList = $('content_form_list');
 						//创建流程图
        					createFlowImg(workInfo.flowgraphurl);
@@ -44,6 +53,7 @@
        					// 初始化发文表单数据
        					createFormData(detailData.baseData,detailData,jsonData.data_0.data);
        					$contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
+       					pdflist = detailData.pdflist;
        					// 创建附件对象
        					createDocView();
        					createAttCon();
@@ -178,7 +188,10 @@
         	var wordType;
         	var docTitle = '';
         	function createDocView(){
-				if(evoword =='1' && (workStatus=='0' || workStatus=='2')){
+				if(oaPDF =='1' && (workStatus=='0' || workStatus=='2')){
+					$('oaPdf').value = '1';
+					$('docContent').add($C('<row><label style="align:right;color:blue;text-decoration:underline;" onclick="doPdf();">PDF批注</label></row>'));
+				}else if(evoword =='1' && (workStatus=='0' || workStatus=='2')){
 					$('docContent').add($C('<label style="align:right;color:blue;text-decoration:underline;" onclick="doWps();">编辑正文</label>'));
 				}else{
 					$http.post(evoUrl+'/ezOffice/doc/detailinfo.do',{filename:filename,realname:docTitle,wordType:wordType},function(data) {
@@ -196,7 +209,7 @@
 							hint('访问网络错误！错误代码:' + error);
 					    }
 					    $page.open('../index.xml',{animation:'down-to-up'});
-					  });
+				  });
 				}
         	}
         
@@ -205,6 +218,111 @@
 	           $wps.open(oaUrl+'public/iWebOfficeSign/OfficeServer.jsp',
 	            {fileId:filename,userName:un,fileType:wordType,moduleType:'govdocument',enterReviseMode:true},{success:function(s){},error:function(s){alert(s)}});
         	}
+        	
+        	function doPdf(){
+        		if(pdflist+'' =='undefined' || pdflist+'' ==''){
+        			alert("无可批注的有效文件！");
+        			return;
+        		}
+        		if(pdflist instanceof Array){
+        			$('pdfList').clear();
+		            $('main_popupmenu').position='center';
+		            $('main_popupmenu').css('display:block;width:360;height:260;border:1 white;background:white;');
+		            $('pdfList').css('display', 'block');
+		       	    $('popupmenu_list').css('display', 'none');
+		            var fileTitle = $C('<list-item><item><row><label style="align:center">请选择批注版本</label></row></item></list-item>');
+		            $('pdfList').add(fileTitle);
+        			for(var i=0;i<pdflist.length;i++){
+        				var pdfrealname = pdflist[i].pdfrealname+'';
+	        			var pdfsavename = pdflist[i].pdfsavename+'';
+	        			var pdfwjjmc = pdflist[i].pdfwjjmc+'';
+	        			var pdfpzr = pdflist[i].pdfpzr+'';
+	        			var pdfpzhj = pdflist[i].pdfpzhj+'';
+	        			var pdfid = pdflist[i].pdfid+'';
+	        			var pdfpzsj = pdflist[i].pdfpzsj+'';
+	        			if(pdfpzsj!=''&& pdfpzsj!=null&&pdfpzsj.length>20){
+	                        pdfpzsj = pdfpzsj.substring(0,16);
+	                    }
+        				var pdfTitle ='';
+	                    if(pdfpzsj==''){
+	                    	pdfTitle = $C('<list-item><item style="col-width:30,*" onclick="qianPdf(\''+pdfrealname+
+        						'\',\''+pdfsavename+'\',\''+pdfwjjmc+'\',\''+pdfpzr+'\',\''+pdfpzhj+'\',\''+pdfid+'\');">'+
+        						'<col></col><col><label style="font-size:18;color:#38adff">'+pdfrealname+'</label>'+
+	           					'</col></item></list-item>');
+	                    }else{
+	                    	pdfTitle = $C('<list-item><item style="col-width:30,*" onclick="qianPdf(\''+pdfrealname+
+        						'\',\''+pdfsavename+'\',\''+pdfwjjmc+'\',\''+pdfpzr+'\',\''+pdfpzhj+'\',\''+pdfid+'\');">'+
+        						'<col></col><col><label style="font-size:18;color:#38adff">'+pdfrealname+'</label>'+
+	           					'<label style="font-size:12;color:#555555;">'+pdfpzsj+'</label>'+
+	           					'<label style="font-size:12;color:#555555;">'+pdfpzr+'</label>'+
+	           					'</col></item></list-item>');
+	                    }
+	           			$('pdfList').add(pdfTitle);
+        			}
+        			$('main_popupmenu').open();
+        		}else if(pdflist instanceof Object){
+        			var pdfdata = pdflist.pdfdata;
+        			var pdfrealname = pdfdata.pdfrealname+'';
+        			var pdfsavename = pdfdata.pdfsavename+'';
+        			var pdfwjjmc = pdfdata.pdfwjjmc+'';
+        			var pdfpzr = pdfdata.pdfpzr+'';
+        			var pdfpzhj = pdfdata.pdfpzhj+'';
+        			var pdfid = pdfdata.pdfid+'';
+        			qianPdf(pdfrealname,pdfsavename,pdfwjjmc,pdfpzr,pdfpzhj,pdfid);
+        		}
+        	}
+        	
+        	var pdfStatue='0';
+        	function qianPdf(realName,saveName,path,pdfpzr,pdfpzhj,pdfid){
+	            if(pdfStatue=='1'){
+	            	return;
+	            }
+	            pdfStatue='1';
+	            $("pdfid").value=pdfid;
+	            $('main_popupmenu').close();
+	            $http.post(evoUrl+'/ezOffice/doc/dealPdf.do',
+	              {realName:realName,saveName:saveName,path:path},
+	              function(data) {
+		               if(data){
+		                   var obj = JSON.parse(data);
+			               var result = obj.result;
+			               if(result=="1"){ 
+			                 	var saveName = obj.saveName;
+			                 	$wps.openPdf(evoUrl+saveName,
+					             {userName:un,isCanFieldEdit:true,isAnnotProtect:false,isUseEbenSDK:false,isSaveVector:true,isVectorsign:true,
+					              isSaveHistory:true,isFillTemplate:false,pageViewMode:0},
+					             {success:function(s){
+					             	$("pdfatt").value = s;
+									var time = getTime();
+									$("pdfzhpzsj").value=time;
+									var huajie = un+"("+time+""+workName+")";
+									if(pdfpzr !=''){
+										$("pdfpzr").value=pdfpzr+","+un;
+										$("pdfpzhj").value=pdfpzhj+","+huajie;
+									}else{
+										$("pdfpzr").value=un;
+										$("pdfpzhj").value=huajie;
+									}
+									alert("签批成功！");
+					              },error:function(s){alert(s)}});
+			               }
+		               }
+		            },function(error) {
+						toErro(error);
+					});
+					pdfStatue='0';
+        	}
+        	
+        	function getTime(){
+				var myDate = new Date();
+				myDate.getFullYear();
+				var month = myDate.getMonth()+1;
+				myDate.getDate(); 
+				myDate.getHours();
+				myDate.getMinutes();
+				var nowDate = myDate.getFullYear()+'-'+month+'-'+myDate.getDate()+' '+myDate.getHours()+':'+myDate.getMinutes();
+				return nowDate;
+			}
         	
 	        //全屏查看
 	        function fullScreenBrowse(){
@@ -370,10 +488,6 @@
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.openProperty.name+':</label>'+
 		        				   '</row></col><col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+(govDocDetail.openProperty.text == undefined ? '' : govDocDetail.openProperty.text)+'</label></row></col></item>';
 		        	}
-		        	//if(govDocDetail.toPersonInner){
-		        		//itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.toPersonInner.name+':</label>'+
-		        			//	   '</row></col><col><row><label>'+(govDocDetail.toPersonInner.text == undefined ? '' : govDocDetail.toPersonInner.text)+'</label></row></col></item>';
-		        	//}
 		        	
 		        	if(key=='accessoryDesc'&&govDocDetail.accessoryDesc){
 		        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">'+govDocDetail.accessoryDesc.name+':</label>'+
@@ -573,40 +687,47 @@
 	        	}
 	        	
 	        	//构建可编辑的意见
-	        	if(workInfoData.workInfo.commentField != '' && workInfoData.workInfo.commentField != 'nullCommentField' && workInfoData.workInfo.commentField != '-1'){
-					var workcurstep = workInfoData.workInfo.workcurstep;
-					var  commentField= workInfoData.workInfo.commentField;
-		       /* 	var workcurstep = '';
-		        	if(','+'DocumentSendFile_CheckCommit'+',' == commentField){
-		        		workcurstep = '审核意见';
-		        	}else if(','+'documentSendFileSendFile'+',' == commentField){
-		        		workcurstep = '签发';
-		        	}else if(','+'sendFileReadComment'+',' == commentField){
-		        		workcurstep = '审阅意见';
-		        	}else if(','+'SendFile_ProveDraft'+',' == commentField){
-		        	    workcurstep = '核稿';
-		        	}else if(','+'sendFileMassDraft'+',' == commentField){
-		        		workcurstep = '会签';
-		        	}else if(','+'documentSendFileAssumeUnit'+',' == commentField){
-		        		workcurstep = '承办单位意见';
-		        	}else{
-		        		workcurstep = '批示意见';
-		        	}  */
-		        	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
-		        	itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+workcurstep+':</label></row></col><col style="margin:10;padding:10;">';
-		      		if(commentField && '-1' != commentField && 'nullCommentField' != commentField && workStatus != '102' && workStatus != '101'){
-		        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
-		        			          '<row><label style=""></label><radio name="commentradio" value="1" checked="false" onclick="$(\'comment_input\').value=\'同意。\'">同意</radio><label style="width:10"></label><label style=""></label><radio onclick="$(\'comment_input\').value=\'已阅。\'" name="commentradio" value="0">已阅</radio></row>';
-		        	}
-		        	itemContent += '</col></item>';
-	        	}
 	        	
+	        	if(workStatus == '2'){  //阅件批示意见
+			    	var workInfo = workInfoData.workInfo ;
+			    	var passRoundCommFieldName = workInfo.passRoundCommFieldName;
+			 		var commentViewName = '';
+			        var  workcurstep =  workInfo.workcurstep;
+				    if(passRoundCommFieldName == '' || passRoundCommFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = passRoundCommFieldName;
+				    }
+			    	itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+	        	    itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="margin:10;padding:10;">';
+	        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
+	        			          '<row><label style=""></label><radio name="commentradio" value="1" checked="false" onclick="$(\'comment_input\').value=\'同意。\'">同意</radio><label style="width:10"></label><label style=""></label><radio onclick="$(\'comment_input\').value=\'已阅。\'" name="commentradio" value="0">已阅</radio></row>';
+	        	    itemContent += '</col></item>';
+			    }else if(workStatus != '102' && workStatus != '101'&& workInfoData.workInfo.commentField != '-1'&&workInfoData.workInfo.commentField != '' && workInfoData.workInfo.commentField != 'nullCommentField'&& workInfoData.workInfo.commentField != '-1'){
+			    	var workInfo = workInfoData.workInfo ;
+			    	var commentFieldName = workInfo.commentFieldName;
+				    var commentViewName = '';
+				    var commentField = workInfo.commentField;
+				    var  workcurstep =  workInfo.workcurstep;
+				    if(commentFieldName == '' || commentFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = commentFieldName;
+				    }
+	        	    itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
+	        	    itemContent += '<row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="margin:10;padding:10;">';
+	        		itemContent += '<row><textarea rows="5" maxrows="5" name="comment_input" id="comment_input"></textarea></row>'+
+	        			          '<row><label style=""></label><radio name="commentradio" value="1" checked="false" onclick="$(\'comment_input\').value=\'同意。\'">同意</radio><label style="width:10"></label><label style=""></label><radio onclick="$(\'comment_input\').value=\'已阅。\'" name="commentradio" value="0">已阅</radio></row>';
+	        	    itemContent += '</col></item>';
+	        	}
+		        	
 	        	
 	        	// 退回意见
+	        	/*
 	        	if(detailData.backComment){
 	        		itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row><label style="align:left;font-size:16;color:#555555">退回意见:</label></row></col>'+
 	        					   '<col style="margin:10;padding:10;"><row><label style="align:right;color:#555555">'+detailData.backComment+'</label></row></col></item>';
-	        	}
+	        	}  */
 	        }
 
 	        // 构建自定义字段内容
@@ -920,6 +1041,11 @@
 	        	if(modiButton.indexOf('Selfsend') < 0){
 		        	$('popupmenu_list').remove($('selfSendItem'));
 	        	}
+	        	$('pdfList').clear();
+	       		$('main_popupmenu').position='bottomright';
+	       		$('main_popupmenu').css('display:block;width:100;height:null;offset-x:5;offset-y:-55');
+	       		$('pdfList').css('display', 'none');
+	       		$('popupmenu_list').css('display', 'block');
 	       		$('main_popupmenu').open();
 	        }
 	        
@@ -1186,7 +1312,7 @@
                 <item label="流程记录" onclick="loadFlowRecord();"></item>
             </tabbar>
         </header>
-        <popupmenu id="main_popupmenu" position="bottomright" style="width:100;offset-x:5;offset-y:-55">
+        <popupmenu id="main_popupmenu" position="">
 			<list id="popupmenu_list">
 				<item id="tranInfoItem" onclick="tranInfo();"  style="background:#3daffe,#474747;">
 	         		<label style="align:center;color:#F0F9FF,white;">转办</label>
@@ -1198,6 +1324,9 @@
 	         		<label style="align:center;color:#F0F9FF,white">阅件</label>
 	         	</item>
 		    </list>
+		    <list id="pdfList" >
+                
+            </list> 
 		</popupmenu>
 		<contents id="contents">
             <content style="background:white" id="content_form">
@@ -1230,6 +1359,14 @@
 					<input type="hidden" id="workcurstep" name="workcurstep" value=""/>
 					<input type="hidden" id="worksubmittime" name="worksubmittime" value=""/>
 					<input type="hidden" id="workStatus" name="workStatus" value="0"/>
+					
+					<input type="hidden" id="oaPdf" name="oaPdf" value="0"/>
+					<input type="hidden" id="pdfzhpzsj" name="pdfzhpzsj" value="0"/>
+					<input type="hidden" id="pdfpzr" name="pdfpzr" value="0"/>
+					<input type="hidden" id="pdfpzhj" name="pdfpzhj" value="0"/>
+					<input type="hidden" id="pdfid" name="pdfid" value="0"/>
+					<input type="hidden" id="pdfgwlx" name="pdfgwlx" value="1"/>
+					<input type="file" id="pdfatt" style="display:none;" value="" name="pdfatt"/>
 					<list id="content_form_list">
 					</list>
 				</form>

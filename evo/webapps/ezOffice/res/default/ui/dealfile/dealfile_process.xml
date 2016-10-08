@@ -527,7 +527,8 @@
 						    if(global_subTableUpdate=='0'){
 						       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" onclick="deleteIteminList(\''+i+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+i+'" name="sub_dataId'+i+'" style="display:none;" value="'+subdataId+'"/></row></col></item>';
 					        }else{
-					           subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'"><col><row></row></col></item>';
+					            subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" ><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col></item>';
+					         //  subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'"><col><row></row></col></item>';
 					        }
 							createSubTableField(subFieldList[i].field,i);
 							global_subDatalen = length;
@@ -537,7 +538,7 @@
 					    if(global_subTableUpdate=='0'){
 					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><label style="align:left;font-size:14;">表1</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value="'+subdataId+'"/></row></col></item>';
 					    }else{
-					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0"><col><row></row></col></item>';
+					       subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0"><col><row><label style="align:left;font-size:14;">表1</label></row></col></item>';
 					    }
 						createSubTableField(subFieldList.field,0);
 						global_subDatalen = 1;
@@ -545,7 +546,7 @@
 				}
 				
 				$('subTabel_form_list').update('<imag><list>' + subTabelItemContent + '</list></imag>');
-
+                $('content_form').scrollToTop();  //显示到顶部
 				$('subTabel_form_list').css('display','');
 				$('content_form_list').css('display','none');
 				$('subTable_footer_list').css('display','');
@@ -557,6 +558,8 @@
 				  $('topright').text="合计项";
 				  $('topright').onclick="sub_total();";
 				}
+			//	$('content_form').showTop();
+			
 			}
 			//合计字段
 	        var totalFieldcon = '';
@@ -859,7 +862,7 @@
 	        	    pushMustFillArray(mustfilled,field.name,'_sub_' + field.sysname+i);
 	        	}else{            // 只读数据
 	        		subTabelItemContent += '<item id="item_subfield_'+global_subTableName+i+j+'" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;"><row>'+mustfilled_view+'<label style="align:left;font-size:16;color:#555555;">' + field.name + ':</label></row></col><col style="padding:10;margin:10;">';
-	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.value + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + field.value + '"/></row>';
+	        		subTabelItemContent += '<row><label style="align:right;color:#555555;font-size:16;">' + field.hiddenval + '</label><input type="hidden" id="_sub_' + field.sysname +i+ '" name="_sub_' + field.sysname +i+ '" value="' + field.hiddenval + '"/></row>';
 	        	}
 	        	subTabelItemContent += '</col></item>';
 	        	
@@ -1300,14 +1303,14 @@
 					return;
 				}
 		        $page.graffiti({
-		        	type: 'draft',
+		        	type: 'sign',
 		            complete: function(path){
 		        		$('comment_input_shouxie').value = path;
 		        		$('commentType').value = "4";
-						var row = $C('<row id="sxrow" style="background:#ffffff"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;"/></row>');
+						var row = $C('<row id="sxrow" style="background:#ffffff;"><icon src="'+path+'" style="width:270;height:80;"/><icon id="imageId" src="mail_del.png" style="width:30;height:30;"/></row>');
 						$('comment_input_sxyy').add(row);
 						drfNum = "1";
-						$('comment_input_sxyy').onclick = 'delrow_sx()';
+						$('comment_input_sxyy').onclick = 'delrow_sx()';//删除手写签内容
 						$('comment_input_sxyy').css('display','block');
 						$('comment_input').css('display','none');
 		            }
@@ -1325,6 +1328,11 @@
         		drfNum = '0';
         		$('comment_input_sxyy').css('display','none');
         		$('comment_input').css('display','block');
+			}
+			
+			//全屏显示手写审批内容
+			function view_sxContent(path){
+				$page.open('dealfile_viewBiggraffiti.xml?sxContenturl='+encodeURIComponent(path),{target:'_blank'});
 			}
 			
 		    //语音审批
@@ -1380,9 +1388,17 @@
 				var commentType = '';
 				var commentShouxie = '';
 				var commentYuyin = '';
-				if(actiCommFieldType != '-1' && (commentField == '-1' || commentField == 'nullCommentField' ||
-				   commentField == 'autoCommentField' || commentField == 'null' || commentField == null)){
-					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">审批意见:</label></row></col><col style="padding:10;margin:10;"><row>'+
+				if(actiCommFieldType != '-1' && commentField == '-1' && commentField == 'nullCommentField' &&
+				   commentField == 'autoCommentField' && commentField == 'null'&& commentField == null){
+				    var commentFieldName = workInfo.commentFieldName;
+				    var commentViewName = '';
+				    var  workcurstep =  workInfo.workcurstep;
+				    if(commentFieldName == '' || commentFieldName == null){
+				    	commentViewName = workcurstep ;
+				    }else{
+				    	commentViewName = commentFieldName;
+				    }
+					itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentViewName+':</label></row></col><col style="padding:10;margin:10;"><row>'+
 								   '<textarea style="font-size:16;color:#555555" rows="5" name="comment_input" id="comment_input" maxrows="500"></textarea></row></col></item>'+
 								   '<item id="" style="col-width:*,40,40,50,40"><col><row></row></col>'+
 								   '<col><row><icon id="shouxie" onclick="doDraft();" src="workflow_sx.png" style="display:none;width:30;height:30;"/></row></col>'+
@@ -1401,7 +1417,7 @@
 								// 手写
 								commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 								//commentShouxie = evoUrl+'/download/resizeHandSign.do?url='+commentShouxie;
-								itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col><row>'+
+								itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList[i].step+'</label></row></col><col><row>'+
 											   '<img src="'+commentShouxie+'"/></row>';
 							}else if(commentType == '5'){
 								// 语音
@@ -1421,7 +1437,7 @@
 							// 手写
 							commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 							//commentShouxie = evoUrl+'/download/resizeHandSign.do?url='+commentShouxie;
-							itemContent += '<item style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col><row>'+
+							itemContent += '<item onclick="view_sxContent(\'' + commentShouxie + '\');" style="col-width:100,*;padding:0;margin:0;"><col style="background:#f9f9f9;padding:10;margin:10;"><row><label style="align:left;font-size:16;color:#555555">'+commentList.comment.step+'</label></row></col><col><row>'+
 									   	   '<img src="'+commentShouxie+'"/></row>';
 						}else if(commentType == '5'){
 							// 语音
@@ -1793,7 +1809,7 @@
 										// 手写
 										commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList[i].content.substring(0,6) + '/' + commentList[i].content;
 										//commentShouxie = evoUrl+'/download/resizeHandSign.do?url='+commentShouxie;
-										itemContent += '<row><img src="'+commentShouxie+'"/></row>';
+										itemContent += '<row onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 									}
 								}else if(commentType == '5'){
 									if(commentList[i].content.substring(0,6)){
@@ -1813,7 +1829,7 @@
 									commentShouxie = webServiceUrl + 'upload/workflow_acc/' + commentList.comment.content.substring(0,6) + '/' + commentList.comment.content;
 									//commentShouxie = evoUrl+'/download/resizeHandSign.do?url='+commentShouxie;
 									// 手写
-									itemContent += '<row><img src="'+commentShouxie+'"/></row>';
+									itemContent += '<row onclick="view_sxContent(\'' + commentShouxie + '\');"><img src="'+commentShouxie+'"/></row>';
 								}
 							}else if(commentType == '5'){
 								if(!(commentList.comment.content instanceof Array)){

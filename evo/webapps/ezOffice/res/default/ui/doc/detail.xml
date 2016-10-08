@@ -197,7 +197,7 @@
                        <row><label style="align:left;color:#555555;font-size:16;">拟稿单位：</label></row>
                     </col>                    
                     <col>
-                       <row><label style="align:right;color:#b8b8b8;font-size:16;" id="writeOrg">万户网路.万户软件.企业管理中心.采购部</label></row>
+                       <row><label style="align:right;color:#b8b8b8;font-size:16;" id="writeOrg"></label></row>
                     </col>
                 </item>
                 <item style="col-width:30%,*">

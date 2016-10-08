@@ -201,6 +201,7 @@
        					$contentFormList.addMore('<imag><list>' + itemContent + '</list></imag>');
        					// 创建子表节点
        					createSubTableCon($contentFormList,detailData);
+       					openAllSubTabel($contentFormList,detailData);   //进入页面执行一次打开子表
        					// 创建工作流程信息隐藏域
 						createWorkInfoHiddenArea(detailData);
        					// 创建底部内容
@@ -273,6 +274,107 @@
 			var global_subDelIndex='';
 			//当前子表数据总数（不包括已添加的数据）
 			var global_subDatalen_cur=1;
+			
+			function openAllSubTabel(contentFormList,detailData){
+				var subTableList = detailData.subTableList;
+				if(!subTableList){
+					return false;
+				}
+				var subFieldList;
+				if(subTableList instanceof Array){
+				    //多个子表
+					for(var i=0,length=subTableList.length;i<length;i++){
+					    var tableName = subTableList[i].tableName;
+						subFieldList = subTableList[i].subFieldList;
+					    default_openSubTableCon(JSON.stringify(subFieldList) ,tableName,subTableList[i].name);
+					}
+					//设置子表
+				}else if(subTableList instanceof Object){
+						subFieldList = subTableList.subTable.subFieldList;
+						var tableName = subTableList.subTable.tableName;
+						if(!subFieldList){
+							subFieldList = subTableList.subTable;
+						}
+						default_openSubTableCon(JSON.stringify(subFieldList),tableName,subTableList.subTable.name);
+				}
+			}
+			
+			
+			///初始化页面时打开子表
+			function default_openSubTableCon(subFieldList,tableName,subTableTitle){
+				$('subTabel_form_list').clear();
+				subTabelItemContent = '';
+				global_subFieldList = subFieldList;
+				global_subTableName = tableName;
+				global_subDelIndex = '';
+				var subFieldList = JSON.parse(subFieldList);
+				if(subFieldList instanceof Array){
+					for(var i=0,length=subFieldList.length;i<length;i++){
+					    var subdataId = subFieldList[i].dataId;
+					    subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+i+'" onclick="deleteIteminList(\''+i+'\');"><col><row><label style="align:left;font-size:14;">表'+eval(i+1)+'</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId'+i+'" name="sub_dataId'+i+'" style="display:none;" value=""/></row></col></item>';
+						createSubTableField(subFieldList[i].field,i);
+						global_subDatalen = length;
+					}
+				}else if(subFieldList instanceof Object){
+				    var subdataId = subFieldList.dataId;
+				    subTabelItemContent += '<item id="item_subbutton_'+global_subTableName+'0" onclick="deleteIteminList(\'0\');"><col><row><label style="align:left;font-size:14;">表1</label></row></col><col><row><label style="align:right;font-size:14;color:red">删除</label><input type="hidden" id="sub_dataId0" name="sub_dataId0" style="display:none;" value=""/></row></col></item>';
+					createSubTableField(subFieldList.field,0);
+					global_subDatalen = 1;
+				}
+				$('subTabel_form_list').update('<imag><list>' + subTabelItemContent + '</list></imag>');
+				default_goBackSaveSubForm();
+			}
+			
+			function default_goBackSaveSubForm(){
+			    var subFieldList = JSON.parse(global_subFieldList);
+			    _subfieldjson = '';
+			    var subFormxml = '';
+			    var subDataCount=0;
+			    if(global_subDatalen>0){
+				    subFormxml += '<table>';
+				    subFormxml += '<tableName>'+global_subTableName+'</tableName>';
+				    _subfieldjson += '[';
+				    for(var k=0;k<global_subDatalen;k++){
+				      //没有被删除的数据
+				      if(global_subDelIndex.indexOf('|'+k+'|')==-1){
+					        subFormxml += '<fields>';
+	                        subFormxml += '<dataId>'+$('sub_dataId'+k).value+'</dataId>';
+	                        
+	                        _subfieldjson += '{"dataId":"'+$('sub_dataId'+k).value+'",';
+	                        
+							if(subFieldList instanceof Array){
+								subFormxml += getSubTableFieldValue(subFieldList[0].field,k);
+							}else if(subFieldList instanceof Object){
+								subFormxml += getSubTableFieldValue(subFieldList.field,k);
+							}
+							
+							_subfieldjson += '},';
+							
+							subFormxml += '</fields>';
+							subDataCount = subDataCount+1;
+						}
+					 }
+					//清除逗号
+					var  tmp = _subfieldjson.substr(_subfieldjson.length-1);
+					if(tmp==','){
+						_subfieldjson = _subfieldjson.substr(0,_subfieldjson.length-1);
+					}
+					_subfieldjson += ']';
+					//alert(_subfieldjson);
+					subFormxml += '</table>';
+				}
+				//设置显示数据条数
+                $(global_subTableName+'_count').value = subDataCount+'条子表数据';
+                if(_subfieldjson==''||_subfieldjson=='[]'){
+                   _subfieldjson='';
+                   subFormxml='';
+                }
+                //设置临时数据
+                $('json_'+global_subTableName).value = _subfieldjson;
+				$(global_subTableName).value=subFormxml;
+			}
+			
+			
 			
 			//打开子表
 			function openSubTableCon(subFieldList,tableName,subTableTitle){
@@ -1587,7 +1689,7 @@
     <page style="background:#38b0f9;">
         <header>
             <row style="background:#38b0f9;height:50;">
-               		<icon style="align:left;margin-left:12;" src="mail_back.png" onclick="goToback();" id="leftButton"/>
+               		<icon style="align:left;margin-left:13;width:10;" src="mail_back.png" onclick="goToback();" id="leftButton"/><icon style="align:left;width:12;alpha:0;" src="mail_back.png" onclick="goToback();" />
                		<label style="align:center;color:white;font-size:18;" id="centerTitle"></label>
                		<label style="align:right;color:white;font-size:18;margin-right:12;" id="topright" ></label>
              </row>

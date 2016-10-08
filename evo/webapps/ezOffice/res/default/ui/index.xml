@@ -1,10 +1,10 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <imag mode="develop">
     <script>
     <![CDATA[
-        var versionNumber="V4.4";
+        var versionNumber="V4.2";
        	var dbName = "mobile_evo.db";
-       	var evoUrl = "";
+       	var evoUrl = "http://192.168.7.93:8080";
 		
 		$page.onload = function() {
 		    
@@ -136,7 +136,7 @@
 				  storage.setItem('sys_empDuty',obj.sys_empDuty);
 				  storage.setItem('sys_location',obj.sys_location);
 				  storage.setItem('sys_evoword',obj.sys_evoword);
-				  	
+				  storage.setItem('sys_oaPdf',obj.sys_oaPdf);
 				  storage.setItem('ezMobile_dbName',dbName);
 				  var isCreateDB = storage.getItem('isCreateDB');
 				  //hint(isCreateDB);
@@ -172,7 +172,6 @@
 			    } else {
 			        hint('访问网络错误！错误代码:' + error);
 			    }
-			    $page.open('../index.xml',{animation:'down-to-up'});
 		    });
 
 		}
