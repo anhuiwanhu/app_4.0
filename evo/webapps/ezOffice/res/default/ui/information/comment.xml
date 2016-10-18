@@ -253,7 +253,7 @@
      //发表评论
      function sumbitComment(){
         var commentContent = $('commentContent').value;     //评论内容
-        if(commentContent==null||commentContent==""){
+        if(commentContent==null||commentContent.trim()==""){
             alert("请输入评论");
             return;
         }

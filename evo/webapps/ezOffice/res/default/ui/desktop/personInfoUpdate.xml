@@ -223,7 +223,7 @@
 	                        <row style="height:40;color:#555555;font-size:16;"><label >中文名：</label></row>
 	                    </col>
 	                    <col>
-	                         <row><label style="color:#c1c1c1;align:right;" id="username"> </label></row>
+	                         <row><label style="color:#c1c1c1;" id="username"> </label></row>
 	                    </col>
 	                </item>
 	                <item style="col-width:100,*;" >
@@ -231,16 +231,16 @@
 	                       <row style="height:40;color:#555555;font-size:16;"><label>英文名：</label></row>
 	                    </col>                    
 	                    <col>
-	                       <row><input type="text" id="empenglishname" maxlength="20" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+	                       <row><input type="text" id="empenglishname" maxlength="50" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
 	                    </col>
 	                    <input type="hidden" id="empenglishname_hidden"  name="empenglishname" />
 	                </item>
-	                <item style="col-width:50,*" accessory="indicator"  onclick="toSexUpdate();">
+	                <item style="col-width:100,*" accessory="indicator"  onclick="toSexUpdate();">
 	                    <col>
 	                       <row style="height:40;color:#555555;font-size:16;"><label>性别：</label></row>
 	                    </col>                    
 	                    <col>
-	                         <row><label style="align:right;" id="empsex"></label></row>
+	                         <row><label id="empsex"></label></row>
 	                    </col>
 	                </item>
 				</list>

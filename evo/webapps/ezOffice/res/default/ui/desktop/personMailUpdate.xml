@@ -159,7 +159,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">电子邮件1：</label></row>
                     </col>                    
                     <col>
-                        <row><input type="text" id="empemail" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empemail" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>
                 </item>
                 <item style="col-width:100,*;">
@@ -167,7 +167,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">电子邮件2：</label></row>
                     </col>                    
                     <col>
-                        <row><input type="text" id="empemail2" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empemail2" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>
                 </item>
                 <item style="col-width:100,*" >
@@ -175,7 +175,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">电子邮件3：</label></row>
                     </col>
                     <col>
-                        <row><input type="text" id="empemail3" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empemail3" maxlength="100" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>                    
                 </item>
 			</list>

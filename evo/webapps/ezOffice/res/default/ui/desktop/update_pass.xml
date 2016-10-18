@@ -83,7 +83,7 @@
                            <label style="font-color:#555555;font-size:16;">更改密码</label>
                         </col>
                         <col>
-                           <input type="password" id="newPass" name="newPass" placeholder="密码长度最低6位" style="border:0 white;font-color:#555555;font-size:16;"/>
+                           <input type="password" id="newPass" name="newPass" placeholder="密码长度最低6位" maxlength="20"  style="border:0 white;font-color:#555555;font-size:16;"/>
                         </col>
                     </item>
 	                <item style="col-width:20%,*">
@@ -91,7 +91,7 @@
                             <label style="font-color:#555555;font-size:16;">确认输入</label>
                         </col>
                         <col>
-                            <input type="password" id="confirmPass" name="confirmPass" placeholder="再次输入新密码" style="border:0 white;font-color:#555555;font-size:16;"/>
+                            <input type="password" id="confirmPass" name="confirmPass" placeholder="再次输入新密码" maxlength="20" style="border:0 white;font-color:#555555;font-size:16;"/>
                         </col>
                     </item>
 	            </list>

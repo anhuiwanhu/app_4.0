@@ -45,11 +45,10 @@
 		function submit(){
    			$('forumForm').action=evoUrl+"/ezOffice/forum/replyForum.do";
    			var cont = $('forumContent').value.trim();
-   			if(cont.length == 0){
-       			hint('发帖正文不能为空！');
-       			return false;
+   			var newCont="";
+   			if(cont.length != 0){
+       			newCont = chanCont(cont);
    			}
-   			var newCont = chanCont(cont);
    			$('newCont').value=newCont;
 			$('forumForm').submit(function(data) {
 				var obj = JSON.parse(data);
@@ -308,9 +307,9 @@
                         </col>
                         <col>
                             <row>
-                               <radio name="anonymous" value="0" style="align:right;font-size:16;color:#555555;" checked="true">实名</radio>
-                               <radio name="anonymous" id="hidname" value="1" style="align:right;margin-left:10;font-size:16;color:#555555;">匿名</radio>
-                               <radio name="anonymous" id="nick" value="2" style="align:right;margin-left:10;display:none;font-size:16;color:#555555;">昵称</radio>
+                               <radio name="anonymous" value="0" style="font-size:16;color:#555555;" checked="true">实名</radio>
+                               <radio name="anonymous" id="hidname" value="1" style="margin-left:10;font-size:16;color:#555555;">匿名</radio>
+                               <radio name="anonymous" id="nick" value="2" style="margin-left:10;display:none;font-size:16;color:#555555;">昵称</radio>
                             </row>
                         </col>
                     </item>
@@ -326,8 +325,14 @@
 	                    	</row>
 	                    </col>
 	                </item>
-                    <item>
-                        <label style="margin-bottom:5;font-size:16;color:#555555;">正文：</label>
+	                <item style="padding:0;margin:0;">
+	                	<col style="background:#f9f9f9;padding:10;margin:10;">
+	                		<row>
+	                			<label style="align:left;font-size:16;color:#555555">正文：</label>
+	                		</row>
+	                	</col>
+	                </item>
+                    <item style="padding:0;margin:0;">
                         <textarea id="forumContent" name="forumContent" rows="15" maxrows="15" placeholder="请输入" style="border:0 white;color:#555555;font-size:16"></textarea>
                         <input id="newCont" name="newCont" type="hidden"/>
                     </item>

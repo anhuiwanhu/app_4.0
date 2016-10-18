@@ -343,78 +343,82 @@
                 <button onclick="submitRe();" style="font-size:18;color:#FFFFFF;">提交</button>
             </right>
         </title>
-         <content draggable="true">
+         <content>
             <form id="reportFrom" action="" progress="提交表单|正在提交表单，请稍后..." multipart="true">
-                <list type="group">
-                    <item style="col-width:100,*">
-                        <col>
+                <list>
+                    <item style="col-width:100,*;padding:0;margin:0;">
+                        <col style="background:#f9f9f9;padding:15;margin:15;">
                            <label style="font-size:16;color:#555555;">汇报类型：</label>
                         </col>
                         <col>
                             <row style="margin-right:0">
-                              <radio name="reType" value="week" checked="true" style="align:right;font-size:16;color:#555555;">周报</radio>
-                              <radio name="reType" value="month" onclick="$page.open('remonth_new.xml',{target:'_self'});" style="align:right;font-size:16;color:#555555;">月报</radio>
-                              <radio name="reType" value="other" onclick="$page.open('reother_new.xml',{target:'_self'});" style="align:right;font-size:16;color:#555555;">其它</radio>
+                              <radio name="reType" value="week" checked="true" style="font-size:16;color:#555555;">周报</radio>
+                              <radio name="reType" value="month" onclick="$page.open('remonth_new.xml',{target:'_self'});" style="font-size:16;color:#555555;">月报</radio>
+                              <radio name="reType" value="other" onclick="$page.open('reother_new.xml',{target:'_self'});" style="font-size:16;color:#555555;">其它</radio>
                             </row>
                         </col>
                     </item>
-                    <item style="col-width:100,*">
-                        <col >
+                    <item style="col-width:100,*;padding:0;margin:0;">
+                        <col style="background:#f9f9f9;padding:10;margin:10;">
                            <label style="font-size:16;color:#555555;">被考核人：</label>
                         </col>
-                        <col>
-                           <label id="empName" style="align:right;font-size:16;color:#555555;"></label>
-                           </col>
+                        <col style="margin-left:10">
+                           <label id="empName" style="font-size:16;color:#555555;"></label>
+                        </col>
                     </item>
-                    <item style="col-width:100,*">
-                        <col>
+                    <item style="col-width:100,*;padding:0;margin:0;">
+                        <col style="background:#f9f9f9;padding:10;margin:10;">
                             <label style="font-size:16;color:#555555;">部门：</label>
                         </col>
-                        <col>
-                            <label id="reDepart" style="align:right;font-size:16;color:#555555;"></label>
-                            </col>
+                        <col style="margin-left:10">
+                            <label id="reDepart" style="font-size:16;color:#555555;"></label>
+                        </col>
                     </item>
-                    <item style="col-width:100,*" onclick="sePerson();" accessory="indicator">
-                        <col>
+                    <item style="col-width:100,*;padding:0;margin:0;" onclick="sePerson();" accessory="indicator">
+                        <col style="background:#f9f9f9;padding:10;margin:10;">
                            <label style="font-size:16;color:#555555;">提交至：</label>
                         </col>
                         <col>
                            <input type="hidden" id="readerIds" name="readerIds"/>
                            <input type="hidden" id="readerNames" name="readerNames"/>
                            <row>
-                           	  <input type="text" id="names" name="names" readonly="true" placeholder="请选择" style="text-align:right;border:0 white;font-size:16;color:#555555;" onclick="sePerson();"/>
+                           	  <input type="text" id="names" name="names" readonly="true" placeholder="请选择" style="border:0 white;font-size:16;color:#555555;" onclick="sePerson();"/>
                            </row>
                         </col>
                     </item>
-                     <item style="col-width:100,*">
-                        <col>
+                     <item style="col-width:100,*;padding:0;margin:0;">
+                        <col style="background:#f9f9f9;padding:27;margin:27;">
                             <label style="font-size:16;color:#555555;">汇报日期：</label>
                         </col>
                         <col>
                             <row>
-                                <input id="startDate" type="date" name="startDate" readonly="true" format="yyyy/MM/dd" style="text-align:right;font-size:16;color:#555555;"/>
+                                <input id="startDate" type="date" name="startDate" readonly="true" format="yyyy/MM/dd" style="font-size:16;color:#555555;"/>
                                 <button style="width:50;height:35;background:#38adff;color:#ffffff;text-align:center;margin-left:5;corner-radius:8;" onclick="changeWeek(-7);">上周</button>
                             </row>
                             <row style="margin-top:6">
-                                <input id="endDate" type="date" name="endDate" readonly="true" format="yyyy/MM/dd" style="text-align:right;font-size:16;color:#555555;"/>
+                                <input id="endDate" type="date" name="endDate" readonly="true" format="yyyy/MM/dd" style="font-size:16;color:#555555;"/>
                                 <button style="width:50;height:35;background:#38adff;color:#ffffff;text-align:center;margin-left:5;corner-radius:8;" onclick="changeWeek(7);">下周</button>
                             </row>
                         </col>
                     </item>
-                    <item style="col-width:80,*">
-		                    <col>
+                    <item style="col-width:100,*;padding:0;margin:0;">
+		                    <col style="background:#f9f9f9;padding:10;margin:10;">
 		                    	<row style="height:40;">
 		                    		<label style="font-size:16;color:#555555;">相关附件：</label>
 		                    	</row>
 		                    </col>
-		                    <col>
+		                    <col style="margin-left:2">
 		                    	<row id="fileRow">
 		                    	    <icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this)"/>
 		                    	</row>
 		                    </col>
 	                </item>
+	                <item style="padding:0;margin:0;">
+                        <col style="background:#f9f9f9;padding:10;margin:10;">
+                        	<label style="margin-bottom:5;font-size:16;color:#555555;">汇报正文：</label>
+                        </col>
+                    </item>
                     <item>
-                        <label style="margin-bottom:5;font-size:16;color:#555555;">汇报正文：</label>
                         <textarea id="content" name="content" rows="15" maxrows="15" placeholder="请输入" style="border:0 white;font-size:16;color:#555555;"></textarea>
                     </item>
                 </list>

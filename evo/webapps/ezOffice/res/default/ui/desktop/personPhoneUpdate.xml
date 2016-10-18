@@ -164,7 +164,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">手机1：</label></row>
                     </col>                    
                     <col>
-                        <row><input type="text" id="empmobilephone" maxlength="13" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empmobilephone" maxlength="11" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>
                 </item>
                 <item style="col-width:100,*;">
@@ -172,7 +172,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">手机2：</label></row>
                     </col>                    
                     <col>
-                        <row><input type="text" id="empmobilephone2" maxlength="13" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empmobilephone2" maxlength="11" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>
                 </item>
                 <item style="col-width:100,*" >
@@ -180,7 +180,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">商务电话：</label></row>
                     </col>
                     <col>
-                        <row><input type="text" id="empbusinessphone" maxlength="20" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empbusinessphone" maxlength="20" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>                    
                 </item>
                 <item style="col-width:100,*" >
@@ -188,7 +188,7 @@
                         <row><label style="height:40;color:#555555;font-size:16;">住宅电话：</label></row>
                     </col> 
                     <col>
-                        <row><input type="text" id="empphone" maxlength="20" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;text-align:right;"/></row>
+                        <row><input type="text" id="empphone" maxlength="20" placeholder="请输入" style="placeholder-color:#c1c1c1;border:0 white;font-size:16;"/></row>
                     </col>
                 </item>
 			</list>
