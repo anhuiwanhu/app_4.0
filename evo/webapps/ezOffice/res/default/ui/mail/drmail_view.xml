@@ -70,7 +70,7 @@
 							if(data.mailSign=="1"){
 								$("mailSign").checked=true;
 								var gnome = obj.gnome+"";
-								if(gnome!=null && gnome!=""&&gnome!="null"){
+								if(gnome!=null && gnome!=""&&gnome!="null"&&gnome!="undefined"){
 									newcontent += '\r\n\r\n'+gnome;
 								}
 							}
