@@ -31,11 +31,6 @@
 	        var storage = $phone.localStorage();
 		    var evoUrl = storage.getItem('evoUrl');
             $http.post(evoUrl+'/ezOffice/attendance/locateList.do',{pagerOffset:pagerOffset},  function(data) {
-            //    data = '{"message":{"result":"1","description":"正常"},"data":{"pagerOffset":"0","recordCount":"19","empLivingPhoto":"","username":"汪峰","locctionList":[{"locationAddress":"中国安徽省合肥市包河区马鞍山路与皖江路交叉口和地广场6楼万户网络","locationTime":"2016-01-06 08:09:03 "},'+
-            //    '{"locationAddress":"美国加利福利亚合肥市包河区马鞍山路与皖江路交叉口和地广场6楼万户网络","locationTime":"2015-12-09 12:09:03 "},'+
-              //  '{"locationAddress":"中国江苏省南通市包河区马鞍山路与皖江路交叉口和地广场6楼万户网络","locationTime":"2015-12-13 08:09:03 "},'+
-               // '{"locationAddress":"中国广东省东莞市松山湖科技包河区马鞍山路与皖江路交叉口和地广场6楼万户网络","locationTime":"2015-12-13 08:09:03 "}]}}';
-               // alert(data);
                 if(data){
                     var res = JSON.parse(data);
                     if(res.logonerror &&res.logonerror=='1'){
@@ -244,9 +239,11 @@
 	                pagerOffset = parseInt(pagerOffset)+15;
 	                if(parseInt(recordCount) > parseInt(pagerOffset)){
         				$('bottom_hasmore').css('display','');
+        				onscrollbottomFlag = 'true';   //还可以进行上拉
         			}else{
         				$('bottom_hasmore').css('display','none');
         				$('indexContent').hideBottom();
+        				onscrollbottomFlag = 'false';   //数据全部显示完毕，禁止上拉
         			}
 	            }
 	            $('bottom_load').css('display','none');
@@ -269,7 +266,16 @@
         function refreshPage(){
            $('indexContent').hideTop();
            pagerOffset = '0';
+           onscrollbottomFlag = 'true';   //还可以进行上拉
            initList('update');
+        }
+        
+        var onscrollbottomFlag = 'true';
+        function scrollbottom(){    //禁止多次上拉，所有数据加载完毕禁止上拉
+            if(onscrollbottomFlag == 'true'){
+            	onscrollbottomFlag = 'false';
+            	loadList('add');
+            }
         }
         
     ]]>
@@ -289,7 +295,7 @@
 			</row>
 		</header>
 		<content  current="true" id="indexContent"  style="background:white;" draggable="true" ondragdown="refreshPage();" >
-			<list id="docList" style="margin:10 0;corner-radius:0;"  reuse="true" >
+			<list id="docList" style="margin:10 0;corner-radius:0;"  reuse="true" onscrollbottom="scrollbottom()">
 			    <item style="background:#f0eff5;" >
 			           <col>
 					       <row><label style="color:#555555;font-size:16;" reusekey="loDate" ></label></row>
@@ -324,10 +330,10 @@
 			</list>
 			<bottom id="content_bottom">
                 <list>
-                    <item onclick="loadList('add');">
+                    <item>
                         <row id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
                       	<row style="display:hidden" id="bottom_hasmore">
-	                        <label style="align:center;">点击加载更多...</label>
+	                        <label style="align:center;">上拉加载更多...</label>
 	                        <progress id="more_progress" style="display:none;align:center"/>
 	                    </row>
 	                </item>

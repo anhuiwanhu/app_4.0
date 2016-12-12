@@ -112,9 +112,11 @@
 			                	if(parseInt(curpage) < parseInt(pageCount)){
 		                			var sc2='$("#bottom").show();';
 		                			$('forum_web').exec(sc2);
+		                			onscrollbottomFlag = 'true';
 			                	}else{
 			                		var sc2='$("#bottom").hide();';
 			                		$('forum_web').exec(sc2);
+			                		onscrollbottomFlag = 'false';
 			                	}
 			                	$('indexContent').hideTop();
 			                	addMore='0';
@@ -180,6 +182,7 @@
 		   		var sc='$("#bottom").hide();';
 		   		$('forum_web').exec(sc);
 		   		curpage = '1';
+		   		onscrollbottomFlag = 'true'
 		   		fool = "0";
 		   		var sc2 = '$("#forumList").html("");';
 				$('forum_web').exec(sc2);
@@ -218,6 +221,14 @@
 				}
 				$page.open('../index.xml',{animation:'down-to-up'});
 		}
+		
+		var onscrollbottomFlag = 'true';
+        function scrollbottom(){    //禁止多次上拉，所有数据加载完毕禁止上拉
+            if(onscrollbottomFlag == 'true'){
+            	onscrollbottomFlag = 'false';
+            	downfrsh();
+            }
+        }
 			
         ]]>
     </script>
@@ -241,9 +252,9 @@
               </item>
             </list>
 		</header>
-		<content id="indexContent" draggable="true" ondragdown="upfrsh();">
+		<content id="indexContent" draggable="true" ondragdown="upfrsh();" onscrollbottom="scrollbottom()">
                <input type="hidden" name="name"/>
-              <web include="forum.css,jquery.js" id="forum_web">
+              <web include="forum.css,jquery.js" id="forum_web" >
                	<![CDATA[
                		<html>
                			<script>
@@ -264,7 +275,7 @@
 						
 						</div>
 						<hr />
-  						<div class="wh-load-tap" id="bottom" style="display:none" onclick="$imag.exec('downfrsh()')">点击加载更多...</div>
+  						<div class="wh-load-tap" id="bottom" style="display:none" onclick="$imag.exec('downfrsh()')">上拉加载更多...</div>
 					</article>
 					</body>
 					</html>

@@ -67,8 +67,10 @@
 			        var pageCount = obj.data.pageCount;
 			        if(eval(curpage)==eval(pageCount)){
 			          $('content_bottom').css('display','none');
+			          onscrollbottomFlag = 'false';   //数据全部显示完毕，禁止上拉
 			        }else{
 			          $('content_bottom').css('display','block');
+			          onscrollbottomFlag = 'true';   
 			        }
                     var groups = obj.data.datalist;
                     if(groups instanceof Array){
@@ -145,8 +147,10 @@
                     var pageCount = obj.data.pageCount;
 			        if(eval(curpage)==eval(pageCount)){
 			          $('content_bottom').css('display','none');
+			          onscrollbottomFlag = 'false';   //数据全部显示完毕，禁止上拉
 			        }else{
 			          $('content_bottom').css('display','block');
+			          onscrollbottomFlag = 'true';   //还可以进行上拉
 			        }
 			        for(var i=0;i<groups.length;i++){
 			            var infoId=groups[i][0];
@@ -174,7 +178,6 @@
 		    });
 			$('bottom_hasmore').css('display','');
 		    $('bottom_load').css('display','hidden');
-		    
 		    storage.setItem('curpage',curpage);
 			
 		}
@@ -213,6 +216,14 @@
 		   $page.open('custdataSearch.xml?custmenuId='+custdata_menuId,{animation:'down-to-up'});
 		}
 		
+		var onscrollbottomFlag = 'true';
+        function scrollbottom(){    //禁止多次上拉，所有数据加载完毕禁止上拉
+            if(onscrollbottomFlag == 'true'){
+            	onscrollbottomFlag = 'false';
+            	addDataList();
+            }
+        }
+		
 		
     ]]>
     </script> 
@@ -229,13 +240,13 @@
             </right>
         </title>
         <content id="content" draggable="true">
-           <list id="data_list" style="background:#ffffff;margin:10 0"></list>
+           <list id="data_list" style="background:#ffffff;margin:10 0" onscrollbottom="scrollbottom()"></list>
            <bottom id="content_bottom" style="display:hidden">
 	          <list>
-	              <item onclick="addDataList()">
+	              <item>
 	                  <row style="display:hidden" id="bottom_load"><label style="align:center;">正在加载...</label><progress style="align:center"/></row>
 	                	<row id="bottom_hasmore">
-	                   <label style="align:center;">点击加载更多...</label>
+	                   <label style="align:center;">上拉加载更多...</label>
 	                   <progress id="more_progress" style="display:none;align:center"/>
 	               </row>
 	           </item>
