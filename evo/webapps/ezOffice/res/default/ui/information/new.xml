@@ -4,13 +4,7 @@
         <![CDATA[
 			var loadFlag = '0';  //函数执行置为1，提交之前进行判断，若为1，则禁止 提交，防重复提交
 	        var pagerOffset=0;
-	        var fileindex =0;    //附件最多能上传5个
-	        var picAddressArr = new Array();
-	        var fileAddressArr = new Array();
-	        var fileTypeArr = new Array();   //附件上传时，存储对应数组fileAddressArr中的类型。pic:图片类型，sound：声音类型，file：其他附件类型
-	        
 	        $page.onload = function() {
-	         //   $('indexContent').showBottom();
 	        	var storage = $phone.localStorage();
         		var channelId = storage.getItem('information_childColumn_channelId');
         		var channelName = storage.getItem('information_childColumn_channelName');
@@ -28,26 +22,27 @@
         		}
 			}
 			
-	        function getAttanchNum(){
-				if(fileindex>=5){
-					hint('上传附件不能超过5个！');
+			var picAddressArr = new Array();
+			var pic_fileindex = 0;
+			var pic_fileTotle = 0;
+			function getAttanchNum(){
+				if(pic_fileTotle>=5){
+					hint('上传图片不能超过5个！');
 					return false;
 				}
 				return true;
 			}
-			
 	        function doPhotoAlbum(file){    //上传文件选择相册
 			    if(!getAttanchNum()){
 					return;
 				}
 				$page.browseImage({
 					complete: function(path) {
-					  //  alert(path);
 					 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-					 //	alert(showpath);
 			            picAddressArr.push(path);
 			            uploadPicView();
-			        	fileindex++;
+			        	pic_fileindex++;
+			        	pic_fileTotle++;
 			        },
 			        error: function() {
 			            hint('上传图片失败！');
@@ -57,10 +52,8 @@
 	        
 	        function uploadPicView(){
 	            $("picRow").clear();
-	           // alert(picAddressArr.length);
 	            for(var i=0;i<picAddressArr.length;i++){
 					if(picAddressArr[i]!=null&&picAddressArr[i]!=""&&picAddressArr[i]!=undefined){
-						//var row = $C('<row id="row'+fileindex+'"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/><label id="attachmentId'+fileindex+'" style="color:blue;width:220">'+showpath+'</label><input type="file" style="display:none;" value="'+path+'" name="attachment"  id="input_file'+fileindex+'"/><icon id="imageId" src="attachment_del.png" style="width:30;height:30;align:right;" onclick="delrow(\''+fileindex+'\');"/></row>');
 			        	var iconRow = $C('<icon src="'+picAddressArr[i]+'" style="width:28;height:28;margin-right:0;" id="icon_'+i+'"/>');
 			            $("picRow").add(iconRow);
 			            var inputRow = $C('<input type="file" style="display:none;" value="'+picAddressArr[i]+'" name="picAttachment" />');
@@ -74,152 +67,16 @@
 	             	
 	        }
 	        
-	        function doRelatedAcc(file){   //相关附件
-	        	 var menu = $C('<actionmenu cancelTitle="取消">' +
-								 '<item style="text-decoration:underline;" label="拍照"     onclick="doFileCamera(this)"/>' +
-								 '<item style="text-decoration:underline;" label="相册照片" onclick="doFilePhotoAlbum(this)"/>' +
-								 '<item style="text-decoration:underline;" label="录音文件" onclick="doFileRecordSound(this)"/>' +
-								 '<item style="text-decoration:underline;" label="其他文件" onclick="doFileBrowse(this)"/>' +
-							'</actionmenu>');
-                 menu.show();
-	        }
-	        
-	        function doFileCamera(file) {  //拍照
-				if(!getAttanchNum()){
-					return;
-				}
-			    $phone.camera({
-			        success: function(path) {
-			        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-			        	fileAddressArr.push(path);
-			        	fileTypeArr.push('pic');
-			            uploadFileView();
-			        	fileindex++;
-			        },
-			        error: function() {
-			            hint('拍照失败！');
-			        }
-			    });
-			}
-			
-			 function doFilePhotoAlbum(file){    //上传文件选择相册
-			    if(!getAttanchNum()){
-					return;
-				}
-				$page.browseImage({
-					complete: function(path) {
-					 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-			            fileAddressArr.push(path);
-			        	fileTypeArr.push('pic');
-			            uploadFileView();
-			        	fileindex++;
-			        },
-			        error: function() {
-			            hint('上传图片失败！');
-			        }
-				  });
-			 }
-	        
-	        function doFileRecordSound(file) {
-				if(!getAttanchNum()){
-					return;
-				}
-			    $phone.recordSound({
-			        success: function(path) {
-			        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-			        	fileAddressArr.push(path);
-			        	fileTypeArr.push('sound');
-			            uploadFileView();
-			        	fileindex++;
-			        },
-			        error: function() {
-			            hint('录音失败！');
-			        }
-			    });
-			}
-	        
-	        function doFileBrowse(file) {   //附件上传
-				if(!getAttanchNum()){
-					return;
-				}
-			    $page.browse({
-			        complete: function(path){
-			            var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
-			        	if(showpath.indexOf(".") == -1) {
-			        		hint("无后缀名的附件不允许上传，请重新选择");
-			        		return false;
-			        	}
-			        	var filenameExt = path.substring(path.lastIndexOf('\.')+1,path.length);
-			        	if(filenameExt == 'exe'){
-			        	    hint("后缀名为exe的附件不允许上传，请重新选择");
-			        		return false;
-			        	}
-			        	if(filenameExt == 'cmd'){
-			        	    hint("后缀名为cmd的附件不允许上传，请重新选择");
-			        		return false;
-			        	}
-			        	if(filenameExt == 'jsp'){
-			        	    hint("后缀名为jsp的附件不允许上传，请重新选择");
-			        		return false;
-			        	}
-			        	fileAddressArr.push(path);
-			        	fileTypeArr.push('file');
-			            uploadFileView();
-			        	fileindex++;
-			        }
-			    });
-			}
-			
-			function uploadFileView(){   //附件上传展示
-	            $("fileRow").clear();
-	            if(fileTypeArr.length == fileAddressArr.length){  //两个数组中长度一致
-	            	for(var i=0;i<fileAddressArr.length;i++){
-						if(fileAddressArr[i]!=null&&fileAddressArr[i]!=""&&fileAddressArr[i]!=undefined){
-						    var path = fileAddressArr[i];
-						    var fileType = fileTypeArr[i];
-						    var iconRow = '';
-						    if(fileType == 'pic'){
-						    	iconRow = $C('<icon src="'+path+'" style="width:28;height:28;margin-right:0;" id="file_'+i+'"/>');
-						    }else if(fileType == 'sound'){
-						        iconRow = $C('<icon src="information_sound.png" style="width:28;height:28;margin-right:0;" id="file_'+i+'"/>');
-						    }else if(fileType == 'file'){
-						    	iconRow = $C('<icon src="information_file.png" style="width:28;height:28;margin-right:0;" id="file_'+i+'"/>');
-						    }
-				            $("fileRow").add(iconRow);
-				            var inputRow = $C('<input type="file" style="display:none;" value="'+path+'" name="attachment" />');
-				            $("fileRow").add(inputRow);
-				            var deleteIconRow = $C('<icon relative="file_'+i+'" position="topright" src="mail_del.png" style="width:12;height:12;margin-bottom:30;margin-right:2;" onclick="delFile(\''+i+'\');"/>');
-				            $("fileRow").add(deleteIconRow);
-						}	            
-		            }
-	            }else{   //若不一致
-	                 alert('上传出错！');
-	            }
-	            var uploadFileRow = $C('<icon src="mail_addfu.png" style="width:28;height:28;margin-left:8;"  onclick="doRelatedAcc(this)" />');
-			    $("fileRow").add(uploadFileRow);
-	             	
-	        }
-	        
-	        function delFile(index){   //删除附件
-				if(confirm('确认删除附件吗？')){
-					fileAddressArr.splice(parseInt(index),'1');
-					fileTypeArr.splice(parseInt(index),'1');
-				    uploadFileView();
-					fileindex--;
-				}
-			}
-			
 			function delPic(index){     //删除图片，index是要删除的图片位置。
 				if(confirm('确认删除图片吗？')){
 				    picAddressArr.splice(parseInt(index),'1');
 				    uploadPicView();
-				    fileindex--;
+				    pic_fileTotle--;
 				}
 			}
 			
             function publish(){
                var channelId  =  $('channelId').value;
-            //  alert(channelId);
                if(channelId==null||channelId==""){
 	              alert("请选择栏目！");
 	              return;
@@ -239,10 +96,6 @@
 	           }
 	          
                var infoContent  = $('infoContent').value;  //正文
-        //       if(infoContent==null||infoContent==""){
-	    //          alert("请输入正文！");
-	    //          return;
-	    //       } 
 	           if(/[(\\)(\/)(\?)(\#)(\&)(\')(\")]/.test(infoTitle)){
 	              alert("正文内容不能输入特殊字符！");
 	              return;
@@ -288,7 +141,6 @@
                    		 $page.close(-1);
                    		 $page.open('indexList.xml', {animation:'down-to-up',target:'_self'});
                    }
-				  
 				}else{
 					var des = obj.message.description; 
 					if(des==''||des==null||des==undefined){
@@ -313,6 +165,138 @@
             }    
         ]]>
 </script>
+<script>
+   <![CDATA[
+        var info = $phone.info();
+        var fujianwidth='';
+        if(info['platform']=='android'){
+           fujianwidth='width:200';
+        }
+        var fileindex =0;    //附件最多能上传5个,删除之后fileindex一直增加
+        var fileTotle = 0 ;  //附件最多能上传5个
+        var fileAddressArr = new Array();
+        var fileTypeArr = new Array();   //附件上传时，存储对应数组fileAddressArr中的类型。pic:图片类型，sound：声音类型，file：其他附件类型
+        
+        function getAttanchNum(){
+			if(fileTotle>=10){
+				hint('上传附件不能超过10个！');
+				return false;
+			}
+			return true;
+		}
+        function doRelatedAcc(file){   
+		       	 var menu = $C('<actionmenu cancelTitle="取消">' +
+								 '<item style="text-decoration:underline;" label="拍照"     onclick="doFileCamera(this,\'fileRow\')"/>' +
+								 '<item style="text-decoration:underline;" label="相册照片" onclick="doFilePhotoAlbum(this,\'fileRow\')"/>' +
+								 '<item style="text-decoration:underline;" label="录音文件" onclick="doFileRecordSound(this,\'fileRow\')"/>' +
+								 '<item style="text-decoration:underline;" label="其他文件" onclick="doFileBrowse(this,\'fileRow\')"/>' +
+							'</actionmenu>');
+		               menu.show();
+		 }
+		    function doFilePhotoAlbum(file,appendId){    //上传文件选择相册
+				    if(!getAttanchNum()){
+						return;
+					}
+					$page.browseImage({
+						complete: function(path) {
+						 	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
+                            var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+						    '<label  style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+						    '<icon  src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+						    $(appendId).add(row);
+						    $('content_form_list').addMore('<imag><list><item style="display:none;"><row><input type="file" style="display:none;" value="' + path + '" name="attachment"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+				        	fileindex++;
+				        	fileTotle++;
+				        },
+				        error: function() {
+				            hint('上传图片失败！');
+				        }
+					  });
+		     }
+			 function doFileCamera(file,appendId) {  //拍照
+				if(!getAttanchNum()){
+					return;
+				}
+			    $phone.camera({
+			        success: function(path) {
+			        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
+			        	
+			        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+							    '<label style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+							    '<icon  src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+							    $(appendId).add(row);
+							    $('content_form_list').addMore('<imag><list><item style="display:none;"><row><input type="file" style="display:none;" value="' + path + '" name="attachment"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+			        	fileindex++;
+			        	fileTotle++;
+			        },
+			        error: function() {
+			            hint('拍照失败！');
+			        }
+			    });
+			 }
+			 function doFileRecordSound(file,appendId) {
+				if(!getAttanchNum()){
+					return;
+				}
+			    $phone.recordSound({
+			        success: function(path) {
+			        	var showpath = path.substring(path.lastIndexOf('/')+1,path.length);
+			        	var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+							    '<label  style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+							    '<icon  src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+							    $(appendId).add(row);
+							    $('content_form_list').addMore('<imag><list><item style="display:none;"><row><input type="file" style="display:none;" value="' + path + '" name="attachment"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+			        	fileindex++;
+			        	fileTotle++;
+			        },
+			        error: function() {
+			            hint('录音失败！');
+			        }
+			    });
+			}
+			function doFileBrowse(file,appendId) { //附件上传
+					if (!getAttanchNum()) {
+						return;
+					}
+					$page.browse({
+						complete: function(path) {
+							var showpath = path.substring(path.lastIndexOf('/') + 1, path.length);
+							if (showpath.indexOf(".") == -1) {
+								hint("无后缀名的附件不允许上传，请重新选择");
+								return false;
+							}
+							var filenameExt = path.substring(path.lastIndexOf('\.')+1,path.length);
+				        	if(filenameExt == 'exe'){
+				        	    hint("后缀名为exe的附件不允许上传，请重新选择");
+				        		return false;
+				        	}
+				        	if(filenameExt == 'cmd'){
+				        	    hint("后缀名为cmd的附件不允许上传，请重新选择");
+				        		return false;
+				        	}
+				        	if(filenameExt == 'jsp'){
+				        	    hint("后缀名为jsp的附件不允许上传，请重新选择");
+				        		return false;
+				        	}
+							var row = $C('<row id="row' + fileindex + '"><icon style="padding-left:20;width:20;height:25;" src="mail_fujian.png"/>'+
+							'<label  style="color:blue;'+fujianwidth+'">' + showpath + '</label>'+
+							'<icon  src="mail_del.png" style="width:12;height:12;" onclick="delrow(\'' + fileindex + '\',\'' + appendId + '\');"/></row>');
+							$(appendId).add(row);
+							$('content_form_list').addMore('<imag><list><item style="display:none;"><row><input type="file" style="display:none;" value="' + path + '" name="attachment"  id="input_file' + fileindex + '"/></row></item></list></imag>');
+							fileindex++;
+							fileTotle++;
+						}
+					});
+				}
+				function delrow(index,appendId) { //删除附件
+					if (confirm('确认删除附件吗？')) {
+						$('input_file' + index).value = "";
+						$(appendId).remove($('row' + index));
+						fileTotle--;
+					}
+				}
+	]]>
+</script>
 	<page style="background:white;">
 		<title style="background:#3daffe;tint-color:white;">
 		    <left>
@@ -327,7 +311,7 @@
 	    </title>
 	    <content>
 	           	<form action="" target="_self"  id="myForm" multipart="true" prompt="正在发布..">
-	               <list >
+	               <list id="content_form_list">
 						<item  accessory="indicator" style="col-width:100,*;" onclick="selectColumn();" >
 					            <col>
 									  <row style="height:40;">
@@ -386,8 +370,8 @@
 			                    		<label style="color:#555555;font-size:16;align:left;">相关附件：</label>
 			                    	</row>
 			                    </col>
-			                    <col>
-			                    	<row id="fileRow">
+			                    <col id="fileRow">
+			                    	<row >
 			                    	    <icon src="mail_addfu.png" style="width:28;height:28;" onclick="doRelatedAcc(this)"/>
 			                    	</row>
 			                    </col>
