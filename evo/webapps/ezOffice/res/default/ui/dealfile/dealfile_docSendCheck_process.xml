@@ -573,15 +573,38 @@
 	        // 批示意见内容,各环节办理节点意见
 	        function createCommentCon(comment){
 	        //	var isCurrent = comment.current;
+	        	var commentType = '';
+	        	var commentShouxieOaUrl = '';
+	        	var commentShouxie = '';
 	        	var commentCon = '<item style="padding:0;margin:0;"><col style="background:#f9f9f9;margin:10;padding:10;">';
 	        	commentCon += '<row><label style="align:left;font-size:16;color:#555555">'+comment.step+':</label></row></col></item><item style="margin:0;padding:0;"><col>';
 	        	if(comment instanceof Array){
-        			for(var i=0,length=commentContent.length;i<length;i++){
-        			    commentCon += '<row><label style="color:#555555;margin-left:10;">'+comment[i].content +'</label></row>';
+        			for(var i=0,length=comment.length;i<length;i++){
+        			    commentType = comment[i].type;
+        				if(commentType == '0'){
+        					//普通意见
+        					commentCon += '<row><label style="color:#555555;margin-left:10;">'+comment[i].content +'</label></row>';
+        				}
+        				if(commentType == '1'){
+        					// pc手写
+							commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/rev' + comment[i].content + '.gif';
+							commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
+        					commentCon += '<row><label style="color:#555555;margin-left:10;"><img src="'+commentShouxie+'"/></label></row>';
+        				}
 			        	commentCon += '<row><label style="align:right;color:#555555">' + comment[i].person + ' (' + comment[i].date +')</label></row>';
         			}
         		}else if(comment instanceof Object){
-        		    commentCon += '<row><label style="color:#555555;margin-left:10;">'+comment.content + '</label></row>';
+        		    commentType = comment.type;
+       				if(commentType == '0'){
+       					//普通意见
+       					commentCon += '<row><label style="color:#555555;margin-left:10;">'+comment.content +'</label></row>';
+       				}
+       				if(commentType == '1'){
+       					// pc手写
+						commentShouxieOaUrl = webServiceUrl + 'upload/workflow_acc/rev' + comment.content + '.gif';
+						commentShouxie = evoUrl+'/ezOffice/download/resizeHandSign.do?url='+commentShouxieOaUrl;
+       					commentCon += '<row><label style="color:#555555;margin-left:10;"><img src="'+commentShouxie+'"/></label></row>';
+       				}
 		        	commentCon += '<row><label style="align:right;color:#555555">' +comment.person + ' (' + comment.date +')</label></row>';
         		}
 	        	commentCon += '</col></item>';
