@@ -547,3 +547,34 @@ ezOFFICE11.4产品(已集成补丁11.4.0.01~11.4.0.34）+ evo4.1(已集成补丁4.0.01~19）
 5、清除服务端缓存，启动evo服务
 
 6、验证系统功能
+
+
+
+
+
+
+
+
+
+补丁适用范围：
+
+ezOFFICE11.4产品(已集成补丁11.4.0.01~11.4.0.35）+ evo4.1(已集成补丁4.0.01~20）
+
+操作步骤：
+
+1、停evo服务
+
+2、备份程序、数据库
+
+3、覆盖程序补丁包到evo服务安装目录（d:\evo)
+
+4、在evo\webapps\ezOffice\WEB-INF\classes\config.properties 中增加ftpWebserviceUrl，
+
+#FTP下载方式
+ftpWebserviceUrl=http://192.168.0.28:7097/defaultroot/
+
+备注：ip、端口填写ftp服务器的地址和端口，如果没有ftp下载服务可以不配置
+
+5、清除服务端缓存，启动evo服务
+
+6、验证系统功能

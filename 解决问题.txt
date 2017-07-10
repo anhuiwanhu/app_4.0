@@ -305,3 +305,15 @@ c.£©ÊÚÈ¨£ºiappofficeµÄÊÚÈ¨Âë¹ºÂòºóÔÚÉêÇë¿Í»§¶ËµÄÊ±ºòÌîÐ´iappofficeID×Ö¶Î£¬WPSµÄÊ
 
 
 1¡¢ÒÆ¶¯ÔÚÏß±à¼­ÉèÖÃ¿ª¹ØÔö¼ÓÈËÔ±·¶Î§¿ØÖÆ
+
+
+
+
+
+
+
+
+
+ÐÞ¸´ÄÚÈÝ£º
+1¡¢¡¾¸½¼þ¡¿ftpÏÂÔØ¿Õ°×
+2¡¢¡¾Á÷³Ì¡¿±ê×¼°²×°²úÆ·Éý¼¶µ½×îÐÂ²¹¶¡Á÷³ÌÌá½»Ê§°Ü
